@@ -1350,6 +1350,62 @@ document.addEventListener("keydown",e=>{
 
 setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
 render();
+
+// --- ИНТЕГРАЦИЯ ОБЛАКА SUPABASE ДЛЯ СИНХРОНИЗАЦИИ НА 100 КМ ---
+const SUPABASE_URL = "https://supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob3lnbmpseXF3aHBzZXZ0Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE0NzYxNDYwNDAsImV4cCI6MjQ3NjE0NjA0MH0.1";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Перехватываем стандартное сохранение вашего планировщика и дублируем его в облако
+const originalSaveData = window.saveData || function() {
+    if (typeof data !== 'undefined') return JSON.stringify(data);
+    return null;
+};
+
+window.saveData = async function(...args) {
+    const res = originalSaveData(...args);
+    const currentData = typeof data !== 'undefined' ? data : (typeof state !== 'undefined' ? state : null);
+    if (currentData) {
+        try {
+            await supabaseClient.from('planer_data').update({ config_json: currentData, updated_at: new Date() }).eq('id', 1);
+            console.log("Успешно синхронизировано с облаком Supabase");
+        } catch (e) {
+            console.error("Ошибка отправки в облако:", e);
+        }
+    }
+    return res;
+};
+
+// Автоматическая загрузка актуальных данных из облака при входе для вас и вашего партнера
+async function syncFromCloud() {
+    try {
+        let { data: cloudData, error } = await supabaseClient.from('planer_data').select('config_json').eq('id', 1).single();
+        if (!error && cloudData && cloudData.config_json) {
+            if (typeof data !== 'undefined') {
+                data = cloudData.config_json;
+            } else if (typeof state !== 'undefined') {
+                state = cloudData.config_json;
+            }
+            if (typeof render === 'function') render();
+            console.log("Данные успешно подгружены из облака Supabase");
+        }
+    } catch(e) {
+        console.error("Ошибка загрузки из облака:", e);
+    }
+}
+
+// Запускаем синхронизацию сразу после загрузки страницы
+document.addEventListener("DOMContentLoaded", () => {
+    syncFromCloud();
+    // Добавим скрытый скрипт самого модуля Supabase, чтобы он работал в вашем файле
+    if (!window.supabase) {
+        const script = document.createElement('script');
+        script.src = "https://jsdelivr.net";
+        script.onload = () => { window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); syncFromCloud(); };
+        document.head.appendChild(script);
+    }
+});
 </script>
 </body>
 </html>
+
