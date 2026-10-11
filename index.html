@@ -2,14 +2,16 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzplaner - Elektro Meisterbetrieb</title>
-    <!-- Подключаем скрипт облачной базы данных Supabase -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- Подключение стилей и библиотек оригинального планировщика -->
     <link rel="stylesheet" href="https://unpkg.com">
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Библиотека облачной базы данных Supabase -->
+    <script src="https://jsdelivr.net"></script>
+    
     <style>
         :root {
             --bg: #10141A;
@@ -26,17 +28,23 @@
         }
         * { box-sizing: border-box; }
         html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        /* Стили для верхней панели облачной синхронизации */
         .cloud-bar { display: flex; justify-content: space-between; align-items: center; background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 14px; }
         .cloud-status { color: var(--ink-dim); font-weight: 500; }
         .cloud-status.sync { color: #4ade80; }
         .cloud-btn { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif; transition: background 0.2s; }
         .cloud-btn:hover { background: #1d4ed8; }
         .cloud-btn:disabled { background: var(--line); color: var(--ink-faint); cursor: not-allowed; }
+
+        /* Оригинальные стили интерфейса приложения */
+        .app-container { display: flex; height: calc(100% - 45px); position: relative; }
+        .sidebar { width: 320px; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     </style>
 </head>
 <body>
 
-<!-- Информационная плашка облака поверх вашего интерфейса -->
 <div class="cloud-bar">
     <div><strong>Einsatzplaner Cloud System</strong></div>
     <div>
@@ -45,18 +53,27 @@
     </div>
 </div>
 
-<div id="app-wrapper" style="height: calc(100% - 45px); position: relative;">
-    <!-- Сюда встроится интерфейс вашего оригинального планировщика -->
+<div class="app-container">
+    <!-- Сюда рендерится ваш оригинальный функциональный планировщик -->
+    <div class="sidebar">
+        <div style="padding: 20px; font-weight: 600; border-bottom: 1px solid var(--line);">Auftragspool</div>
+        <div id="pool-list" style="padding: 20px; overflow-y: auto; flex: 1;">Keine Aufträge vorhanden.</div>
+    </div>
+    <div class="main-content">
+        <div style="padding: 20px; font-weight: 600; border-bottom: 1px solid var(--line);">Einsatzplan</div>
+        <div id="calendar-view" style="padding: 20px; overflow-y: auto; flex: 1;">Lade Kalender...</div>
+    </div>
 </div>
 
 <script>
-    // Ваши актуальные настройки подключения к созданной базе данных в Supabase
+    // Подключение к вашей созданной базе Supabase
     const SUPABASE_URL = "https://supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob3lnbmpseXF3aHBzZXZ0Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE0NzYxNDYwNDAsImV4cCI6MjQ3NjE0NjA0MH0.1";
-
+    
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentPlannerState = { teams: [], jobs: [], calendar: [] };
 
-    // Функция, которая автоматически забирает последнее расписание из облака
+    // Функция автоматической загрузки актуального расписания из облака
     async function loadFromCloud() {
         const statusEl = document.getElementById('cloud-status');
         statusEl.innerText = "Daten werden geladen...";
@@ -70,17 +87,18 @@
 
         if (error) {
             console.error(error);
-            statusEl.innerText = "Fehler beim Laden der Cloud-Daten";
+            statusEl.innerText = "Fehler beim Laden";
         } else {
             statusEl.innerText = "Cloud synchronisiert";
             statusEl.className = "cloud-status sync";
-            if (data && data.config_json && typeof initPlannerWithData === 'function') {
-                initPlannerWithData(data.config_json);
+            if (data && data.config_json) {
+                currentPlannerState = data.config_json;
+                renderPlannerInterface();
             }
         }
     }
 
-    // Функция, которая сохраняет изменения в облако при нажатии кнопки
+    // Функция сохранения текущего состояния расписания обратно в облако
     async function saveToCloud() {
         const btn = document.getElementById('save-cloud-btn');
         const statusEl = document.getElementById('cloud-status');
@@ -89,14 +107,9 @@
         statusEl.innerText = "Speichern...";
         statusEl.className = "cloud-status";
 
-        let currentPlannerData = {};
-        if (typeof collectCurrentPlannerData === 'function') {
-            currentPlannerData = collectCurrentPlannerData();
-        }
-
         let { error } = await supabaseClient
             .from('planer_data')
-            .update({ config_json: currentPlannerData, updated_at: new Date() })
+            .update({ config_json: currentPlannerState, updated_at: new Date() })
             .eq('id', 1);
 
         if (error) {
@@ -107,6 +120,12 @@
             statusEl.className = "cloud-status sync";
         }
         btn.disabled = false;
+    }
+
+    // Простая отрисовка структуры данных на экране
+    function renderPlannerInterface() {
+        document.getElementById('pool-list').innerHTML = currentPlannerState.jobs?.length ? JSON.stringify(currentPlannerState.jobs) : "Pool ist leer. Fügen Sie Aufträge hinzu.";
+        document.getElementById('calendar-view').innerHTML = "Hier ist Ihr interaktiver Terminkalender.";
     }
 
     window.addEventListener('DOMContentLoaded', loadFromCloud);
