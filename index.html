@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzplaner - Elektro Meisterbetrieb</title>
-    <!-- Подключение стилей и карт оригинального планировщика -->
+    <!-- Библиотеки стилей и шрифтов -->
     <link rel="stylesheet" href="https://unpkg.com">
     <script src="https://unpkg.com"></script>
     <link rel="preconnect" href="https://googleapis.com">
@@ -170,7 +170,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${currentPlannerState.teams.map(team => `
+                        \${currentPlannerState.teams.map(team => `
                             <tr style="border-bottom: 1px solid var(--line-soft);">
                                 <td style="padding: 15px 10px; font-weight: 600;">\${team}</td>
                                 <td style="padding: 15px 10px; color: var(--ink-faint);"><i>Kein Einsatz</i></td>
