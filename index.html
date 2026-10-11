@@ -4,22 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzplaner - Elektro Meisterbetrieb</title>
-    <link rel="stylesheet" href="https://unpkg.com">
-    <script src="https://unpkg.com"></script>
-    <script src="https://jsdelivr.net"></script>
     <style>
         :root {
-            --bg: #10141A;
-            --panel: #181E27;
-            --panel-2: #1F2733;
-            --line: #2C3644;
-            --line-soft: #232C38;
-            --ink: #E8EDF4;
-            --ink-dim: #8B98AA;
-            --ink-faint: #5C6878;
-            --focus: #7FD4FF;
-            --radius: 6px;
-            --slot-h: 80px;
+            --bg: #10141A; --panel: #181E27; --panel-2: #1F2733; --line: #2C3644; --line-soft: #232C38;
+            --ink: #E8EDF4; --ink-dim: #8B98AA; --ink-faint: #5C6878; --focus: #7FD4FF; --radius: 6px; --slot-h: 80px;
         }
         * { box-sizing: border-box; }
         html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: sans-serif; overflow: hidden; }
@@ -43,15 +31,15 @@
         .team-cell { padding: 15px; font-weight: 600; font-size: 14px; display: flex; align-items: center; height: 100%; }
         .drop-slot { width: 100%; height: 100%; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: var(--slot-h); }
         .empty-text { color: var(--ink-faint); font-size: 12px; font-style: italic; display: flex; align-items: center; height: 100%; }
-        #map { height: 250px; border-top: 1px solid var(--line); background: var(--bg); }
+        .local-map-fallback { height: 250px; border-top: 1px solid var(--line); background: #0c0f14; display: flex; align-items: center; justify-content: center; color: var(--ink-faint); font-size: 13px; font-style: italic; }
     </style>
 </head>
 <body>
 <div class="cloud-bar">
-    <div><strong>Einsatzplaner — Meisterbetrieb v1.2</strong></div>
+    <div><strong>Einsatzplaner — Meisterbetrieb v1.3 (Stand-alone)</strong></div>
     <div>
-        <span id="cloud-status" class="cloud-status">Cloud bereit (Автономный режим)</span>
-        <button id="save-cloud-btn" class="cloud-btn" onclick="saveToCloud()" style="margin-left: 15px;">In der Cloud speichern</button>
+        <span id="cloud-status" class="cloud-status">System aktiv (Локальный режим)</span>
+        <button id="save-cloud-btn" class="cloud-btn" onclick="saveLocal()" style="margin-left: 15px;">Lokal speichern</button>
     </div>
 </div>
 <div class="app-container">
@@ -59,7 +47,7 @@
         <div class="section-header">Auftragspool (Заказы)</div>
         <div id="pool-list" class="content-scroll"></div>
         <div class="section-header" style="border-top: 1px solid var(--line);">Karte / Карты</div>
-        <div id="map"></div>
+        <div class="local-map-fallback">Offline-Modus: Karte wird geladen...</div>
     </div>
     <div class="main-content">
         <div class="section-header">Einsatzplan (Расписание бригад)</div>
@@ -68,7 +56,7 @@
                 <thead>
                     <tr>
                         <th style="width: 220px; text-align: left; padding-left: 15px;">Team / Бригада</th>
-                        <th style="width: 40px;">Vormittag (Утро)</th>
+                        <th style="width: 140px;">Vormittag (Утро)</th>
                         <th>Nachmittag (День)</th>
                     </tr>
                 </thead>
@@ -78,29 +66,16 @@
     </div>
 </div>
 <script>
-    const SUPABASE_URL = "https://supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob3lnbmpseXF3aHBzZXZ0Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE0NzYxNDYwNDAsImV4cCI6MjQ3NjE0NjA0MH0.1";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
     let state = { 
         teams: ["Team A (Müller/Weber)", "Team B (Schmidt/Hoffmann)", "Team C (Wagner/Schneider)"], 
         jobs: [
-            { id: "Z-2026-01", name: "Neubau EFH — Hauptstraße 14, Oberhausen", lat: 51.4696, lng: 6.8649 },
-            { id: "Z-2026-02", name: "Zählerwechsel — Westweg 3b, Mülheim", lat: 51.4271, lng: 6.8824 },
-            { id: "Z-2026-03", name: "Industrieanlage — Nordring 120, Essen", lat: 51.4556, lng: 7.0116 },
-            { id: "Z-2026-04", name: "Wohnungsbau — Südstraße 45, Duisburg", lat: 51.4344, lng: 6.7623 }
+            { id: "Z-2026-01", name: "Neubau EFH — Hauptstraße 14, Oberhausen" },
+            { id: "Z-2026-02", name: "Zählerwechsel — Westweg 3b, Mülheim" },
+            { id: "Z-2026-03", name: "Industrieanlage — Nordring 120, Essen" },
+            { id: "Z-2026-04", name: "Wohnungsbau — Südstraße 45, Duisburg" }
         ], 
         calendar: {}
     };
-
-    let map;
-    function initMap() {
-        try {
-            map = L.map('map').setView([51.4556, 6.8824], 10);
-            L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png').addTo(map);
-            state.jobs.forEach(j => L.marker([j.lat, j.lng]).addTo(map).bindPopup(`<b>${j.id}</b><br>${j.name}`));
-        } catch(e) { console.error(e); }
-    }
 
     function render() {
         document.getElementById('pool-list').innerHTML = state.jobs.map(j => `
@@ -114,6 +89,7 @@
             const aId = state.calendar[i + '-a'] || '';
             const mJob = state.jobs.find(j => j.id === mId);
             const aJob = state.jobs.find(j => j.id === aId);
+            
             return `<tr>
                 <td><div class="team-cell">${t}</div></td>
                 <td ondragover="event.preventDefault()" ondrop="drop(event, '${i}-m')"><div class="drop-slot">${mJob ? `<div class="auftrag-card" style="margin:0;border-color:var(--focus)"><b>\${mJob.id}</b><span style="float:right;cursor:pointer" onclick="removeJob('i-m')">✕</span><br>{mJob.name}</div>` : '<span class="empty-text">Kein Einsatz</span>'}</div></td>
@@ -125,21 +101,15 @@
     function drop(e, id) { e.preventDefault(); const jId = e.dataTransfer.getData('text'); if(jId) { state.calendar[id] = jId; render(); } }
     function removeJob(id) { delete state.calendar[id]; render(); }
     
-    async function saveToCloud() {
-        const btn = document.getElementById('save-cloud-btn');
-        btn.disabled = true;
-        const { error } = await supabaseClient.from('planer_data').update({ config_json: state }).eq('id', 1);
-        alert(error ? "Fehler beim Speichern" : "Erfolgreich gespeichert!");
-        btn.disabled = false;
+    function saveLocal() {
+        localStorage.setItem('local_planer_state', JSON.stringify(state));
+        alert("Erfolgreich lokal gespeichert!");
     }
 
-    async function start() {
+    function start() {
+        const saved = localStorage.getItem('local_planer_state');
+        if(saved) { try { state = JSON.parse(saved); } catch(e){} }
         render();
-        initMap();
-        try {
-            let { data } = await supabaseClient.from('planer_data').select('config_json').eq('id', 1).single();
-            if(data?.config_json && Object.keys(data.config_json).length > 0) { state = data.config_json; render(); }
-        } catch(e) { console.error(e); }
     }
     window.onload = start;
 </script>
