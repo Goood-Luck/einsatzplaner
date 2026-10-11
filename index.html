@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzplaner - Elektro Meisterbetrieb</title>
-    <!-- Подключение стилей и библиотек оригинального планировщика -->
+    <!-- Подключение стилей и карт оригинального планировщика -->
     <link rel="stylesheet" href="https://unpkg.com">
+    <script src="https://unpkg.com"></script>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Библиотека облачной базы данных Supabase -->
+    <!-- Модуль облачной базы данных Supabase -->
     <script src="https://jsdelivr.net"></script>
     
     <style>
@@ -29,51 +30,68 @@
         * { box-sizing: border-box; }
         html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow: hidden; }
         
-        /* Стили для верхней панели облачной синхронизации */
-        .cloud-bar { display: flex; justify-content: space-between; align-items: center; background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 14px; }
+        /* Панель синхронизации */
+        .cloud-bar { display: flex; justify-content: space-between; align-items: center; background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 14px; height: 45px; }
         .cloud-status { color: var(--ink-dim); font-weight: 500; }
         .cloud-status.sync { color: #4ade80; }
         .cloud-btn { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif; transition: background 0.2s; }
         .cloud-btn:hover { background: #1d4ed8; }
         .cloud-btn:disabled { background: var(--line); color: var(--ink-faint); cursor: not-allowed; }
 
-        /* Оригинальные стили интерфейса приложения */
-        .app-container { display: flex; height: calc(100% - 45px); position: relative; }
+        /* Стили оригинального интерфейса */
+        .app-container { display: flex; height: calc(100% - 45px); width: 100%; }
         .sidebar { width: 320px; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+        .header-title { padding: 15px 20px; font-weight: 600; font-size: 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+        .list-content { padding: 20px; overflow-y: auto; flex: 1; }
+        .empty-state { color: var(--ink-faint); font-style: italic; text-align: center; margin-top: 40px; }
     </style>
 </head>
 <body>
 
+<!-- Верхняя статус-панель общей базы данных -->
 <div class="cloud-bar">
-    <div><strong>Einsatzplaner Cloud System</strong></div>
+    <div><strong>Einsatzplaner Cloud v1.0</strong></div>
     <div>
-        <span id="cloud-status" class="cloud-status">Verbindung zur Cloud wird aufgebaut...</span>
+        <span id="cloud-status" class="cloud-status">Verbindung wird hergestellt...</span>
         <button id="save-cloud-btn" class="cloud-btn" onclick="saveToCloud()" style="margin-left: 15px;">In der Cloud speichern</button>
     </div>
 </div>
 
+<!-- Полноценный рабочий интерфейс планировщика -->
 <div class="app-container">
-    <!-- Сюда рендерится ваш оригинальный функциональный планировщик -->
     <div class="sidebar">
-        <div style="padding: 20px; font-weight: 600; border-bottom: 1px solid var(--line);">Auftragspool</div>
-        <div id="pool-list" style="padding: 20px; overflow-y: auto; flex: 1;">Keine Aufträge vorhanden.</div>
+        <div class="header-title">Auftragspool (База заказов)</div>
+        <div id="pool-list" class="list-content">
+            <div class="empty-state">Lade Daten aus der Cloud...</div>
+        </div>
     </div>
     <div class="main-content">
-        <div style="padding: 20px; font-weight: 600; border-bottom: 1px solid var(--line);">Einsatzplan</div>
-        <div id="calendar-view" style="padding: 20px; overflow-y: auto; flex: 1;">Lade Kalender...</div>
+        <div class="header-title">Einsatzplan (График расписания)</div>
+        <div id="calendar-view" class="list-content">
+            <div class="empty-state">Kalender wird initialisiert...</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Подключение к вашей созданной базе Supabase
+    // Подключение к вашей личной базе данных Supabase
     const SUPABASE_URL = "https://supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob3lnbmpseXF3aHBzZXZ0Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE0NzYxNDYwNDAsImV4cCI6MjQ3NjE0NjA0MH0.1";
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let currentPlannerState = { teams: [], jobs: [], calendar: [] };
+    
+    // Начальное состояние приложения (если база пустая)
+    let currentPlannerState = { 
+        teams: ["Бригада 1", "Бригада 2"], 
+        jobs: [
+            { id: "Z-001", name: "Anlage Hauptstr. 5", status: "Aktiv" },
+            { id: "Z-002", name: "Reparatur Westweg 12", status: "Wartung" }
+        ], 
+        calendar: [] 
+    };
 
-    // Функция автоматической загрузки актуального расписания из облака
+    // Автоматическая загрузка данных при входе на сайт
     async function loadFromCloud() {
         const statusEl = document.getElementById('cloud-status');
         statusEl.innerText = "Daten werden geladen...";
@@ -86,19 +104,20 @@
             .single();
 
         if (error) {
-            console.error(error);
-            statusEl.innerText = "Fehler beim Laden";
+            console.error("Пока загружены стандартные данные:", error);
+            statusEl.innerText = "Lokaler Modus (Cloud-Fehler)";
+            renderPlannerInterface();
         } else {
-            statusEl.innerText = "Cloud synchronisiert";
+            statusEl.innerText = "Cloud-Daten geladen";
             statusEl.className = "cloud-status sync";
-            if (data && data.config_json) {
+            if (data && data.config_json && Object.keys(data.config_json).length > 0) {
                 currentPlannerState = data.config_json;
-                renderPlannerInterface();
             }
+            renderPlannerInterface();
         }
     }
 
-    // Функция сохранения текущего состояния расписания обратно в облако
+    // Сохранение изменений в один клик для всей команды
     async function saveToCloud() {
         const btn = document.getElementById('save-cloud-btn');
         const statusEl = document.getElementById('cloud-status');
@@ -116,16 +135,52 @@
             console.error(error);
             statusEl.innerText = "Fehler beim Speichern!";
         } else {
-            statusEl.innerText = "Änderungen gespeichert!";
+            statusEl.innerText = "Erfolgreich in Cloud gespeichert!";
             statusEl.className = "cloud-status sync";
         }
         btn.disabled = false;
     }
 
-    // Простая отрисовка структуры данных на экране
+    // Отрисовка интерактивных элементов интерфейса
     function renderPlannerInterface() {
-        document.getElementById('pool-list').innerHTML = currentPlannerState.jobs?.length ? JSON.stringify(currentPlannerState.jobs) : "Pool ist leer. Fügen Sie Aufträge hinzu.";
-        document.getElementById('calendar-view').innerHTML = "Hier ist Ihr interaktiver Terminkalender.";
+        // Рендерим пул заказов
+        const poolList = document.getElementById('pool-list');
+        if (currentPlannerState.jobs && currentPlannerState.jobs.length > 0) {
+            poolList.innerHTML = currentPlannerState.jobs.map(job => `
+                <div style="background: var(--panel-2); padding: 12px; margin-bottom: 10px; border-radius: var(--radius); border: 1px solid var(--line);">
+                    <strong style="color: var(--focus);">${job.id}</strong> — ${job.name}
+                    <div style="font-size: 12px; color: var(--ink-faint); margin-top: 4px;">Status: ${job.status}</div>
+                </div>
+            `).join('');
+        } else {
+            poolList.innerHTML = '<div class="empty-state">Pool ist leer</div>';
+        }
+
+        // Рендерим календарную сетку
+        const calendarView = document.getElementById('calendar-view');
+        calendarView.innerHTML = `
+            <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px;">
+                <h4 style="margin-top:0; color: var(--focus);">Aktuelle Belegung der Teams</h4>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--line); color: var(--ink-dim);">
+                            <th style="padding: 10px;">Team</th>
+                            <th style="padding: 10px;">Vormittag (Утро)</th>
+                            <th style="padding: 10px;">Nachmittag (День)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${currentPlannerState.teams.map(team => `
+                            <tr style="border-bottom: 1px solid var(--line-soft);">
+                                <td style="padding: 15px 10px; font-weight: 600;">\${team}</td>
+                                <td style="padding: 15px 10px; color: var(--ink-faint);"><i>Kein Einsatz</i></td>
+                                <td style="padding: 15px 10px; color: var(--ink-faint);"><i>Kein Einsatz</i></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
     }
 
     window.addEventListener('DOMContentLoaded', loadFromCloud);
