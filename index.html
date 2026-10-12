@@ -489,20 +489,87 @@ function demoState(){
   return {teams,jobs,assignments:A,settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",showWeekend:false}};
 }
 
-let state, storageOK = true;
-try{
-  const raw = localStorage.getItem(STORE_KEY);
-  state = raw ? JSON.parse(raw) : demoState();
-}catch(e){ storageOK=false; state = demoState(); }
+// === СИНХРОНИЗАЦИЯ С ОБЛАКОМ SUPABASE ===
+const SUPABASE_URL = 'https://ehoygnjlyqwhpsevtgtf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD';
 
-if(!state.settings) state.settings=demoState().settings;
-if(state.settings.showWeekend===undefined) state.settings.showWeekend=false;
-
-function save(){
-  if(!storageOK) return;
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-  catch(e){ storageOK=false; }
+// Динамическое подключение библиотеки Supabase, чтобы текстовый редактор Mac ничего не урезал
+if (!window.supabase) {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.async = false;
+  document.head.appendChild(script);
 }
+
+let state = null;
+let supabaseClient = null;
+
+// Функция автоматической загрузки актуальных данных из облака при старте
+async function initSupabaseAndLoad() {
+  if (!window.supabase) {
+    // Если скрипт Supabase ещё загружается, подождем 100 миллисекунд
+    setTimeout(initSupabaseAndLoad, 100);
+    return;
+  }
+  
+  if (!supabaseClient) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('schedule_data')
+      .select('content')
+      .eq('id', 1)
+      .single();
+      
+    if (error) throw error;
+    
+    if (data && data.content && data.content !== '{}') {
+      state = JSON.parse(data.content);
+    } else {
+      state = demoState();
+    }
+  } catch (err) {
+    console.error("Ошибка загрузки из Supabase, берем локальную копию:", err);
+    const raw = localStorage.getItem(STORE_KEY);
+    state = raw ? JSON.parse(raw) : demoState();
+  }
+  
+  if (!state.settings) state.settings = demoState().settings;
+  if (state.settings.showWeekend === undefined) state.settings.showWeekend = false;
+  
+  // Отрисовываем таблицу на экране, когда данные получены из облака
+  if (typeof render === 'function') render();
+}
+
+// Новая функция сохранения: пишет и локально в браузер, и отправляет коллеге в Дюссельдорф
+async function save() {
+  if (!state) return;
+  
+  // 1. Сохраняем локально (для подстраховки, если пропадет интернет)
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
+  
+  // 2. Отправляем в базу данных Supabase
+  if (window.supabase && !supabaseClient) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from('schedule_data')
+        .update({ content: JSON.stringify(state), updated_at: new Date().toISOString() })
+        .eq('id', 1);
+    } catch (err) {
+      console.error("Не удалось отправить изменения в облако:", err);
+    }
+  }
+}
+
+// Запускаем процесс при открытии страницы
+initSupabaseAndLoad();
+
 
 /* =========================================================
    Datum
@@ -1349,7 +1416,6 @@ document.addEventListener("keydown",e=>{
 });
 
 setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
-render();
 </script>
 </body>
 </html>
