@@ -1350,69 +1350,6 @@ document.addEventListener("keydown",e=>{
 
 setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
 render();
-
-// --- ИНТЕГРАЦИЯ ОБЛАКА SUPABASE ПОД ОРИГИНАЛЬНУЮ СТРУКТУРУ ДАННЫХ ---
-const SUPABASE_URL = "https://supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob3lnbmpseXF3aHBzZXZ0Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE0NzYxNDYwNDAsImV4cCI6MjQ3NjE0NjA0MH0.1";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Перехватываем оригинальную функцию облачного сохранения вашего интерфейса
-window.saveToCloud = async function() {
-    console.log("Запуск синхронизации с базой данных...");
-    
-    // Собираем точную структуру данных планировщика из глобальных переменных вашего файла
-    const currentPlannerState = {
-        teams: typeof teams !== 'undefined' ? teams : [],
-        jobs: typeof jobs !== 'undefined' ? jobs : [],
-        assignments: typeof assignments !== 'undefined' ? assignments : [],
-        settings: typeof settings !== 'undefined' ? settings : {}
-    };
-
-    try {
-        const { error } = await supabaseClient
-            .from('planer_data')
-            .update({ config_json: currentPlannerState, updated_at: new Date() })
-            .eq('id', 1);
-
-        if (error) {
-            alert("Fehler beim Cloud-Speichern: " + error.message);
-        } else {
-            alert("Daten успешно сохранены в облаке Cloud Goood-Luck!");
-        }
-    } catch (e) {
-        console.error("Критическая ошибка отправки:", e);
-        alert("Verbindungsfehler!");
-    }
-};
-
-// Функция автоматической загрузки актуального графика при входе на сайт
-async function loadFromCloudSystem() {
-    try {
-        let { data: cloudData, error } = await supabaseClient.from('planer_data').select('config_json').eq('id', 1).single();
-        if (!error && cloudData && cloudData.config_json) {
-            const incoming = cloudData.config_json;
-            
-            // Распределяем данные по внутренним переменным вашего оригинального планировщика
-            if (incoming.teams && typeof teams !== 'undefined') teams = incoming.teams;
-            if (incoming.jobs && typeof jobs !== 'undefined') jobs = incoming.jobs;
-            if (incoming.assignments && typeof assignments !== 'undefined') assignments = incoming.assignments;
-            if (incoming.settings && typeof settings !== 'undefined') settings = incoming.settings;
-            
-            // Перерисовываем интерфейс новыми данными из базы
-            if (typeof render === 'function') render();
-            console.log("Данные планировщика успешно подгружены из облака Supabase!");
-        }
-    } catch(e) {
-        console.error("Ошибка загрузки из базы данных:", e);
-    }
-}
-
-// Запуск автоматического подтягивания данных при открытии страницы
-document.addEventListener("DOMContentLoaded", () => {
-    loadFromCloudSystem();
-});
 </script>
 </body>
 </html>
-
-
