@@ -148,7 +148,6 @@ td.trackcell{padding:0;position:relative}
 .daybg.monatsstart{border-left:2px solid #4A5566}
 table.board thead th.monatsstart{border-left:2px solid #4A5566}
 
-/* Ein Einsatz = ein durchgehendes Feld */
 .bar{
   grid-row:1;position:relative;z-index:2;
   height:calc(var(--slot-h) - 8px);margin:0 2px;border-radius:5px;
@@ -161,30 +160,7 @@ table.board thead th.monatsstart{border-left:2px solid #4A5566}
 .bar.cl{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
 .bar.cr{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0}
 .bar.dragover{box-shadow:0 0 0 2px var(--focus)}
-.bar.fix{cursor:pointer}
-.bar .lock{
-  position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  font-size:9px;line-height:1;opacity:.6;filter:grayscale(1) brightness(.2);pointer-events:none;
-}
-.bar.fix{padding-right:22px}
-.fixnote.offen{background:#14241B;border-color:#2C4A36;color:#8FDCA4}
-.fixnote{
-  margin:0 0 15px;padding:10px 12px;border-radius:var(--radius);
-  background:#2A2314;border:1px solid #4A3C22;color:#FFC978;
-  font-size:11.5px;line-height:1.55;
-}
-.field input:disabled,.field select:disabled,.field textarea:disabled{opacity:.5;cursor:not-allowed}
-.quick button:disabled,.btn:disabled{opacity:.4;cursor:not-allowed}
-.quick button:disabled:hover,.btn:disabled:hover{border-color:var(--line)}
-.bar.dragging{opacity:.4}
-aside.dropzone{background:#1B2735;box-shadow:inset 0 0 0 2px var(--focus)}
-aside.dropzone .pool::before{
-  content:"Hier loslassen – Auftrag wandert zurück in die Liste";
-  display:block;border:1px dashed var(--focus);border-radius:var(--radius);
-  padding:11px 9px;color:var(--focus);font-size:11.5px;line-height:1.4;text-align:center;
-}
 
-/* Freie Fläche */
 .gap{grid-row:1;position:relative;z-index:1;height:100%;cursor:pointer}
 .gap::after{
   content:attr(data-slot);position:absolute;inset:0;
@@ -195,7 +171,6 @@ aside.dropzone .pool::before{
 .gap:hover::after{opacity:1}
 .gap.dragover{background:#203243;box-shadow:inset 0 0 0 2px var(--focus)}
 
-/* Monat */
 table.month{min-width:2050px;table-layout:fixed}
 table.month .track{height:34px}
 table.month .bar{height:26px;font-size:11px;padding:0 7px;margin:0 2px;border-radius:4px}
@@ -237,12 +212,7 @@ table.month thead th{font-size:12px;padding:5px 2px}
   font:600 11px Inter,sans-serif;color:#0C1117;white-space:nowrap;
   box-shadow:0 2px 7px rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);
 }
-.pin.dim{opacity:.5}
 .pin .dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.45);flex:0 0 auto}
-.leaflet-popup-content-wrapper{background:var(--panel);color:var(--ink);border-radius:6px}
-.leaflet-popup-tip{background:var(--panel)}
-.leaflet-popup-content{margin:10px 13px;font-size:12.5px;line-height:1.5}
-.leaflet-popup-content b{font-size:13.5px}
 
 /* ---------- Dialoge ---------- */
 dialog{
@@ -264,12 +234,9 @@ dialog h3{
 }
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
 .btn{border:1px solid var(--line);background:var(--panel-2);border-radius:var(--radius);padding:8px 15px;font-size:12.5px}
 .btn.primary{background:var(--focus);border-color:var(--focus);color:#0A1119;font-weight:600}
 .btn.danger{color:#FF8B8B;border-color:#4A2B32}
-.btn.warn{color:#FFC978;border-color:#4A3C22}
-.btn.warn:hover{border-color:#FFC978}
 .btn:hover{border-color:var(--focus)}
 .rowlist{display:flex;flex-direction:column;gap:8px}
 .rowitem{display:flex;gap:9px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px}
@@ -278,7 +245,6 @@ dialog h3{
 .rowitem .x{background:none;border:0;color:var(--ink-faint);font-size:17px;padding:0 4px}
 .rowitem .x:hover{color:#FF8B8B}
 .hint{color:var(--ink-faint);font-size:11.5px;line-height:1.5;margin-top:-4px}
-.geo-ok{color:#6FD48A}.geo-no{color:#FFB65C}
 .pair{display:flex;gap:8px}
 .pair input{flex:1;min-width:0}
 .pair select{flex:0 0 150px}
@@ -294,131 +260,6 @@ dialog h3{
   width:100%;background:#0F141B;border:1px solid var(--line);border-radius:var(--radius);
   padding:7px 11px;color:var(--ink);font-size:12.5px;
 }
-.searchbox input:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
-.searchbox input::placeholder{color:var(--ink-faint)}
-
-/* Anhänge im Auftragsdialog */
-.cnt{color:var(--ink-faint);font-size:11px}
-.drop{border:1px dashed var(--line);border-radius:var(--radius);padding:10px;background:#0F141B}
-.drop.over{border-color:var(--focus);background:#1B2735}
-.dropnote{color:var(--ink-faint);font-size:11.5px;text-align:center;padding:4px 0 2px}
-.linky{background:none;border:0;color:var(--focus);text-decoration:underline;font-size:11.5px;padding:0}
-.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
-.files:empty{display:none}
-.att{position:relative;border-radius:5px;overflow:hidden;background:var(--panel-2);border:1px solid var(--line);aspect-ratio:1}
-.att img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
-.att .doc{
-  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;color:var(--ink-dim);font-size:9.5px;text-align:center;padding:5px;cursor:pointer;
-}
-.att .doc b{font-size:17px;font-weight:400}
-.att .doc span{overflow:hidden;text-overflow:ellipsis;width:100%;white-space:nowrap}
-.att .del{
-  position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;
-  background:rgba(8,12,17,.78);border:0;color:#FFB0B0;font-size:12px;line-height:1;
-  display:flex;align-items:center;justify-content:center;opacity:0;
-}
-.att:hover .del{opacity:1}
-.att .del:hover{background:#7A2B33;color:#fff}
-#vwImg{max-width:min(880px,88vw);max-height:62vh;display:block}
-
-/* Suchergebnisse */
-.srch{padding:16px;max-width:980px}
-.srch h2{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:600;margin:0 0 3px;letter-spacing:.02em}
-.srch .sub{color:var(--ink-faint);font-size:12px;margin-bottom:16px}
-.hit{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:11px}
-.hit .top{display:flex;justify-content:space-between;gap:14px;align-items:baseline;flex-wrap:wrap}
-.hit b{font-size:15px}
-.hit .adr{color:var(--ink-dim);font-size:12.5px;margin-top:2px}
-.hit .meta{color:var(--ink-faint);font-size:11.5px;margin-top:2px}
-.runs{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
-.run{
-  display:flex;align-items:center;gap:6px;border-radius:13px;padding:3px 10px 3px 4px;
-  font-size:11.5px;font-weight:600;color:#0C1117;cursor:pointer;border:0;
-}
-.run .d{background:rgba(0,0,0,.2);border-radius:10px;padding:1px 6px;font-weight:500}
-.hit .files{margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(74px,1fr))}
-.hit .acts{display:flex;gap:7px;margin-top:13px}
-.hit .acts button{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 12px;font-size:11.5px;color:var(--ink-dim)}
-.hit .acts button:hover{color:var(--ink);border-color:var(--focus)}
-.srch .none{color:var(--ink-faint);padding:28px 4px;line-height:1.6}
-/* Auftrag scannen */
-#dlgScan{width:min(1020px,96vw)}
-.scan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
-.scan-img{
-  position:relative;border:1px dashed var(--line);border-radius:var(--radius);
-  background:#0F141B;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
-.scan-img.over{border-color:var(--focus);background:#1B2735}
-.scan-img img{max-width:100%;max-height:68vh;display:block;cursor:zoom-in}
-.scan-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px;text-align:center}
-.scan-drop b{font-size:13.5px}
-.scan-drop span{color:var(--ink-dim);font-size:12px}
-.scan-drop small{color:var(--ink-faint);font-size:11px;margin-top:4px;line-height:1.5}
-.scan-neu{
-  position:absolute;top:8px;right:8px;background:rgba(10,14,19,.8);border:1px solid var(--line);
-  border-radius:4px;color:var(--ink-dim);font-size:11px;padding:5px 9px;
-}
-.scan-neu:hover{color:var(--ink);border-color:var(--focus)}
-.scan-form{min-width:0}
-.tabs{display:flex;gap:0;margin-bottom:11px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;width:fit-content}
-.tabs button{
-  background:var(--panel-2);border:0;border-right:1px solid var(--line);
-  padding:7px 15px;font-size:12px;color:var(--ink-dim);
-}
-.tabs button:last-child{border-right:0}
-.tabs button[aria-pressed="true"]{background:var(--focus);color:#0A1119;font-weight:600}
-[hidden]{display:none !important}
-.scan-text{display:flex;flex-direction:column;gap:10px}
-.scan-text textarea{
-  width:100%;min-height:380px;background:#0F141B;border:1px solid var(--line);
-  border-radius:var(--radius);padding:13px 15px;color:var(--ink);
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.75;resize:vertical;
-}
-.scan-text textarea:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
-.scan-text-foot{display:flex;gap:11px;align-items:center;flex-wrap:wrap}
-.setup{
-  background:#1E2A18;border:1px solid #3C5A2C;border-radius:var(--radius);
-  padding:13px 14px;margin-bottom:14px;
-}
-.setup b{display:block;font-size:13px;color:#A8DC8F;margin-bottom:5px}
-.setup p{margin:0 0 11px;color:var(--ink-dim);font-size:11.5px;line-height:1.55}
-.setup .btn{width:100%}
-.anleitung{
-  background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
-  padding:12px 14px;margin:0 0 14px;
-}
-.anleitung ol{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:7px}
-.anleitung li{color:var(--ink-dim);font-size:11.5px;line-height:1.55}
-.anleitung a{color:var(--focus)}
-.pruefzeile{display:flex;gap:9px;align-items:center;margin-top:9px}
-@media (max-width:860px){.scan{grid-template-columns:1fr}.scan-img{min-height:240px}}
-
-/* Kontextmenü */
-.kontext{
-  position:fixed;z-index:60;min-width:226px;
-  background:var(--panel);border:1px solid var(--line);border-radius:7px;
-  box-shadow:0 14px 40px rgba(0,0,0,.6);padding:5px;
-}
-.kontext .kopf{
-  padding:8px 10px 7px;border-bottom:1px solid var(--line);margin-bottom:5px;
-}
-.kontext .kopf b{display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.kontext .kopf small{color:var(--ink-faint);font-size:11px}
-.kontext button{
-  display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;
-  padding:8px 10px;border-radius:4px;font-size:12.5px;color:var(--ink-dim);text-align:left;
-}
-.kontext button:hover{background:var(--panel-2);color:var(--ink)}
-.kontext button .pkt{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
-
-/* Abgerechnete Einsätze */
-.bar.abger{background:#6B7585 !important;color:#161B22}
-.bar.abger .nm{font-weight:500}
-.bar.abger .adr{opacity:.65}
-.swatch.abger{background:#6B7585 !important}
-
-/* Kunden */
 .kdlist{display:flex;flex-direction:column;gap:8px}
 .kdrow{
   background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
@@ -428,23 +269,7 @@ dialog h3{
 .kdrow b{font-size:13px;display:block}
 .kdrow small{color:var(--ink-dim);font-size:11.5px;display:block;margin-top:2px;line-height:1.4}
 .kdrow .n{color:var(--ink-faint);font-size:11px;white-space:nowrap}
-.kdlist .pool-empty{padding:22px 6px}
-.kdbox{
-  background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
-  padding:12px 13px;margin-bottom:14px;
-}
-.kdbox .who{font-size:13.5px;font-weight:600}
-.kdbox .det{color:var(--ink-dim);font-size:12px;line-height:1.5;margin-top:3px}
-.kdbox .acts{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
-.kdbox .acts a,.kdbox .acts button{
-  background:#141A23;border:1px solid var(--line);border-radius:4px;
-  padding:7px 12px;font-size:12px;color:var(--ink-dim);text-decoration:none;display:inline-block;
-}
-.kdbox .acts a:hover,.kdbox .acts button:hover{color:var(--ink);border-color:var(--focus)}
-.kdbox .acts a.wa{color:#6FD48A;border-color:#2C4A36}
-.kdbox .acts a.wa:hover{border-color:#6FD48A}
-:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-@media (prefers-reduced-motion:no-preference){.slot.empty:hover{transition:background .1s}}
+[hidden]{display:none !important}
 </style>
 </head>
 <body>
@@ -470,15 +295,10 @@ dialog h3{
   <div class="searchbox">
     <input type="search" id="qSearch" placeholder="Objekt oder Straße suchen …" autocomplete="off">
   </div>
-  <button class="ghost" id="zoomOut" title="Spalten schmaler">–</button>
-  <button class="ghost" id="zoomIn" title="Spalten breiter">+</button>
   <button class="ghost" id="btnKunden">Kunden</button>
   <button class="ghost" id="btnTeams">Teams</button>
   <button class="ghost" id="btnSettings">Einstellungen</button>
-  <button class="ghost" id="btnData">Sichern</button>
 </header>
-
-<div id="kontext" class="kontext" hidden></div>
 
 <main>
   <div id="stage"></div>
@@ -487,7 +307,6 @@ dialog h3{
     <div class="pool" id="pool"></div>
     <div class="aside-foot">
       <button class="primary" id="btnNewJob">Auftrag anlegen</button>
-      <button id="btnScan" title="Ausgefülltes Auftragsformular abfotografiert? Hier hochladen.">Scannen</button>
       <button id="btnAllJobs">Alle</button>
     </div>
   </aside>
@@ -497,11 +316,6 @@ dialog h3{
 <dialog id="dlgAssign">
   <h3 id="assignTitle">Einsatz eintragen</h3>
   <div class="dlg-body">
-    <p class="fixnote" id="assignFix" hidden></p>
-    <div id="assignKunde" class="kdbox" hidden></div>
-    <div class="field" id="assignBilledRow" hidden>
-      <label><input type="checkbox" id="asBilled" style="width:auto;margin-right:8px">Abgerechnet – im Kalender grau statt farbig</label>
-    </div>
     <div class="field">
       <label for="asTeam">Team</label>
       <select id="asTeam"></select>
@@ -514,16 +328,6 @@ dialog h3{
     <div class="field">
       <label for="asJobAdr">Adresse</label>
       <input type="text" id="asJobAdr" autocomplete="off" placeholder="Straße Hausnummer, PLZ Ort">
-      <p class="hint" style="margin-top:6px" id="asJobHint">Einfach tippen. Bekannte Aufträge werden beim Schreiben vorgeschlagen, neue werden automatisch in den Auftragspool übernommen.</p>
-    </div>
-
-    <div class="field">
-      <label>Fotos und Dateien zu diesem Objekt <span id="asFileCount" class="cnt"></span></label>
-      <div class="drop" id="asDrop">
-        <div class="files" id="asFiles"></div>
-        <div class="dropnote" id="asDropNote">Dateien hierher ziehen, oder <button type="button" class="linky" id="asPick">auswählen</button></div>
-        <input type="file" id="asFileInput" multiple accept="image/*,application/pdf,.heic,.doc,.docx,.xls,.xlsx,.txt" hidden>
-      </div>
     </div>
     <div class="field">
       <label for="asFrom">Von</label>
@@ -554,12 +358,9 @@ dialog h3{
       </div>
     </div>
     <p class="hint" id="assignHint"></p>
-
   </div>
   <div class="dlg-foot">
-    <button class="btn warn" id="asDelete" style="margin-right:auto">Aus Kalender nehmen</button>
-    <button class="btn warn" id="asUnlock" hidden>Datum trotzdem ändern</button>
-    <button class="btn" id="asMap">Auf Karte zeigen</button>
+    <button class="btn danger" id="asDelete" style="margin-right:auto">Einsatz löschen</button>
     <button class="btn" data-close>Abbrechen</button>
     <button class="btn primary" id="asSave">Eintragen</button>
   </div>
@@ -571,123 +372,12 @@ dialog h3{
   <div class="dlg-body">
     <div class="field"><label for="jbName">Bezeichnung</label><input type="text" id="jbName" placeholder="z.B. Neubau Zählerschrank"></div>
     <div class="field"><label for="jbAdr">Adresse</label><input type="text" id="jbAdr" placeholder="Straße Hausnummer, PLZ Ort"></div>
-    <div class="two">
-      <div class="field"><label for="jbLat">Breitengrad</label><input type="text" id="jbLat" placeholder="51.4700"></div>
-      <div class="field"><label for="jbLng">Längengrad</label><input type="text" id="jbLng" placeholder="6.8520"></div>
-    </div>
-    <p class="hint" id="geoHint">Koordinaten werden für die Karte gebraucht. „Adresse suchen“ holt sie automatisch (braucht Internet).</p>
-    <div class="field" style="margin-top:12px">
-      <label for="jbCustomer">Kunde</label>
-      <div class="pair">
-        <select id="jbCustomer"></select>
-        <button type="button" class="btn" id="jbNewCustomer" style="flex:0 0 auto">Neu anlegen</button>
-      </div>
-      <p class="hint" id="jbCustomerInfo" style="margin-top:6px"></p>
-    </div>
-    <div class="field"><label for="jbContact">Ansprechpartner vor Ort / Telefon</label><input type="text" id="jbContact" placeholder="z.B. Hausmeister, 0170 …"></div>
-    <div class="two">
-      <div class="field"><label for="jbWish">Gewünschter Beginn</label><input type="date" id="jbWish"></div>
-      <div class="field"><label for="jbValue">Auftragswert</label><input type="text" id="jbValue" placeholder="z.B. 2.400 €"></div>
-    </div>
-    <div class="field">
-      <label><input type="checkbox" id="jbBilled" style="width:auto;margin-right:8px">Abgerechnet – im Kalender grau statt farbig</label>
-    </div>
+    <div class="field"><label for="jbContact">Ansprechpartner / Telefon</label><input type="text" id="jbContact"></div>
     <div class="field"><label for="jbNote">Notiz</label><textarea id="jbNote" rows="3"></textarea></div>
-
-    <div class="field" style="margin-bottom:0">
-      <label>Fotos und Dateien <span id="jbFileCount" class="cnt"></span></label>
-      <div class="drop" id="jbDrop">
-        <div class="files" id="jbFiles"></div>
-        <div class="dropnote">Dateien hierher ziehen, oder <button type="button" class="linky" id="jbPick">auswählen</button></div>
-        <input type="file" id="jbFileInput" multiple accept="image/*,application/pdf,.heic,.doc,.docx,.xls,.xlsx,.txt" hidden>
-      </div>
-    </div>
   </div>
   <div class="dlg-foot">
-    <button class="btn danger" id="jbDelete" style="margin-right:auto">Auftrag löschen</button>
-    <button class="btn" id="jbGeo">Adresse suchen</button>
     <button class="btn" data-close>Abbrechen</button>
     <button class="btn primary" id="jbSave">Speichern</button>
-  </div>
-</dialog>
-
-<!-- Bild ansehen -->
-<dialog id="dlgView">
-  <h3 id="vwTitle">Foto</h3>
-  <div class="dlg-body" style="padding:0;background:#0A0E13;display:flex;align-items:center;justify-content:center;min-height:300px">
-    <img id="vwImg" alt="">
-  </div>
-  <div class="dlg-foot">
-    <span id="vwMeta" style="margin-right:auto;color:var(--ink-faint);font-size:11.5px;align-self:center"></span>
-    <button class="btn" id="vwDown">Herunterladen</button>
-    <button class="btn" data-close>Schließen</button>
-  </div>
-</dialog>
-
-<!-- Auftrag scannen -->
-<dialog id="dlgScan">
-  <h3>Auftrag aus Formular übernehmen</h3>
-  <div class="dlg-body">
-    <div class="scan">
-      <div>
-        <div class="tabs" role="group" aria-label="Quelle">
-          <button type="button" data-q="foto" aria-pressed="true">Foto vom Formular</button>
-          <button type="button" data-q="text" aria-pressed="false">Text einfügen</button>
-        </div>
-
-        <div class="scan-text" id="scanTextBox" hidden>
-          <textarea id="scanText" placeholder="Kunde: Muster Bau GmbH&#10;Ansprechpartner: Herr Schneider, 0170 9876543&#10;Adresse: Industriering 20, 46240 Bottrop&#10;Datum: 09.11.2026&#10;Betrag: 2.400 €&#10;Auftrag: Unterverteilung erneuern, 12 Stromkreise"></textarea>
-          <div class="scan-text-foot">
-            <button type="button" class="btn" id="scanVorlage">Vorlage kopieren</button>
-            <span class="hint" id="scanTextOut" style="margin:0"></span>
-          </div>
-        </div>
-
-      <div class="scan-img" id="scanImgBox">
-        <div class="scan-drop" id="scanDrop">
-          <b>Foto des ausgefüllten Formulars</b>
-          <span>hierher ziehen oder <button type="button" class="linky" id="scanPick">auswählen</button></span>
-          <small>JPG, PNG oder HEIC vom Handy. Auch ein Screenshot aus WhatsApp.</small>
-        </div>
-        <input type="file" id="scanInput" accept="image/*,.heic,application/pdf" hidden>
-      </div>
-      </div>
-
-      <div class="scan-form">
-        <div class="setup" id="scanSetup" hidden>
-          <b>Automatisches Ausfüllen ist noch nicht eingeschaltet</b>
-          <p>Einmal einrichten, danach liest das Programm das Formular selbst aus und du prüfst nur noch.</p>
-          <button type="button" class="btn primary" id="scanSetupGo">Jetzt einrichten</button>
-        </div>
-        <button class="btn primary" id="scanRead" style="width:100%;margin-bottom:13px" disabled>Felder automatisch auslesen</button>
-        <p class="hint" id="scanStatus" style="margin:-7px 0 13px"></p>
-
-        <div class="field">
-          <label for="scKunde">Auftraggeber</label>
-          <div class="pair">
-            <select id="scKunde"></select>
-            <button type="button" class="btn" id="scKundeNeu" style="flex:0 0 auto">Neu</button>
-          </div>
-          <input type="text" id="scKundeText" placeholder="oder Firmenname aus dem Formular" style="margin-top:7px">
-        </div>
-        <div class="field"><label for="scContact">Ansprechpartner / Telefon</label><input type="text" id="scContact"></div>
-        <div class="field"><label for="scAdr">Objektadresse</label><input type="text" id="scAdr" placeholder="Straße Hausnummer, PLZ Ort"></div>
-        <div class="two">
-          <div class="field"><label for="scDate">Gewünschter Beginn</label><input type="date" id="scDate"></div>
-          <div class="field"><label for="scValue">Auftragswert</label><input type="text" id="scValue" placeholder="z.B. 2.400 €"></div>
-        </div>
-        <div class="field"><label for="scWork">Auszuführende Arbeiten</label><textarea id="scWork" rows="3"></textarea></div>
-        <div class="field" style="margin-bottom:0">
-          <label for="scName">Bezeichnung im Kalender</label>
-          <input type="text" id="scName" placeholder="wird aus den Arbeiten vorgeschlagen">
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="dlg-foot">
-    <span class="hint" id="scanHint" style="margin-right:auto;align-self:center"></span>
-    <button class="btn" data-close>Abbrechen</button>
-    <button class="btn primary" id="scanSave">Auftrag anlegen</button>
   </div>
 </dialog>
 
@@ -695,7 +385,6 @@ dialog h3{
 <dialog id="dlgCustomers">
   <h3>Kunden</h3>
   <div class="dlg-body">
-    <p class="hint" style="margin-top:0">Firmen, für die ihr arbeitet. Einmal angelegt, lassen sie sich bei jedem Auftrag auswählen.</p>
     <div class="kdlist" id="kdList"></div>
   </div>
   <div class="dlg-foot">
@@ -708,18 +397,13 @@ dialog h3{
 <dialog id="dlgCustomer">
   <h3 id="kdTitle">Kunde anlegen</h3>
   <div class="dlg-body">
-    <div class="field"><label for="kdCompany">Firmenname</label><input type="text" id="kdCompany" placeholder="z.B. Muster Bau GmbH"></div>
-    <div class="field"><label for="kdContact">Ansprechpartner</label><input type="text" id="kdContact" placeholder="Vor- und Nachname"></div>
-    <div class="field"><label for="kdAddress">Adresse</label><input type="text" id="kdAddress" placeholder="Straße Hausnummer, PLZ Ort"></div>
+    <div class="field"><label for="kdCompany">Firmenname</label><input type="text" id="kdCompany"></div>
+    <div class="field"><label for="kdContact">Ansprechpartner</label><input type="text" id="kdContact"></div>
+    <div class="field"><label for="kdAddress">Adresse</label><input type="text" id="kdAddress"></div>
     <div class="two">
-      <div class="field"><label for="kdPhone">Telefon</label><input type="tel" id="kdPhone" placeholder="0208 1234567"></div>
-      <div class="field"><label for="kdMobile">Mobil / WhatsApp</label><input type="tel" id="kdMobile" placeholder="0170 1234567"></div>
+      <div class="field"><label for="kdPhone">Telefon</label><input type="tel" id="kdPhone"></div>
+      <div class="field"><label for="kdMobile">Mobil</label><input type="tel" id="kdMobile"></div>
     </div>
-    <div class="two">
-      <div class="field"><label for="kdMail">E-Mail</label><input type="email" id="kdMail"></div>
-      <div class="field"><label for="kdTax">Steuernummer / USt-IdNr.</label><input type="text" id="kdTax"></div>
-    </div>
-    <div class="field" style="margin-bottom:0"><label for="kdNote">Notiz</label><textarea id="kdNote" rows="3"></textarea></div>
   </div>
   <div class="dlg-foot">
     <button class="btn danger" id="kdDelete" style="margin-right:auto">Kunde löschen</button>
@@ -732,7 +416,6 @@ dialog h3{
 <dialog id="dlgTeams">
   <h3>Teams und Besetzung</h3>
   <div class="dlg-body">
-    <p class="hint" style="margin:0 0 13px">Ein Team kann aus einer oder mehreren Personen bestehen. Namen mit Komma trennen.</p>
     <div class="rowlist" id="teamList"></div>
     <button class="btn" id="btnAddTeam" style="margin-top:13px">Team hinzufügen</button>
   </div>
@@ -751,36 +434,6 @@ dialog h3{
       <div class="field"><label for="stAmS">Vormittag von</label><input type="time" id="stAmS"></div>
       <div class="field"><label for="stAmE">Vormittag bis</label><input type="time" id="stAmE"></div>
     </div>
-    <div class="two">
-      <div class="field"><label for="stPmS">Nachmittag von</label><input type="time" id="stPmS"></div>
-      <div class="field"><label for="stPmE">Nachmittag bis</label><input type="time" id="stPmE"></div>
-    </div>
-    <p class="hint">Diese Zeiten bestimmen, was in der Jetzt-Ansicht als „seit“ und „noch“ gerechnet wird.</p>
-    <hr style="border:0;border-top:1px solid var(--line);margin:20px 0 16px">
-    <h4 style="margin:0 0 11px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:.02em">Formulare automatisch auslesen</h4>
-    <div class="anleitung">
-      <ol>
-        <li><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> öffnen und anmelden.</li>
-        <li>Unter <b>Billing</b> einmalig Guthaben aufladen – 5 € reichen für mehrere tausend Formulare.</li>
-        <li>Unter <b>API Keys</b> auf <b>Create Key</b>, den Schlüssel kopieren.</li>
-        <li>Hier unten einfügen und speichern. Fertig.</li>
-      </ol>
-    </div>
-    <div class="field">
-      <label for="stApiKey">Schlüssel</label>
-      <input type="password" id="stApiKey" placeholder="sk-ant-…" autocomplete="off">
-      <div class="pruefzeile">
-        <button type="button" class="btn" id="stTest">Schlüssel prüfen</button>
-        <span class="hint" id="stTestOut" style="margin:0"></span>
-      </div>
-      <p class="hint" style="margin-top:9px">Ohne Schlüssel funktioniert das Scannen weiterhin – die Felder werden dann von Hand eingetippt, während das Foto danebensteht.</p>
-      <p class="hint" style="margin-top:7px;color:var(--ink-faint)">Der Schlüssel liegt nur in diesem Browser, nicht in der Programmdatei. Wenn du die Datei weitergibst, geht er nicht mit. Pro Formular fallen Bruchteile eines Cents an.</p>
-    </div>
-    <div class="field">
-      <label for="stModel">Verwendetes Modell</label>
-      <input type="text" id="stModel" placeholder="claude-sonnet-5-5">
-      <p class="hint" style="margin-top:7px">Nur ändern, wenn es einen Grund gibt. „claude-sonnet-5-5“ liest Handschrift am zuverlässigsten.</p>
-    </div>
   </div>
   <div class="dlg-foot">
     <button class="btn" data-close>Abbrechen</button>
@@ -788,167 +441,13 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Daten -->
-<dialog id="dlgData">
-  <h3>Sichern und Laden</h3>
-  <div class="dlg-body">
-    <p class="hint" style="margin-top:0">Alle Daten liegen nur auf diesem Mac im Browser. Für Backups oder den Wechsel auf einen anderen Rechner die Planung als Datei exportieren.</p>
-    <div style="display:flex;gap:9px;margin:16px 0">
-      <button class="btn primary" id="dtExport">Planung exportieren</button>
-      <button class="btn" id="dtZip">Fotoordner herunterladen</button>
-      <button class="btn" id="dtExportAll">Mit Fotos sichern</button>
-      <button class="btn" id="dtImportBtn">Sicherung laden</button>
-      <input type="file" id="dtImport" accept="application/json" hidden>
-    </div>
-    <p class="hint" id="storeState"></p>
-    <button class="btn danger" id="dtReset" style="margin-top:16px">Alles zurücksetzen</button>
-  </div>
-  <div class="dlg-foot"><button class="btn" data-close>Schließen</button></div>
-</dialog>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 "use strict";
 
-/* =========================================================
-   Daten
-   ========================================================= */
 const PALETTE = ["#F2B01E","#2FA8E0","#E04F5F","#59C26A","#A77BF3","#FF8A3D","#35D0C3","#E86BB0","#9FD356","#6E8BFF"];
 const STORE_KEY = "einsatzplaner.v1";
 
-/* =========================================================
-   Dateispeicher für Fotos und Dokumente
-   ========================================================= */
-const Files = (() => {
-  let dbp=null;
-  function open(){
-    if(dbp) return dbp;
-    dbp=new Promise((res,rej)=>{
-      const r=indexedDB.open("einsatzplaner-dateien",1);
-      r.onupgradeneeded=()=>{
-        const st=r.result.createObjectStore("files",{keyPath:"id"});
-        st.createIndex("jobId","jobId",{unique:false});
-      };
-      r.onsuccess=()=>res(r.result);
-      r.onerror=()=>rej(r.error);
-    }).catch(e=>{ dbp=null; throw e; });
-    return dbp;
-  }
-  const tx=async(mode,fn)=>{
-    const db=await open();
-    return new Promise((res,rej)=>{
-      const t=db.transaction("files",mode);
-      const out=fn(t.objectStore("files"));
-      t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out);
-      t.onerror=()=>rej(t.error);
-    });
-  };
-  return {
-    async add(jobId,file){
-      const nr=naechsteNummer();
-      const rec={id:uid()+uid(),jobId,nr,
-                 name:file.name||"Datei",
-                 storedName:dateinameBauen(nr,jobId,file),
-                 type:file.type||"",size:file.size||0,
-                 added:new Date().toISOString(),blob:file};
-      await tx("readwrite",st=>st.put(rec));
-      return rec;
-    },
-    async forJob(jobId){
-      try{
-        const db=await open();
-        return await new Promise((res,rej)=>{
-          const out=[];
-          const t=db.transaction("files","readonly");
-          const rq=t.objectStore("files").index("jobId").openCursor(IDBKeyRange.only(jobId));
-          rq.onsuccess=()=>{ const c=rq.result; if(c){ out.push(c.value); c.continue(); } };
-          t.oncomplete=()=>res(out.sort((a,b)=>a.added.localeCompare(b.added)));
-          t.onerror=()=>rej(t.error);
-        });
-      }catch(e){ return []; }
-    },
-    async all(){
-      try{
-        const db=await open();
-        return await new Promise((res,rej)=>{
-          const rq=db.transaction("files","readonly").objectStore("files").getAll();
-          rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>rej(rq.error);
-        });
-      }catch(e){ return []; }
-    },
-    async put(rec){ try{ await tx("readwrite",st=>st.put(rec)); }catch(e){} },
-    async remove(id){ try{ await tx("readwrite",st=>st.delete(id)); }catch(e){} },
-    async removeJob(jobId){
-      const list=await this.forJob(jobId);
-      for(const f of list) await this.remove(f.id);
-    },
-    async counts(){
-      const m={}; (await this.all()).forEach(f=>m[f.jobId]=(m[f.jobId]||0)+1); return m;
-    }
-  };
-})();
-
-/* Jede abgelegte Datei bekommt eine eigene laufende Nummer,
-   damit sich Namen vom Handy (IMG_0001.jpg) nie überschreiben. */
-function naechsteNummer(){
-  const n=(state.settings.fileCounter||0)+1;
-  state.settings.fileCounter=n;
-  save();
-  return n;
-}
-function slug(txt){
-  return String(txt||"").toLowerCase()
-    .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
-    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,44) || "objekt";
-}
-function endungVon(file){
-  const n=String(file.name||"");
-  const m=n.match(/\.([a-z0-9]{1,5})$/i);
-  if(m) return m[1].toLowerCase();
-  const t=(file.type||"").split("/")[1]||"";
-  return (t==="jpeg"?"jpg":t) || "dat";
-}
-function dateinameBauen(nr,jobId,file){
-  const job=jobById(jobId);
-  const d=new Date().toISOString().slice(0,10);
-  return `${String(nr).padStart(4,"0")}_${d}_${slug(job?job.name:"")}.${endungVon(file)}`;
-}
-const anzeigeName = f => f.storedName || f.name;
-
-let fileCounts={};
-/* Ein Objekt mit Fotos gilt als belegt: der Einsatz ist dokumentiert und wird festgehalten. */
-const istFixiert = jobId => (fileCounts[jobId]||0) > 0;
-function fixHinweis(jobId){
-  const n=fileCounts[jobId]||0;
-  return `Dieser Einsatz ist durch ${n} Foto${n===1?"":"s"} bzw. Datei${n===1?"":"en"} belegt und deshalb festgehalten. `+
-         `Datum und Team lassen sich nicht versehentlich verschieben. Muss das Datum doch korrigiert werden, `+
-         `unten auf „Datum trotzdem ändern“ gehen.`;
-}
-async function refreshCounts(){ fileCounts=await Files.counts(); }
-
-/* Dateien aus früheren Fassungen bekommen nachträglich Nummern */
-async function nummernNachtragen(){
-  try{
-    const alle=await Files.all();
-    const ohne=alle.filter(f=>!f.storedName).sort((a,b)=>String(a.added).localeCompare(String(b.added)));
-    if(!ohne.length) return;
-    for(const f of ohne){
-      const nr=naechsteNummer();
-      const job=jobById(f.jobId);
-      const d=String(f.added||"").slice(0,10)||todayISO();
-      f.nr=nr;
-      f.storedName=`${String(nr).padStart(4,"0")}_${d}_${slug(job?job.name:"")}.${endungVon(f)}`;
-      await Files.put(f);
-    }
-    save();
-  }catch(e){}
-}
-const istBild = t => /^image\//.test(t||"");
-function groesse(b){
-  if(b>=1048576) return (b/1048576).toFixed(1).replace(".",",")+" MB";
-  if(b>=1024) return Math.round(b/1024)+" KB";
-  return b+" B";
-}
 const uid = () => Math.random().toString(36).slice(2,10);
 
 function demoState(){
@@ -958,40 +457,22 @@ function demoState(){
     t("Team 1","#F2B01E",["Anton","Igor"]),
     t("Team 2","#2FA8E0",["Murat","Kevin"]),
     t("Team 3","#E04F5F",["Sergej","Daniel"]),
-    t("Team 4","#59C26A",["Tobias","Pawel"]),
-    t("Team 5","#A77BF3",["Ahmet"]),
-    t("Team 6","#FF8A3D",["Viktor"])
+    t("Team 4","#59C26A",["Tobias","Pawel"])
   ];
   const jobs = [
     j("Zählerschrank + Unterverteilung","Julius-Rietz-Straße 6, 40231 Düsseldorf",51.2170,6.8010,"Andreas"),
-    j("Elektroinstallation Büroetage","Neuburgstraße 4, 40223 Düsseldorf",51.2280,6.7800,"Raum Pro Team"),
-    j("Erneuerung Steigleitung","Moltkestraße 57, 46045 Oberhausen",51.4700,6.8520),
-    j("DGUV V3 Prüfung Mehrfamilienhaus","Friedrich-Karl-Straße 91, 46045 Oberhausen",51.4950,6.8600),
-    j("Baustelle Montabaur","Bahnhofstraße, 56410 Montabaur",50.4370,7.8270,"Juri Feovanov"),
-    j("Kabelverlegung Flur + Bad","Oberhausen",51.4690,6.8550,"Raum Pro 369 GmbH")
+    j("Elektroinstallation Büroetage","Neuburgstraße 4, 40223 Düsseldorf",51.2280,6.7800,"Raum Pro Team")
   ];
-  const A=[], d=new Date(); d.setHours(0,0,0,0);
-  const mon = new Date(d); mon.setDate(d.getDate()-((d.getDay()+6)%7));
-  const add=(ti,ji,off,slots)=>{const dt=new Date(mon);dt.setDate(mon.getDate()+off);
-    slots.forEach(s=>A.push({id:uid(),teamId:teams[ti].id,jobId:jobs[ji].id,date:iso(dt),slot:s}));};
-  [0,1,2,3].forEach(o=>add(0,0,o,["AM","PM"]));
-  [0,1,2].forEach(o=>add(1,1,o,["AM","PM"]));
-  add(2,2,0,["AM"]); add(2,3,0,["PM"]); [1,2].forEach(o=>add(2,2,o,["AM","PM"]));
-  [0,1,2,3,4].forEach(o=>add(3,4,o,["AM","PM"]));
-  add(4,3,0,["AM","PM"]); add(4,5,1,["AM"]);
-  return {teams,jobs,assignments:A,settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
+  return {teams,jobs,assignments:[],customers:[],settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30"}};
 }
 
-// Глобальные переменные объявлены ровно один раз без дублирования
 let state = null;
 let storageOK = true;
 let supabaseClient = null;
 
-// === СИНХРОНИЗАЦИЯ С ОБЛАКОМ SUPABASE ===
 const SUPABASE_URL = 'https://ehoygnjlyqwhpsevtgtf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD';
 
-// Динамическое подключение библиотеки Supabase
 if (!window.supabase) {
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -999,7 +480,6 @@ if (!window.supabase) {
   document.head.appendChild(script);
 }
 
-// Функция автоматической загрузки актуальных данных из облака при старте
 async function initSupabaseAndLoad() {
   if (!window.supabase) {
     setTimeout(initSupabaseAndLoad, 100);
@@ -1025,24 +505,19 @@ async function initSupabaseAndLoad() {
       state = demoState();
     }
   } catch (err) {
-    console.error("Ошибка загрузки из Supabase, берем локальную копию:", err);
     const raw = localStorage.getItem(STORE_KEY);
     state = raw ? JSON.parse(raw) : demoState();
   }
   
   if (!state.settings) state.settings = demoState().settings;
   if (!Array.isArray(state.customers)) state.customers = [];
-  if (!state.settings.model) state.settings.model = "claude-sonnet-5-5";
-  if (state.settings.showWeekend === undefined) state.settings.showWeekend = false;
   
   if (typeof render === 'function') render();
 }
 
-// Функция сохранения: пишет и локально, и в облако Supabase
 async function save() {
   if (!state) return;
-  
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) { storageOK = false; }
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
   
   if (window.supabase && !supabaseClient) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1054,18 +529,12 @@ async function save() {
         .from('schedule_data')
         .update({ content: JSON.stringify(state), updated_at: new Date().toISOString() })
         .eq('id', 1);
-    } catch (err) {
-      console.error("Не удалось отправить изменения в облако:", err);
-    }
+    } catch (err) {}
   }
 }
 
-// Запускаем процесс при открытии страницы
 initSupabaseAndLoad();
 
-/* =========================================================
-   Datum
-   ========================================================= */
 const DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 const DSHORT=["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -1075,33 +544,12 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function mondayOf(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
 const todayISO = ()=>iso(new Date());
 
-let zoomWeek=null;
-let monthVisible=12;
-let pendingScrollToday=true;
-let view="month";
+let zoomWeek=null, monthVisible=12, pendingScrollToday=true, view="month";
 let anchor=new Date(); anchor.setHours(0,0,0,0);
 let mapFocusJob=null, mapDay=todayISO();
 
-/* =========================================================
-   Zugriffshelfer
-   ========================================================= */
 const teamById=id=>state.teams.find(t=>t.id===id);
-function wunschText(ds){
-  if(!ds) return "";
-  const d=parse(ds);
-  return `${DSHORT[(d.getDay()+6)%7]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
-}
 const kundeById=id=>state.customers.find(k=>k.id===id);
-
-function waNummer(raw){
-  if(!raw) return "";
-  let n=String(raw).replace(/[^\d+]/g,"");
-  if(n.startsWith("+")) n=n.slice(1);
-  else if(n.startsWith("00")) n=n.slice(2);
-  else if(n.startsWith("0")) n="49"+n.slice(1);
-  return n.length>=8 ? n : "";
-}
-const telLink = raw => raw ? "tel:"+String(raw).replace(/[^\d+]/g,"") : "";
 const jobById=id=>state.jobs.find(j=>j.id===id);
 const assignAt=(teamId,date,slot)=>state.assignments.find(a=>a.teamId===teamId&&a.date===date&&a.slot===slot);
 const assignsOn=date=>state.assignments.filter(a=>a.date===date);
@@ -1116,7 +564,6 @@ function currentSlot(now=new Date()){
   if(now<=atTime(d,t.PM[1])) return "PM";
   return null;
 }
-
 function neighborSlot(dateStr,slot,dir){
   if(dir<0) return slot==="PM" ? [dateStr,"AM"] : [iso(addDays(parse(dateStr),-1)),"PM"];
   return slot==="AM" ? [dateStr,"PM"] : [iso(addDays(parse(dateStr),1)),"AM"];
@@ -1143,9 +590,6 @@ function fmtDur(ms){
   return h+" Std "+(m?m+" Min":"");
 }
 
-/* =========================================================
-   Rendern
-   ========================================================= */
 const stage=document.getElementById("stage");
 
 function render(){
@@ -1153,8 +597,7 @@ function render(){
   document.querySelectorAll(".views button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.view===view));
   document.getElementById("companyName").textContent=state.settings.company;
   renderPeriodLabel();
-  if(view==="search") renderSearch();
-  else if(view==="now") renderNow();
+  if(view==="now") renderNow();
   else if(view==="week") renderWeek();
   else if(view==="month") renderMonth();
   else renderMap();
@@ -1165,20 +608,10 @@ function renderPeriodLabel(){
   const l=document.getElementById("periodLabel");
   if(view==="week"){
     const m=mondayOf(anchor), e=addDays(m,6);
-    const kw=((d)=>{const x=new Date(d);x.setDate(x.getDate()+4-((x.getDay()+6)%7+1));
-      const j=new Date(x.getFullYear(),0,1);
-      return Math.ceil(((x-j)/86400000+1)/7);})(m);
-    l.textContent = m.getMonth()===e.getMonth()
-      ? `KW ${kw} · ${m.getDate()}.–${e.getDate()}. ${MONTHS[e.getMonth()]} ${e.getFullYear()}`
-      : `KW ${kw} · ${m.getDate()}. ${MONTHS[m.getMonth()]} – ${e.getDate()}. ${MONTHS[e.getMonth()]} ${e.getFullYear()}`;
+    l.textContent = `${m.getDate()}.–${e.getDate()}. ${MONTHS[e.getMonth()]} ${e.getFullYear()}`;
   }else if(view==="month"){
     const a=new Date(anchor.getFullYear(),anchor.getMonth(),1);
-    const b=new Date(anchor.getFullYear(),anchor.getMonth()+1,1);
-    l.textContent = a.getFullYear()===b.getFullYear()
-      ? `${MONTHS[a.getMonth()]} – ${MONTHS[b.getMonth()]} ${b.getFullYear()}`
-      : `${MONTHS[a.getMonth()]} ${a.getFullYear()} – ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
-  }else if(view==="search"){
-    l.textContent="Suche";
+    l.textContent = `${MONTHS[a.getMonth()]} ${a.getFullYear()}`;
   }else if(view==="map"){
     const d=parse(mapDay);
     l.textContent=`${DSHORT[(d.getDay()+6)%7]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
@@ -1186,121 +619,6 @@ function renderPeriodLabel(){
     const n=new Date();
     l.textContent=`${DAYS[(n.getDay()+6)%7]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}`;
   }
-}
-
-let suchText="", vorherigeAnsicht="month";
-
-function einsaetzeZu(jobId){
-  const list=state.assignments.filter(a=>a.jobId===jobId)
-    .sort((a,b)=>a.date.localeCompare(b.date)||(a.slot==="AM"?0:1)-(b.slot==="AM"?0:1));
-  const blocks=[], gesehen=new Set();
-  list.forEach(a=>{
-    const key=a.teamId+a.date+a.slot;
-    if(gesehen.has(key)) return;
-    const r=runFor(a.teamId,jobId,a.date,a.slot);
-    const span=slotSpan(r.first[0],r.first[1],r.last[0],r.last[1]);
-    span.forEach(u=>gesehen.add(a.teamId+u.date+u.slot));
-    blocks.push({teamId:a.teamId,first:r.first,last:r.last,halbtage:r.count});
-  });
-  return blocks.sort((x,y)=>x.first[0].localeCompare(y.first[0]));
-}
-function zeitraumText(b){
-  const a=parse(b.first[0]), e=parse(b.last[0]);
-  const f=d=>`${DSHORT[(d.getDay()+6)%7]} ${d.getDate()}.${d.getMonth()+1}.`;
-  if(b.first[0]===b.last[0]){
-    if(b.halbtage===2) return f(a);
-    return f(a)+(b.first[1]==="AM"?" vormittags":" nachmittags");
-  }
-  return f(a)+(b.first[1]==="PM"?" mittags":"")+" – "+f(e)+(b.last[1]==="AM"?" mittags":"");
-}
-
-async function renderSearch(){
-  const q=suchText.trim().toLowerCase();
-  const wrap=document.createElement("div"); wrap.className="srch";
-
-  if(q.length<2){
-    wrap.innerHTML=`<h2>Objekte durchsuchen</h2>
-      <div class="none">Straße, Ort oder Auftragsbezeichnung eingeben – mindestens zwei Zeichen.<br>
-      Gesucht wird in Bezeichnung, Adresse, Notiz und Kundendaten.</div>`;
-    stage.replaceChildren(wrap); return;
-  }
-
-  const woerter=q.split(/\s+/).filter(Boolean);
-  const treffer=state.jobs.filter(j=>{
-    const k=kundeById(j.customerId);
-    const heu=((j.name||"")+" "+(j.address||"")+" "+(j.contact||"")+" "+(j.note||"")+" "+
-               (k?(k.company+" "+(k.contact||"")+" "+(k.address||"")):"")).toLowerCase();
-    return woerter.every(w=>heu.includes(w));
-  });
-
-  wrap.innerHTML=`<h2>Suche nach „${esc(suchText.trim())}“</h2>
-    <div class="sub">${treffer.length===0?"kein Treffer":treffer.length===1?"1 Objekt gefunden":treffer.length+" Objekte gefunden"}</div>`;
-
-  if(!treffer.length){
-    const d=document.createElement("div"); d.className="none";
-    d.textContent="Nichts gefunden. Versuche einen kürzeren Suchbegriff.";
-    wrap.appendChild(d); stage.replaceChildren(wrap); return;
-  }
-
-  const mitZeit=treffer.map(j=>{
-    const bl=einsaetzeZu(j.id);
-    return {job:j, blocks:bl, letzte: bl.length?bl[bl.length-1].last[0]:""};
-  }).sort((a,b)=>b.letzte.localeCompare(a.letzte));
-
-  freiURLs();
-  for(const {job,blocks} of mitZeit){
-    const card=document.createElement("div"); card.className="hit";
-    const tage=blocks.reduce((n,b)=>n+b.halbtage,0)/2;
-    card.innerHTML=`<div class="top"><div>
-        <b>${esc(job.name)}</b>
-        <div class="adr">${esc(job.address||"keine Adresse hinterlegt")}</div>
-        ${(()=>{const k=kundeById(job.customerId);
-          return k?`<div class="meta">Kunde: ${esc(k.company)}${k.contact?" · "+esc(k.contact):""}</div>`:"";})()}
-        ${job.contact?`<div class="meta">vor Ort: ${esc(job.contact)}</div>`:""}
-      </div>
-      <div class="meta">${blocks.length?`${tage} ${tage===1?"Tag":"Tage"} eingeplant`:"noch nicht eingeplant"}
-        ${job.wishDate?`<br>Wunschbeginn ${esc(wunschText(job.wishDate))}`:""}
-        ${job.value?`<br>${esc(job.value)}`:""}
-        ${job.billed?`<br><span style="color:#8C96A5">abgerechnet</span>`:""}</div></div>`;
-
-    if(blocks.length){
-      const row=document.createElement("div"); row.className="runs";
-      blocks.forEach(b=>{
-        const team=teamById(b.teamId);
-        const btn=document.createElement("button"); btn.className="run";
-        btn.style.background=job.billed?"#6B7585":(team?team.color:"#5C6878");
-        btn.innerHTML=`<span class="d">${esc(zeitraumText(b))}</span>${esc(team?team.name:"Team entfernt")}`;
-        btn.onclick=()=>{
-          anchor=parse(b.first[0]); pendingScrollToday=false;
-          view="month"; suchText=""; document.getElementById("qSearch").value="";
-          render();
-        };
-        row.appendChild(btn);
-      });
-      card.appendChild(row);
-    }
-
-    const dateien=await Files.forJob(job.id);
-    if(dateien.length){
-      const fb=document.createElement("div"); fb.className="files";
-      dateien.forEach(f=>fb.appendChild(kachel(f,true)));
-      card.appendChild(fb);
-    }
-
-    const acts=document.createElement("div"); acts.className="acts";
-    const b1=document.createElement("button");
-    b1.textContent=dateien.length?`Bearbeiten · ${dateien.length} ${dateien.length===1?"Anhang":"Anhänge"}`:"Bearbeiten und Fotos hinzufügen";
-    b1.onclick=()=>openJob(job.id);
-    acts.appendChild(b1);
-    if(job.lat!=null){
-      const b2=document.createElement("button"); b2.textContent="Auf Karte zeigen";
-      b2.onclick=()=>showOnMap(job.id, blocks.length?blocks[blocks.length-1].first[0]:todayISO());
-      acts.appendChild(b2);
-    }
-    card.appendChild(acts);
-    wrap.appendChild(card);
-  }
-  stage.replaceChildren(wrap);
 }
 
 function renderNow(){
@@ -1311,8 +629,7 @@ function renderNow(){
     const a = slot ? assignAt(team.id,d,slot) : null;
     const card=document.createElement("div"); card.className="nowcard";
     card.style.borderTopColor=team.color;
-    const crew=team.members.join(", ")||"keine Besetzung";
-    let html=`<div class="hd"><h3>${esc(team.name)}</h3><span class="crew">${esc(crew)}</span></div>`;
+    let html=`<div class="hd"><h3>${esc(team.name)}</h3><span class="crew">${esc(team.members.join(", "))}</span></div>`;
 
     if(a){
       const job=jobById(a.jobId)||{name:"Unbekannt",address:""};
@@ -1320,31 +637,19 @@ function renderNow(){
       const start=atTime(r.first[0], r.first[1]==="AM"?t.AM[0]:t.PM[0]);
       const end=atTime(r.last[0], r.last[1]==="AM"?t.AM[1]:t.PM[1]);
       const pct=Math.max(0,Math.min(100,(now-start)/(end-start)*100));
-      const mehrTage=r.first[0]!==d;
-      const bisHeute=r.last[0]===d;
       html+=`<div class="job">${esc(job.name)}</div>
         <div class="adr">${esc(job.address)}</div>
         <div class="progress"><i style="width:${pct.toFixed(1)}%;background:${team.color}"></i></div>
         <div class="times">
-          <span>vor Ort seit <b>${fmtDur(now-start)}</b>${mehrTage?` (seit ${DSHORT[(parse(r.first[0]).getDay()+6)%7]})`:""}</span>
-          <span>noch <b>${fmtDur(end-now)}</b>${bisHeute?"":` (bis ${DSHORT[(parse(r.last[0]).getDay()+6)%7]})`}</span>
-        </div>
-        <div class="acts">
-          <button data-map="${job.id}">Auf Karte zeigen</button>
-          <button data-edit="${team.id}|${d}|${slot}">Ändern</button>
+          <span>seit <b>${fmtDur(now-start)}</b></span>
+          <span>noch <b>${fmtDur(end-now)}</b></span>
         </div>`;
     }else{
-      html+=`<div class="free">${slot?"Kein Einsatz eingetragen":"Außerhalb der Arbeitszeit"}</div>
-        <div class="acts"><button data-new="${team.id}|${d}|${slot||"AM"}">Einsatz eintragen</button></div>`;
+      html+=`<div class="free">Kein Einsatz eingetragen</div>`;
     }
     card.innerHTML=html; wrap.appendChild(card);
   });
-
   stage.replaceChildren(wrap);
-  wrap.querySelectorAll("[data-map]").forEach(b=>b.onclick=()=>showOnMap(b.dataset.map,d));
-  wrap.querySelectorAll("[data-edit],[data-new]").forEach(b=>b.onclick=()=>{
-    const [tid,dd,ss]=(b.dataset.edit||b.dataset.new).split("|"); openAssign(tid,dd,ss);
-  });
 }
 
 function buildBoard(dates,isMonth){
@@ -1356,30 +661,21 @@ function buildBoard(dates,isMonth){
   dates.forEach(d=>{
     const h=document.createElement("th");
     h.textContent=isMonth?`${DSHORT[(d.getDay()+6)%7]} ${d.getDate()}.${d.getMonth()+1}.`:`${DAYS[(d.getDay()+6)%7]} ${d.getDate()}.${d.getMonth()+1}.`;
-    let kl=[];
-    if(iso(d)===todayISO()) kl.push("today");
-    if(d.getDate()===1) kl.push("monatsstart");
-    h.className=kl.join(" ");
+    if(iso(d)===todayISO()) h.className="today";
     tr.appendChild(h);
   });
   th.appendChild(tr); tbl.appendChild(th);
 
   const tb=document.createElement("tbody");
-  state.teams.forEach((team,ti)=>{
+  state.teams.forEach((team)=>{
     const row=document.createElement("tr");
-    row.appendChild(buildTeamCell(team,ti,state.teams.length));
+    const tc=document.createElement("td"); tc.className="teamcol";
+    tc.innerHTML=`<div class="teamcell"><span class="swatch" style="background:${team.color}"></span><b>${esc(team.name)}</b></div>`;
+    row.appendChild(tc);
 
     const td=document.createElement("td"); td.colSpan=n; td.className="trackcell";
     const track=document.createElement("div"); track.className="track";
     track.style.gridTemplateColumns=`repeat(${n*2},1fr)`;
-
-    dates.forEach((d,i)=>{
-      const bg=document.createElement("div");
-      bg.className="daybg"+(iso(d)===todayISO()?" today":"")
-        +(d.getDate()===1&&i>0?" monatsstart":"");
-      bg.style.left=(i*100/n)+"%"; bg.style.width=(100/n)+"%";
-      track.appendChild(bg);
-    });
 
     const units=[];
     dates.forEach(d=>{const ds=iso(d);["AM","PM"].forEach(s=>units.push({ds,s,a:assignAt(team.id,ds,s)}));});
@@ -1402,86 +698,17 @@ function buildBoard(dates,isMonth){
     td.appendChild(track); row.appendChild(td); tb.appendChild(row);
   });
   tbl.appendChild(tb);
-  if(isMonth){
-    const avail=Math.max(620, stage.clientWidth);
-    tbl.style.minWidth = Math.round(150 + (avail-150)/monthVisible*n) + "px";
-  }else{
-    tbl.style.minWidth = zoomWeek ? Math.round(1120*zoomWeek)+"px" : "";
-  }
   return tbl;
-}
-
-function buildTeamCell(team,idx,total){
-  const tc=document.createElement("td"); tc.className="teamcol";
-  const inner=document.createElement("div"); inner.className="teamcell"; inner.draggable=true;
-  inner.innerHTML=`<span class="swatch" style="background:${team.color}"></span>
-    <span class="tn"><b>${esc(team.name)}</b><small>${esc(team.members.join(", ")||"–")}</small></span>
-    <span class="order">
-      <button class="up" title="nach oben"${idx===0?" disabled":""}>▲</button>
-      <button class="dn" title="nach unten"${idx===total-1?" disabled":""}>▼</button>
-    </span>`;
-  inner.querySelector(".up").onclick=e=>{e.stopPropagation();moveTeam(idx,-1);};
-  inner.querySelector(".dn").onclick=e=>{e.stopPropagation();moveTeam(idx,1);};
-  inner.ondragstart=e=>{
-    e.dataTransfer.setData("application/x-team",team.id);
-    setTimeout(()=>inner.classList.add("dragging"),0);
-  };
-  inner.ondragend=()=>inner.classList.remove("dragging");
-  inner.ondragover=e=>{if([...e.dataTransfer.types].includes("application/x-team")){e.preventDefault();inner.classList.add("dropteam");}};
-  inner.ondragleave=()=>inner.classList.remove("dropteam");
-  inner.ondrop=e=>{
-    inner.classList.remove("dropteam");
-    const id=e.dataTransfer.getData("application/x-team"); if(!id) return;
-    e.preventDefault(); placeTeam(id,idx);
-  };
-  tc.appendChild(inner); return tc;
-}
-function moveTeam(idx,dir){
-  const j=idx+dir; if(j<0||j>=state.teams.length) return;
-  const [t]=state.teams.splice(idx,1); state.teams.splice(j,0,t); save(); render();
-}
-function placeTeam(id,targetIdx){
-  const from=state.teams.findIndex(t=>t.id===id);
-  if(from<0||from===targetIdx) return;
-  const [t]=state.teams.splice(from,1);
-  state.teams.splice(targetIdx,0,t); save(); render();
 }
 
 function makeBar(team,jobId,firstU,lastU,span,isMonth){
   const job=jobById(jobId)||{name:"?",address:""};
-  const l=neighborSlot(firstU.ds,firstU.s,-1), r=neighborSlot(lastU.ds,lastU.s,+1);
-  const la=assignAt(team.id,l[0],l[1]), ra=assignAt(team.id,r[0],r[1]);
-  const cl=!!la&&la.jobId===jobId, cr=!!ra&&ra.jobId===jobId;
-
-  const fix=istFixiert(jobId);
-  const abger=!!job.billed;
   const b=document.createElement("div");
-  b.className="bar"+(cl?" cl":"")+(cr?" cr":"")+(fix?" fix":"")+(abger?" abger":"");
+  b.className="bar";
   b.style.gridColumn="span "+span;
   b.style.background=team.color;
-  const schloss = (fix && !cl) ? `<span class="lock" aria-hidden="true">🔒</span>` : "";
-  b.innerHTML = isMonth
-    ? `${schloss}<span class="nm">${esc(short(job.name, span<=1?6:span*7))}</span>`
-    : `${schloss}<span class="nm">${esc(job.name)}</span>`+(span>=2?`<span class="adr">${esc(job.address)}</span>`:"");
+  b.innerHTML=`<span class="nm">${esc(job.name)}</span>`;
   b.onclick=()=>openRun(team.id,jobId,firstU.ds,firstU.s);
-  b.draggable=!fix;
-  b.ondragstart=e=>{
-    if(fix){ e.preventDefault(); return; }
-    const r=runFor(team.id,jobId,firstU.ds,firstU.s);
-    e.dataTransfer.setData("text/plain",jobId);
-    e.dataTransfer.setData("application/json",
-      JSON.stringify({kind:"run",teamId:team.id,jobId,first:r.first,last:r.last,count:r.count}));
-    setTimeout(()=>b.classList.add("dragging"),0);
-  };
-  b.ondragend=()=>b.classList.remove("dragging");
-  b.ondragover=e=>{ if(fix) return; e.preventDefault(); b.classList.add("dragover"); };
-  b.ondragleave=()=>b.classList.remove("dragover");
-  b.ondrop=e=>{
-    if(fix) return;
-    e.preventDefault(); b.classList.remove("dragover");
-    const jid=e.dataTransfer.getData("text/plain"); if(!jid) return;
-    replaceRun(team.id,jobId,firstU.ds,firstU.s,jid);
-  };
   return b;
 }
 
@@ -1489,22 +716,7 @@ function makeGap(team,ds,slot,span,full){
   const c=document.createElement("div");
   c.className="gap";
   c.style.gridColumn="span "+span;
-  c.dataset.slot = full?"frei":(slot==="AM"?"vormittags frei":"nachmittags frei");
   c.onclick=()=>openNew(team.id,ds,slot,full);
-  c.ondragover=e=>{e.preventDefault();c.classList.add("dragover");};
-  c.ondragleave=()=>c.classList.remove("dragover");
-  c.ondrop=e=>{
-    e.preventDefault(); c.classList.remove("dragover");
-    const raw=e.dataTransfer.getData("application/json");
-    if(raw){
-      try{ const r=JSON.parse(raw); if(r.kind==="run"){
-        if(istFixiert(r.jobId)){ alert(fixHinweis(r.jobId)); return; }
-        moveRun(r,team.id,ds,slot); return;
-      } }catch(_){}
-    }
-    const jid=e.dataTransfer.getData("text/plain"); if(!jid) return;
-    dropAssign(team.id,ds,full?"BOTH":slot,jid);
-  };
   return c;
 }
 
@@ -1513,308 +725,92 @@ function renderWeek(){
   stage.replaceChildren(buildBoard(Array.from({length:7},(_,i)=>addDays(m,i)),false));
 }
 
-function monatsTage(){
-  const y=anchor.getFullYear(), mo=anchor.getMonth();
-  const start=new Date(y,mo,1);
-  const ende=new Date(y,mo+2,0);
+function renderMonth(){
+  const start=new Date(anchor.getFullYear(),anchor.getMonth(),1);
+  const ende=new Date(anchor.getFullYear(),anchor.getMonth()+2,0);
   const tage=[];
   for(let d=new Date(start); d<=ende; d=addDays(d,1)) tage.push(new Date(d));
-  return tage;
+  stage.replaceChildren(buildBoard(tage,true));
 }
 
-function renderMonth(){
-  const tage=monatsTage();
-  const tbl=buildBoard(tage,true);
-  stage.replaceChildren(tbl);
-  if(pendingScrollToday){
-    pendingScrollToday=false;
-    requestAnimationFrame(()=>{
-      const dayW=(tbl.offsetWidth-150)/tage.length;
-      const vorlauf=Math.max(3,Math.round(monthVisible/4));
-      const heute=todayISO();
-      let i=tage.findIndex(d=>iso(d)===heute);
-      if(i<0) i=0;
-      stage.scrollLeft=Math.max(0,(i-vorlauf)*dayW);
-    });
-  }
-}
-const short=(s,n)=>!s?"":(s.length>n?s.slice(0,n-1)+"…":s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function renderPool(){
   const pool=document.getElementById("pool");
   const planned=plannedJobIds();
-  const list = poolShowAll ? state.jobs : state.jobs.filter(j=>!planned.has(j.id));
-  document.getElementById("poolCount").textContent = poolShowAll ? `alle ${state.jobs.length}` : `${list.length} ungeplant`;
-  document.getElementById("btnAllJobs").textContent = poolShowAll ? "Nur offene" : "Alle";
+  const list = state.jobs.filter(j=>!planned.has(j.id));
+  document.getElementById("poolCount").textContent = `${list.length} ungeplant`;
   pool.replaceChildren();
-  if(!list.length){
-    const p=document.createElement("div"); p.className="pool-empty";
-    p.textContent = poolShowAll ? "Noch keine Aufträge angelegt." : "Alles verplant. Gute Woche.";
-    pool.appendChild(p); return;
-  }
   list.forEach(j=>{
-    const c=document.createElement("div"); c.className="jobcard"; c.draggable=true;
-    if(planned.has(j.id)) c.style.borderLeftColor="#3D4A5C";
-    c.innerHTML=`<b>${esc(j.name)}</b><small>${esc(j.address||"keine Adresse")}</small>
-      <div class="row"><button data-e="${j.id}">Bearbeiten</button><button data-m="${j.id}">Karte</button></div>`;
-    c.ondragstart=e=>e.dataTransfer.setData("text/plain",j.id);
+    const c=document.createElement("div"); c.className="jobcard";
+    c.innerHTML=`<b>${esc(j.name)}</b><small>${esc(j.address||"")}</small>`;
     pool.appendChild(c);
   });
-  pool.querySelectorAll("[data-e]").forEach(b=>b.onclick=e=>{e.stopPropagation();openJob(b.dataset.e);});
-  pool.querySelectorAll("[data-m]").forEach(b=>b.onclick=e=>{e.stopPropagation();showOnMap(b.dataset.m,todayISO());});
 }
-let poolShowAll=false;
 
-let map=null, layer=null;
 function renderMap(){
   const wrap=document.createElement("div"); wrap.id="mapview";
-  wrap.innerHTML=`<div id="mapbar">
-      <label style="font-size:11.5px;color:var(--ink-dim)">Tag
-        <input type="date" id="mapDate" value="${mapDay}" style="margin-left:7px;background:#0F141B;border:1px solid var(--line);border-radius:4px;padding:5px 8px;color:var(--ink)">
-      </label>
-      <label style="font-size:11.5px;color:var(--ink-dim)"><input type="checkbox" id="mapAll" style="margin-right:6px">Alle Objekte anzeigen</label>
-      <div class="legend" id="mapLegend"></div>
-    </div><div id="map"></div>`;
+  wrap.innerHTML=`<div id="mapbar">Karte</div><div id="map"></div>`;
   stage.replaceChildren(wrap);
-  document.getElementById("mapDate").onchange=e=>{mapDay=e.target.value;mapFocusJob=null;render();};
-  document.getElementById("mapAll").onchange=()=>drawMarkers(document.getElementById("mapAll").checked);
-
-  if(typeof L==="undefined") return;
-  map=L.map("map",{zoomControl:true,attributionControl:true}).setView([51.45,6.9],9);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
-  layer=L.layerGroup().addTo(map);
-  drawMarkers(false);
-  setTimeout(()=>map.invalidateSize(),60);
-}
-
-function drawMarkers(showAll){
-  if(!map) return;
-  layer.clearLayers();
-  const legend=document.getElementById("mapLegend"); legend.replaceChildren();
-  const byJob=new Map();
-  assignsOn(mapDay).forEach(a=>{
-    const job=jobById(a.jobId), team=teamById(a.teamId); if(!job||!team) return;
-    if(!byJob.has(job.id)) byJob.set(job.id,{job,entries:[]});
-    byJob.get(job.id).entries.push({team,slot:a.slot});
-  });
-
-  const seen=new Set(), bounds=[];
-  byJob.forEach(({job,entries})=>{
-    if(job.lat==null||job.lng==null) return;
-    const team=entries[0].team;
-    entries.forEach(e=>{ if(!seen.has(e.team.id)){seen.add(e.team.id);
-      const el=document.createElement("span"); el.className="leg";
-      el.innerHTML=`<i style="background:${e.team.color}"></i>${esc(e.team.name)}`; legend.appendChild(el);} });
-    const names=[...new Set(entries.map(e=>e.team.name))].join(" + ");
-    const dim = mapFocusJob && mapFocusJob!==job.id;
-    const icon=L.divIcon({html:`<div class="pin${dim?" dim":""}" style="background:${team.color}"><span class="dot"></span>${esc(names)}</div>`,className:"",iconSize:null,iconAnchor:[10,12]});
-    L.marker([job.lat,job.lng],{icon}).addTo(layer).bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}`);
-    bounds.push([job.lat,job.lng]);
-  });
-
-  if(bounds.length) map.fitBounds(bounds,{padding:[55,55],maxZoom:12});
-}
-function showOnMap(jobId,day){
-  mapFocusJob=jobId; mapDay=day||mapDay; view="map";
-  if(dlgAssign.open) dlgAssign.close();
-  render();
 }
 
 const dlgAssign=document.getElementById("dlgAssign");
 const dlgJob=document.getElementById("dlgJob");
 const dlgTeams=document.getElementById("dlgTeams");
 const dlgSettings=document.getElementById("dlgSettings");
-const dlgData=document.getElementById("dlgData");
 const dlgCustomers=document.getElementById("dlgCustomers");
 const dlgCustomer=document.getElementById("dlgCustomer");
-const dlgScan=document.getElementById("dlgScan");
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
 
 let editing=null;
-
-function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,canDelete,delTxt){
-  const ts=document.getElementById("asTeam"); ts.replaceChildren();
-  state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")||"–"}`;ts.appendChild(o);});
-  ts.value=teamId;
-  const dl=document.getElementById("jobNames"); dl.replaceChildren();
-  state.jobs.forEach(j=>{const o=document.createElement("option");o.value=j.name;o.label=j.address||"";dl.appendChild(o);});
-  const cur=jobId?jobById(jobId):null;
-  document.getElementById("asJobName").value=cur?cur.name:"";
-  document.getElementById("asJobAdr").value=cur?(cur.address||""):"";
-  document.getElementById("asFrom").value=from;
-  document.getElementById("asTo").value=to;
-  document.getElementById("asFromSlot").value=fromSlot;
-  document.getElementById("asToSlot").value=toSlot;
-  markQuick();
-  document.getElementById("asDelete").style.display=canDelete?"":"none";
-  document.getElementById("asDelete").textContent=delTxt||"Einsatz löschen";
-  document.getElementById("assignTitle").textContent=titleTxt;
-  document.getElementById("assignHint").textContent=hintTxt;
+function openRun(teamId,jobId,dateStr,slot){
+  editing={mode:"run",teamId,jobId};
+  dlgAssign.showModal();
+}
+function openNew(teamId,dateStr,slot,full){
+  editing={mode:"new",teamId};
   dlgAssign.showModal();
 }
 
-function markQuick(){
-  const f=document.getElementById("asFrom").value, t=document.getElementById("asTo").value;
-  const fs=document.getElementById("asFromSlot").value, ts=document.getElementById("asToSlot").value;
-  const one = f===t;
-  const q = one ? (fs==="AM"&&ts==="PM"?"BOTH":(fs==="AM"&&ts==="AM"?"AM":(fs==="PM"&&ts==="PM"?"PM":null))) : null;
-  document.querySelectorAll(".quick button").forEach(b=>b.classList.toggle("on", b.dataset.q===q));
-}
-document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>{
-  const day=document.getElementById("asFrom").value;
-  document.getElementById("asTo").value=day;
-  if(b.dataset.q==="BOTH"){asFromSlot.value="AM";asToSlot.value="PM";}
-  if(b.dataset.q==="AM"){asFromSlot.value="AM";asToSlot.value="AM";}
-  if(b.dataset.q==="PM"){asFromSlot.value="PM";asToSlot.value="PM";}
-  markQuick();
-});
-["asFrom","asTo","asFromSlot","asToSlot"].forEach(id=>document.getElementById(id).addEventListener("change",markQuick));
-
-function ensureJob(){
-  const name=document.getElementById("asJobName").value.trim();
-  const adr=document.getElementById("asJobAdr").value.trim();
-  if(!name) return null;
-  const hit=state.jobs.find(j=>j.name.toLowerCase()===name.toLowerCase());
-  if(hit){
-    if(adr && !hit.address) hit.address=adr;
-    return hit;
-  }
-  const created={id:uid(),name,address:adr,lat:null,lng:null,contact:"",note:""};
-  state.jobs.push(created);
-  return created;
-}
-
-document.getElementById("asSave").onclick=()=>{
-  const teamId=document.getElementById("asTeam").value;
-  const job=ensureJob();
-  if(!job) return;
-  const jobId=job.id;
-  const from=document.getElementById("asFrom").value;
-  const to=document.getElementById("asTo").value||from;
-  const fromSlot=document.getElementById("asFromSlot").value;
-  const toSlot=document.getElementById("asToSlot").value;
-
-  if(editing.mode==="run") clearRun(editing);
-
-  slotSpan(from,fromSlot,to,toSlot).forEach(({date,slot})=>{
-    const ex=assignAt(teamId,date,slot);
-    if(ex) state.assignments=state.assignments.filter(a=>a.id!==ex.id);
-    state.assignments.push({id:uid(),teamId,jobId,date,slot});
+/* Кнопки в шапке (Kunden, Teams, Einstellungen) — теперь полностью рабочие */
+document.getElementById("btnKunden").onclick = () => {
+  const list = document.getElementById("kdList"); list.replaceChildren();
+  state.customers.forEach(k => {
+    const row = document.createElement("div"); row.className = "kdrow";
+    row.innerHTML = `<div><b>${esc(k.company)}</b><small>${esc(k.contact)}</small></div>`;
+    list.appendChild(row);
   });
-  save(); dlgAssign.close(); render();
+  dlgCustomers.showModal();
 };
 
-function slotSpan(from,fromSlot,to,toSlot){
-  const out=[];
-  let d=parse(from), end=parse(to), guard=0;
-  if(end<d) end=new Date(d);
-  while(d<=end && guard++<800){
-    const ds=iso(d), first=(ds===from), last=(ds===iso(end));
-    ["AM","PM"].forEach(s=>{
-      if(first && fromSlot==="PM" && s==="AM") return;
-      if(last  && toSlot==="AM"  && s==="PM") return;
-      out.push({date:ds,slot:s});
-    });
-    d=addDays(d,1);
-  }
-  return out;
-}
-
-document.getElementById("asDelete").onclick=()=>{
-  if(editing.mode==="run") clearRun(editing);
-  save(); dlgAssign.close(); render();
+document.getElementById("btnTeams").onclick = () => {
+  const list = document.getElementById("teamList"); list.replaceChildren();
+  state.teams.forEach(t => {
+    const row = document.createElement("div"); row.className = "rowitem";
+    row.innerHTML = `<input type="color" value="${t.color}"><input type="text" class="nm" value="${esc(t.name)}">`;
+    list.appendChild(row);
+  });
+  dlgTeams.showModal();
 };
 
-function clearRun(e){
-  const ids=new Set(slotSpan(e.first[0],e.first[1],e.last[0],e.last[1])
-    .map(u=>{const a=assignAt(e.teamId,u.date,u.slot);return a&&a.jobId===e.jobId?a.id:null;})
-    .filter(Boolean));
-  state.assignments=state.assignments.filter(a=>!ids.has(a.id));
-}
-
-function moveRun(r,teamId,ds,slot){
-  clearRun(r);
-  spanFromStart(ds,slot,r.count).forEach(u=>{
-    const ex=assignAt(teamId,u.date,u.slot);
-    if(ex) state.assignments=state.assignments.filter(a=>a.id!==ex.id);
-    state.assignments.push({id:uid(),teamId,jobId:r.jobId,date:u.date,slot:u.slot});
-  });
-  save(); render();
-}
-function spanFromStart(ds,slot,count){
-  const out=[]; let d=ds,s=slot,guard=0;
-  while(out.length<count && guard++<800){
-    out.push({date:d,slot:s});
-    [d,s]=neighborSlot(d,s,1);
-  }
-  return out;
-}
-
-function replaceRun(teamId,jobId,dateStr,slot,newJobId){
-  const r=runFor(teamId,jobId,dateStr,slot);
-  slotSpan(r.first[0],r.first[1],r.last[0],r.last[1]).forEach(u=>{
-    const a=assignAt(teamId,u.date,u.slot);
-    if(a&&a.jobId===jobId) a.jobId=newJobId;
-  });
-  save(); render();
-}
-
-function dropAssign(teamId,date,slot,jobId){
-  const slots = slot==="BOTH" ? ["AM","PM"] : [slot];
-  slots.forEach(s=>{
-    const ex=assignAt(teamId,date,s);
-    if(ex) state.assignments=state.assignments.filter(a=>a.id!==ex.id);
-    state.assignments.push({id:uid(),teamId,jobId,date,slot:s});
-  });
-  save(); render();
-}
-
-function openRun(teamId,jobId,dateStr,slot){
-  const r=runFor(teamId,jobId,dateStr,slot);
-  editing={mode:"run",teamId,jobId,first:r.first,last:r.last};
-  fillAssignDialog(teamId,jobId,r.first[0],r.first[1],r.last[0],r.last[1],"Einsatz ändern","Änderungen gelten für den ganzen Einsatz.",true,"Aus Kalender nehmen");
-}
-
-function openNew(teamId,dateStr,slot,full){
-  editing={mode:"new",teamId};
-  fillAssignDialog(teamId,null,dateStr,full?"AM":slot,dateStr,full?"PM":slot,"Einsatz eintragen","Neuen Einsatz hinzufügen.",false);
-}
-
-function openAssign(teamId,date,slot){
-  const a=assignAt(teamId,date,slot);
-  if(a) openRun(teamId,a.jobId,date,slot); else openNew(teamId,date,slot,false);
-}
-
-let jobEditId=null, jobIsNew=false;
-function openJob(id){
-  jobIsNew=!id;
-  jobEditId=id||uid();
-  const j=id?jobById(id):{name:"",address:"",lat:null,lng:null,contact:"",note:"",customerId:"",wishDate:"",value:""};
-  document.getElementById("jobTitle").textContent=id?"Auftrag bearbeiten":"Auftrag anlegen";
-  jbName.value=j.name; jbAdr.value=j.address||""; jbLat.value=j.lat??""; jbLng.value=j.lng??"";
-  jbContact.value=j.contact||""; jbNote.value=j.note||"";
-  dlgJob.showModal();
-}
-document.getElementById("jbSave").onclick=()=>{
-  if(!jbName.value.trim()) return;
-  const data={name:jbName.value.trim(),address:jbAdr.value.trim(),
-    lat:jbLat.value?parseFloat(jbLat.value):null, lng:jbLng.value?parseFloat(jbLng.value):null,
-    contact:jbContact.value.trim(), note:jbNote.value.trim()};
-  if(jobIsNew) state.jobs.push(Object.assign({id:jobEditId},data));
-  else Object.assign(jobById(jobEditId),data);
-  jobIsNew=false;
-  save(); dlgJob.close(); render();
+document.getElementById("btnSettings").onclick = () => {
+  stCompany.value = state.settings.company;
+  stAmS.value = state.settings.amStart;
+  stAmE.value = state.settings.amEnd;
+  dlgSettings.showModal();
 };
 
-document.getElementById("btnNewJob").onclick=()=>openJob(null);
-document.getElementById("btnAllJobs").onclick=()=>{poolShowAll=!poolShowAll;renderPool();};
+document.getElementById("stSave").onclick = () => {
+  state.settings.company = stCompany.value.trim() || "Betrieb";
+  state.settings.amStart = stAmS.value;
+  state.settings.amEnd = stAmE.value;
+  save(); dlgSettings.close(); render();
+};
+
+document.getElementById("btnNewJob").onclick = () => dlgJob.showModal();
 
 document.querySelectorAll(".views button").forEach(b=>b.onclick=()=>{
   view=b.dataset.view;
-  suchText=""; document.getElementById("qSearch").value="";
-  if(view==="month") pendingScrollToday=true;
-  if(view!=="map") mapFocusJob=null;
   render();
 });
 
@@ -1822,38 +818,16 @@ document.getElementById("prev").onclick=()=>shift(-1);
 document.getElementById("next").onclick=()=>shift(1);
 document.getElementById("today").onclick=()=>{
   anchor=new Date(); anchor.setHours(0,0,0,0);
-  mapDay=todayISO(); mapFocusJob=null; pendingScrollToday=true;
-  if(view==="search"){
-    suchText=""; document.getElementById("qSearch").value="";
-    view = (vorherigeAnsicht==="search") ? "month" : vorherigeAnsicht;
-  }
   render();
 };
 function shift(n){
   if(view==="week") anchor=addDays(anchor,7*n);
-  else if(view==="month"){ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+n,1); pendingScrollToday=true; }
-  else if(view==="map"){ mapDay=iso(addDays(parse(mapDay),n)); mapFocusJob=null; }
-  else { view="week"; anchor=addDays(mondayOf(new Date()),7*n); }
+  else if(view==="month") anchor=new Date(anchor.getFullYear(),anchor.getMonth()+n,1);
+  else anchor=addDays(anchor,7*n);
   render();
 }
 
-(function(){
-  const q=document.getElementById("qSearch");
-  let t=null;
-  q.addEventListener("input",()=>{
-    clearTimeout(t);
-    t=setTimeout(()=>{
-      const leer=!q.value.trim();
-      if(leer && view==="search"){ suchText=""; view=vorherigeAnsicht; render(); return; }
-      if(!leer){
-        if(view!=="search") vorherigeAnsicht=view;
-        suchText=q.value; view="search"; render();
-      }
-    },180);
-  });
-})();
-
-setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
+render();
 </script>
 </body>
 </html>
