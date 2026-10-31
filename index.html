@@ -2059,7 +2059,7 @@ document.getElementById("btnData").onclick=async()=>{
   const alle=await Files.all();
   const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
   el.textContent += alle.length
-    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“.`
+    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“ सभाग."
     : "";
 };
 
