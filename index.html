@@ -148,7 +148,6 @@ td.trackcell{padding:0;position:relative}
 .daybg.monatsstart{border-left:2px solid #4A5566}
 table.board thead th.monatsstart{border-left:2px solid #4A5566}
 
-/* Ein Einsatz = ein durchgehendes Feld */
 .bar{
   grid-row:1;position:relative;z-index:2;
   height:calc(var(--slot-h) - 8px);margin:0 2px;border-radius:5px;
@@ -184,7 +183,6 @@ aside.dropzone .pool::before{
   padding:11px 9px;color:var(--focus);font-size:11.5px;line-height:1.4;text-align:center;
 }
 
-/* Freie Fläche */
 .gap{grid-row:1;position:relative;z-index:1;height:100%;cursor:pointer}
 .gap::after{
   content:attr(data-slot);position:absolute;inset:0;
@@ -195,14 +193,12 @@ aside.dropzone .pool::before{
 .gap:hover::after{opacity:1}
 .gap.dragover{background:#203243;box-shadow:inset 0 0 0 2px var(--focus)}
 
-/* Monat */
 table.month{min-width:2050px;table-layout:fixed}
 table.month .track{height:34px}
 table.month .bar{height:26px;font-size:11px;padding:0 7px;margin:0 2px;border-radius:4px}
 table.month .bar .adr{display:none}
 table.month thead th{font-size:12px;padding:5px 2px}
 
-/* ---------- Jetzt-Ansicht ---------- */
 .now-wrap{padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
 .nowcard{
   background:var(--panel);border:1px solid var(--line);border-radius:7px;
@@ -222,7 +218,6 @@ table.month thead th{font-size:12px;padding:5px 2px}
 .nowcard .acts button{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 0;font-size:11.5px;color:var(--ink-dim)}
 .nowcard .acts button:hover{color:var(--ink);border-color:var(--focus)}
 
-/* ---------- Karte ---------- */
 #mapview{position:absolute;inset:0;display:flex;flex-direction:column}
 #mapbar{
   display:flex;align-items:center;gap:12px;padding:8px 14px;
@@ -244,7 +239,6 @@ table.month thead th{font-size:12px;padding:5px 2px}
 .leaflet-popup-content{margin:10px 13px;font-size:12.5px;line-height:1.5}
 .leaflet-popup-content b{font-size:13.5px}
 
-/* ---------- Dialoge ---------- */
 dialog{
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:8px;padding:0;width:min(520px,92vw);box-shadow:0 22px 60px rgba(0,0,0,.6);
@@ -297,7 +291,6 @@ dialog h3{
 .searchbox input:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
 .searchbox input::placeholder{color:var(--ink-faint)}
 
-/* Anhänge im Auftragsdialog */
 .cnt{color:var(--ink-faint);font-size:11px}
 .drop{border:1px dashed var(--line);border-radius:var(--radius);padding:10px;background:#0F141B}
 .drop.over{border-color:var(--focus);background:#1B2735}
@@ -322,7 +315,6 @@ dialog h3{
 .att .del:hover{background:#7A2B33;color:#fff}
 #vwImg{max-width:min(880px,88vw);max-height:62vh;display:block}
 
-/* Suchergebnisse */
 .srch{padding:16px;max-width:980px}
 .srch h2{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:600;margin:0 0 3px;letter-spacing:.02em}
 .srch .sub{color:var(--ink-faint);font-size:12px;margin-bottom:16px}
@@ -342,7 +334,7 @@ dialog h3{
 .hit .acts button{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 12px;font-size:11.5px;color:var(--ink-dim)}
 .hit .acts button:hover{color:var(--ink);border-color:var(--focus)}
 .srch .none{color:var(--ink-faint);padding:28px 4px;line-height:1.6}
-/* Auftrag scannen */
+
 #dlgScan{width:min(1020px,96vw)}
 .scan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
 .scan-img{
@@ -394,7 +386,6 @@ dialog h3{
 .pruefzeile{display:flex;gap:9px;align-items:center;margin-top:9px}
 @media (max-width:860px){.scan{grid-template-columns:1fr}.scan-img{min-height:240px}}
 
-/* Kontextmenü */
 .kontext{
   position:fixed;z-index:60;min-width:226px;
   background:var(--panel);border:1px solid var(--line);border-radius:7px;
@@ -412,13 +403,11 @@ dialog h3{
 .kontext button:hover{background:var(--panel-2);color:var(--ink)}
 .kontext button .pkt{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
 
-/* Abgerechnete Einsätze */
 .bar.abger{background:#6B7585 !important;color:#161B22}
 .bar.abger .nm{font-weight:500}
 .bar.abger .adr{opacity:.65}
 .swatch.abger{background:#6B7585 !important}
 
-/* Kunden */
 .kdlist{display:flex;flex-direction:column;gap:8px}
 .kdrow{
   background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
@@ -493,7 +482,6 @@ dialog h3{
   </aside>
 </main>
 
-<!-- Einsatz zuweisen -->
 <dialog id="dlgAssign">
   <h3 id="assignTitle">Einsatz eintragen</h3>
   <div class="dlg-body">
@@ -565,7 +553,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Auftrag -->
 <dialog id="dlgJob">
   <h3 id="jobTitle">Auftrag anlegen</h3>
   <div class="dlg-body">
@@ -611,7 +598,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Bild ansehen -->
 <dialog id="dlgView">
   <h3 id="vwTitle">Foto</h3>
   <div class="dlg-body" style="padding:0;background:#0A0E13;display:flex;align-items:center;justify-content:center;min-height:300px">
@@ -624,7 +610,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Auftrag scannen -->
 <dialog id="dlgScan">
   <h3>Auftrag aus Formular übernehmen</h3>
   <div class="dlg-body">
@@ -691,7 +676,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Kundenliste -->
 <dialog id="dlgCustomers">
   <h3>Kunden</h3>
   <div class="dlg-body">
@@ -704,7 +688,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Ein Kunde -->
 <dialog id="dlgCustomer">
   <h3 id="kdTitle">Kunde anlegen</h3>
   <div class="dlg-body">
@@ -728,7 +711,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Teams -->
 <dialog id="dlgTeams">
   <h3>Teams und Besetzung</h3>
   <div class="dlg-body">
@@ -742,7 +724,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Einstellungen -->
 <dialog id="dlgSettings">
   <h3>Einstellungen</h3>
   <div class="dlg-body">
@@ -788,7 +769,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Daten -->
 <dialog id="dlgData">
   <h3>Sichern und Laden</h3>
   <div class="dlg-body">
@@ -810,9 +790,6 @@ dialog h3{
 <script>
 "use strict";
 
-/* =========================================================
-   Daten & Supabase Cloud Konfiguration
-   ========================================================= */
 const PALETTE = ["#F2B01E","#2FA8E0","#E04F5F","#59C26A","#A77BF3","#FF8A3D","#35D0C3","#E86BB0","#9FD356","#6E8BFF"];
 const SUPABASE_URL = "https://ehoygnjlyqwhpsevtgtf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD";
@@ -820,9 +797,6 @@ const SUPABASE_KEY = "sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD";
 let state = demoState();
 let storageOK = true;
 
-/* =========================================================
-   Dateispeicher für Fotos und Dokumente
-   ========================================================= */
 const Files = (() => {
   let dbp=null;
   function open(){
@@ -892,7 +866,6 @@ const Files = (() => {
   };
 })();
 
-/* Jede abgelegte Datei bekommt eine eigene laufende Nummer */
 function naechsteNummer(){
   const n=(state.settings.fileCounter||0)+1;
   state.settings.fileCounter=n;
@@ -982,7 +955,6 @@ function demoState(){
   return {teams,jobs,assignments:A,settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
 }
 
-/* --- Функции сохранения и загрузки из Supabase --- */
 async function save(){
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main`, {
@@ -996,13 +968,13 @@ async function save(){
       body: JSON.stringify({ data: state })
     });
   } catch (e) {
-    console.error("Ошибка сохранения в облако:", e);
+    console.error("Fehler beim Speichern:", e);
   }
 }
 
 async function loadState() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main&select=data`, {
+    const res =- await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main&select=data`, {
       headers: {
         "apikey": SUPABASE_KEY,
         "Authorization": `Bearer ${SUPABASE_KEY}`
@@ -1012,10 +984,23 @@ async function loadState() {
       const rows = await res.json();
       if (rows && rows.length > 0 && rows[0].data) {
         state = rows[0].data;
+      } else {
+        const demo = demoState();
+        await fetch(`${SUPABASE_URL}/rest/v1/app_state`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify({ id: "main", data: demo })
+        });
+        state = demo;
       }
     }
   } catch (e) {
-    console.error("Не удалось загрузить из облака, используется демо-состояние", e);
+    console.error("Ladefehler, verwende Demo", e);
   }
 
   if(!state.settings) state.settings=demoState().settings;
@@ -1028,9 +1013,6 @@ async function loadState() {
   render();
 }
 
-/* =========================================================
-   Datum
-   ========================================================= */
 const DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 const DSHORT=["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -1047,9 +1029,6 @@ let view="month";
 let anchor=new Date(); anchor.setHours(0,0,0,0);
 let mapFocusJob=null, mapDay=todayISO();
 
-/* =========================================================
-   Zugriffshelfer
-   ========================================================= */
 const teamById=id=>state.teams.find(t=>t.id===id);
 function wunschText(ds){
   if(!ds) return "";
@@ -1102,16 +1081,7 @@ function runFor(teamId,jobId,dateStr,slot){
     if(a&&a.jobId===jobId){last=p;count++;}else break;}
   return {first,last,count};
 }
-function fmtDur(ms){
-  if(ms<0) ms=0;
-  const h=Math.floor(ms/3600000), m=Math.round(ms%3600000/60000);
-  if(h===0) return m+" Min";
-  return h+" Std "+(m?m+" Min":"");
-}
 
-/* =========================================================
-   Rendern
-   ========================================================= */
 const stage=document.getElementById("stage");
 
 function render(){
@@ -1168,15 +1138,6 @@ function einsaetzeZu(jobId){
     blocks.push({teamId:a.teamId,first:r.first,last:r.last,halbtage:r.count});
   });
   return blocks.sort((x,y)=>x.first[0].localeCompare(y.first[0]));
-}
-function zeitraumText(b){
-  const a=parse(b.first[0]), e=parse(b.last[0]);
-  const f=d=>`${DSHORT[(d.getDay()+6)%7]} ${d.getDate()}.${d.getMonth()+1}.`;
-  if(b.first[0]===b.last[0]){
-    if(b.halbtage===2) return f(a);
-    return f(a)+(b.first[1]==="AM"?" vormittags":" nachmittags");
-  }
-  return f(a)+(b.first[1]==="PM"?" mittags":"")+" – "+f(e)+(b.last[1]==="AM"?" mittags":"");
 }
 
 async function renderSearch(){
@@ -1397,7 +1358,6 @@ function makeBar(team,jobId,firstU,lastU,span,isMonth){
     ? `${schloss}<span class="nm">${esc(short(job.name, span<=1?6:span*7))}</span>`
     : `${schloss}<span class="nm">${esc(job.name)}</span>`+(span>=2?`<span class="adr">${esc(job.address)}</span>`:"");
   b.onclick=()=>openRun(team.id,jobId,firstU.ds,firstU.s);
-  b.oncontextmenu=e=>{ e.preventDefault(); zeigeKontext(e.clientX,e.clientY,jobId,team.id,firstU.ds,firstU.s); };
   b.draggable=!fix;
   b.ondragstart=e=>{
     if(fix){ e.preventDefault(); return; }
@@ -1502,9 +1462,6 @@ function renderPool(){
 }
 let poolShowAll=false;
 
-/* =========================================================
-   Karte
-   ========================================================= */
 let map=null, layer=null;
 function renderMap(){
   const wrap=document.createElement("div"); wrap.id="mapview";
@@ -1589,9 +1546,6 @@ function showOnMap(jobId,day){
   render();
 }
 
-/* =========================================================
-   Dialoge & UI Logik
-   ========================================================= */
 const dlgAssign=document.getElementById("dlgAssign");
 const dlgJob=document.getElementById("dlgJob");
 const dlgTeams=document.getElementById("dlgTeams");
@@ -1908,11 +1862,9 @@ function ladeJSON(obj,name){
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
 
-/* --- Запуск приложения и фоновое обновление --- */
 loadState();
 setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
 
-// Автообновление данных из облака каждые 15 секунд для синхронизации с партнёром
 setInterval(async () => {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main&select=data`, {
