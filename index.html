@@ -10,15 +10,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#10141A;
-  --panel:#181E27;
-  --panel-2:#1F2733;
-  --line:#2C3644;
-  --line-soft:#232C38;
-  --ink:#E8EDF4;
-  --ink-dim:#8B98AA;
-  --ink-faint:#5C6878;
-  --focus:#7FD4FF;
+  --bg:#F4F6F9;
+  --panel:#FFFFFF;
+  --panel-2:#EAEEF3;
+  --line:#D0D7DE;
+  --line-soft:#E1E5EB;
+  --ink:#1F2328;
+  --ink-dim:#57606A;
+  --ink-faint:#8C959F;
+  --focus:#0969DA;
   --radius:5px;
   --slot-h:62px;
 }
@@ -58,7 +58,7 @@ header{
   color:var(--ink-dim);border-right:1px solid var(--line);
 }
 .views button:last-child{border-right:0}
-.views button[aria-pressed="true"]{background:var(--focus);color:#0A1119;font-weight:600}
+.views button[aria-pressed="true"]{background:var(--focus);color:#FFFFFF;font-weight:600}
 
 .navdate{display:flex;align-items:center;gap:8px}
 .navdate .label{
@@ -96,14 +96,14 @@ aside h2 .count{color:var(--ink-faint);font-size:12px;font-family:Inter,sans-ser
 .jobcard small{color:var(--ink-dim);font-size:11.5px;line-height:1.35;display:block}
 .jobcard .row{display:flex;gap:6px;margin-top:7px}
 .jobcard .row button{
-  flex:1;background:#141A23;border:1px solid var(--line);border-radius:4px;
+  flex:1;background:var(--panel);border:1px solid var(--line);border-radius:4px;
   padding:3px 0;font-size:11px;color:var(--ink-dim);
 }
 .jobcard .row button:hover{color:var(--ink);border-color:var(--focus)}
 .pool-empty{color:var(--ink-faint);padding:16px 6px;text-align:center;line-height:1.5}
 .aside-foot{padding:9px;border-top:1px solid var(--line);display:flex;gap:7px}
 .aside-foot button{flex:1;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel-2);padding:7px 0;font-size:12px}
-.aside-foot button.primary{background:var(--focus);color:#0A1119;border-color:var(--focus);font-weight:600}
+.aside-foot button.primary{background:var(--focus);color:#FFFFFF;border-color:var(--focus);font-weight:600}
 
 /* ---------- Planungsraster ---------- */
 table.board{border-collapse:separate;border-spacing:0;width:100%;min-width:660px;table-layout:fixed}
@@ -113,7 +113,7 @@ table.board thead th{
   font-family:"Barlow Condensed",sans-serif;font-weight:500;font-size:14px;
   color:var(--ink-dim);padding:7px 6px;letter-spacing:.03em;border-bottom:1px solid var(--line);
 }
-table.board thead th.today{color:var(--focus);background:#16222C}
+table.board thead th.today{color:var(--focus);background:#E6F1FC}
 th.teamcol,td.teamcol{
   position:sticky;left:0;z-index:4;background:var(--panel);
   width:150px;min-width:150px;border-right:1px solid var(--line);
@@ -123,7 +123,7 @@ thead th.teamcol{z-index:6}
 .teamcell:active{cursor:grabbing}
 .teamcell .tn{flex:1;min-width:0}
 .teamcell.dragging{opacity:.4}
-.teamcell.dropteam{background:#1B2735;box-shadow:inset 0 0 0 2px var(--focus)}
+.teamcell.dropteam{background:#F0F6FC;box-shadow:inset 0 0 0 2px var(--focus)}
 .order{display:flex;flex-direction:column;gap:2px;opacity:0;flex:0 0 auto}
 .teamcell:hover .order{opacity:1}
 .order button{
@@ -142,39 +142,39 @@ td.trackcell{padding:0;position:relative}
   position:absolute;top:0;bottom:0;z-index:0;pointer-events:none;
   border-right:1px solid var(--line-soft);
 }
-.daybg.wknd{background:#141920}
-.daybg.today{background:#16222C}
+.daybg.wknd{background:#F8F9FA}
+.daybg.today{background:#E6F1FC}
 
 /* Ein Einsatz = ein durchgehendes Feld */
 .bar{
   grid-row:1;position:relative;z-index:2;
   height:calc(var(--slot-h) - 8px);margin:0 2px;border-radius:5px;
   display:flex;flex-direction:column;justify-content:center;gap:2px;
-  padding:0 11px;color:#0C1117;font-size:13px;cursor:pointer;
-  white-space:nowrap;overflow:hidden;
+  padding:0 11px;color:#FFFFFF;font-size:13px;cursor:pointer;
+  white-space:nowrap;overflow:hidden; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 .bar .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis}
-.bar .adr{font-weight:500;font-size:11px;opacity:.75;overflow:hidden;text-overflow:ellipsis}
+.bar .adr{font-weight:500;font-size:11px;opacity:.9;overflow:hidden;text-overflow:ellipsis}
 .bar.cl{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
 .bar.cr{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0}
 .bar.dragover{box-shadow:0 0 0 2px var(--focus)}
 .bar.fix{cursor:pointer}
 .bar .lock{
   position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  font-size:9px;line-height:1;opacity:.6;filter:grayscale(1) brightness(.2);pointer-events:none;
+  font-size:9px;line-height:1;opacity:.8;pointer-events:none;
 }
 .bar.fix{padding-right:22px}
-.fixnote.offen{background:#14241B;border-color:#2C4A36;color:#8FDCA4}
+.fixnote.offen{background:#dafbe1;border-color:#2ea043;color:#116329}
 .fixnote{
   margin:0 0 15px;padding:10px 12px;border-radius:var(--radius);
-  background:#2A2314;border:1px solid #4A3C22;color:#FFC978;
+  background:#fff8c5;border-color:#ffe57f;color:#9a6700;
   font-size:11.5px;line-height:1.55;
 }
 .field input:disabled,.field select:disabled,.field textarea:disabled{opacity:.5;cursor:not-allowed}
 .quick button:disabled,.btn:disabled{opacity:.4;cursor:not-allowed}
 .quick button:disabled:hover,.btn:disabled:hover{border-color:var(--line)}
 .bar.dragging{opacity:.4}
-aside.dropzone{background:#1B2735;box-shadow:inset 0 0 0 2px var(--focus)}
+aside.dropzone{background:#F0F6FC;box-shadow:inset 0 0 0 2px var(--focus)}
 aside.dropzone .pool::before{
   content:"Hier loslassen – Auftrag wandert zurück in die Liste";
   display:block;border:1px dashed var(--focus);border-radius:var(--radius);
@@ -188,9 +188,9 @@ aside.dropzone .pool::before{
   display:flex;align-items:center;justify-content:center;
   color:var(--ink-faint);font-size:10px;opacity:0;pointer-events:none;
 }
-.gap:hover{background:#1B2735;box-shadow:inset 0 0 0 1px var(--focus)}
+.gap:hover{background:#F0F6FC;box-shadow:inset 0 0 0 1px var(--focus)}
 .gap:hover::after{opacity:1}
-.gap.dragover{background:#203243;box-shadow:inset 0 0 0 2px var(--focus)}
+.gap.dragover{background:#DDEDFF;box-shadow:inset 0 0 0 2px var(--focus)}
 .block.wknd{opacity:.55}
 
 /* Monat */
@@ -204,14 +204,14 @@ table.month thead th{font-size:12px;padding:5px 2px}
 .now-wrap{padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
 .nowcard{
   background:var(--panel);border:1px solid var(--line);border-radius:7px;
-  border-top:4px solid var(--ink-faint);padding:13px 14px;
+  border-top:4px solid var(--ink-faint);padding:13px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);
 }
 .nowcard .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .nowcard h3{margin:0;font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:600;letter-spacing:.02em}
 .nowcard .crew{color:var(--ink-faint);font-size:11.5px}
 .nowcard .job{font-size:14px;font-weight:600;margin:11px 0 3px}
 .nowcard .adr{color:var(--ink-dim);font-size:12px;line-height:1.4}
-.progress{height:7px;border-radius:4px;background:#232C38;margin:13px 0 7px;overflow:hidden}
+.progress{height:7px;border-radius:4px;background:#EAEEF3;margin:13px 0 7px;overflow:hidden}
 .progress i{display:block;height:100%;border-radius:4px}
 .times{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim)}
 .times b{color:var(--ink);font-weight:600}
@@ -229,14 +229,14 @@ table.month thead th{font-size:12px;padding:5px 2px}
 #mapbar .legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .leg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-dim)}
 .leg i{width:10px;height:10px;border-radius:3px;display:block}
-#map{flex:1;background:#0C1015}
+#map{flex:1;background:#E1E5EB}
 .pin{
   display:flex;align-items:center;gap:5px;padding:3px 7px 3px 4px;border-radius:13px;
-  font:600 11px Inter,sans-serif;color:#0C1117;white-space:nowrap;
-  box-shadow:0 2px 7px rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);
+  font:600 11px Inter,sans-serif;color:#FFFFFF;white-space:nowrap;
+  box-shadow:0 2px 7px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.9);
 }
 .pin.dim{opacity:.5}
-.pin .dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.45);flex:0 0 auto}
+.pin .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);flex:0 0 auto}
 .leaflet-popup-content-wrapper{background:var(--panel);color:var(--ink);border-radius:6px}
 .leaflet-popup-tip{background:var(--panel)}
 .leaflet-popup-content{margin:10px 13px;font-size:12.5px;line-height:1.5}
@@ -245,9 +245,9 @@ table.month thead th{font-size:12px;padding:5px 2px}
 /* ---------- Dialoge ---------- */
 dialog{
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
-  border-radius:8px;padding:0;width:min(520px,92vw);box-shadow:0 22px 60px rgba(0,0,0,.6);
+  border-radius:8px;padding:0;width:min(520px,92vw);box-shadow:0 22px 60px rgba(0,0,0,.2);
 }
-dialog::backdrop{background:rgba(6,9,13,.72)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
 dialog h3{
   margin:0;padding:14px 18px;border-bottom:1px solid var(--line);
   font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:600;letter-spacing:.02em;
@@ -257,26 +257,26 @@ dialog h3{
 .field{margin-bottom:13px}
 .field label{display:block;font-size:11.5px;color:var(--ink-dim);margin-bottom:5px}
 .field input,.field select,.field textarea{
-  width:100%;background:#0F141B;border:1px solid var(--line);border-radius:4px;
+  width:100%;background:#FFFFFF;border:1px solid var(--line);border-radius:4px;
   padding:8px 10px;color:var(--ink);
 }
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
 .btn{border:1px solid var(--line);background:var(--panel-2);border-radius:var(--radius);padding:8px 15px;font-size:12.5px}
-.btn.primary{background:var(--focus);border-color:var(--focus);color:#0A1119;font-weight:600}
-.btn.danger{color:#FF8B8B;border-color:#4A2B32}
-.btn.warn{color:#FFC978;border-color:#4A3C22}
-.btn.warn:hover{border-color:#FFC978}
+.btn.primary{background:var(--focus);border-color:var(--focus);color:#FFFFFF;font-weight:600}
+.btn.danger{color:#CF222E;border-color:#FF8182;background:#FFF8F8}
+.btn.warn{color:#9A6700;border-color:#FFE57F;background:#FFF8C5}
+.btn.warn:hover{border-color:#9A6700}
 .btn:hover{border-color:var(--focus)}
 .rowlist{display:flex;flex-direction:column;gap:8px}
 .rowitem{display:flex;gap:9px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px}
-.rowitem input[type=text]{flex:1;background:#0F141B;border:1px solid var(--line);border-radius:4px;padding:6px 8px;color:var(--ink)}
+.rowitem input[type=text]{flex:1;background:#FFFFFF;border:1px solid var(--line);border-radius:4px;padding:6px 8px;color:var(--ink)}
 .rowitem input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:4px;background:none}
 .rowitem .x{background:none;border:0;color:var(--ink-faint);font-size:17px;padding:0 4px}
-.rowitem .x:hover{color:#FF8B8B}
+.rowitem .x:hover{color:#CF222E}
 .hint{color:var(--ink-faint);font-size:11.5px;line-height:1.5;margin-top:-4px}
-.geo-ok{color:#6FD48A}.geo-no{color:#FFB65C}
+.geo-ok{color:#116329}.geo-no{color:#9A6700}
 .pair{display:flex;gap:8px}
 .pair input{flex:1;min-width:0}
 .pair select{flex:0 0 150px}
@@ -286,10 +286,10 @@ dialog h3{
   border-radius:var(--radius);padding:8px 0;font-size:12px;color:var(--ink-dim);
 }
 .quick button:hover{border-color:var(--focus);color:var(--ink)}
-.quick button.on{background:var(--focus);border-color:var(--focus);color:#0A1119;font-weight:600}
+.quick button.on{background:var(--focus);border-color:var(--focus);color:#FFFFFF;font-weight:600}
 .searchbox{position:relative;flex:1 1 180px;min-width:130px;max-width:260px}
 .searchbox input{
-  width:100%;background:#0F141B;border:1px solid var(--line);border-radius:var(--radius);
+  width:100%;background:#FFFFFF;border:1px solid var(--line);border-radius:var(--radius);
   padding:7px 11px;color:var(--ink);font-size:12.5px;
 }
 .searchbox input:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
@@ -297,8 +297,8 @@ dialog h3{
 
 /* Anhänge im Auftragsdialog */
 .cnt{color:var(--ink-faint);font-size:11px}
-.drop{border:1px dashed var(--line);border-radius:var(--radius);padding:10px;background:#0F141B}
-.drop.over{border-color:var(--focus);background:#1B2735}
+.drop{border:1px dashed var(--line);border-radius:var(--radius);padding:10px;background:#FAFBFC}
+.drop.over{border-color:var(--focus);background:#F0F6FC}
 .dropnote{color:var(--ink-faint);font-size:11.5px;text-align:center;padding:4px 0 2px}
 .linky{background:none;border:0;color:var(--focus);text-decoration:underline;font-size:11.5px;padding:0}
 .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
@@ -313,18 +313,18 @@ dialog h3{
 .att .doc span{overflow:hidden;text-overflow:ellipsis;width:100%;white-space:nowrap}
 .att .del{
   position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;
-  background:rgba(8,12,17,.78);border:0;color:#FFB0B0;font-size:12px;line-height:1;
+  background:rgba(255,255,255,.9);border:1px solid var(--line);color:#CF222E;font-size:12px;line-height:1;
   display:flex;align-items:center;justify-content:center;opacity:0;
 }
 .att:hover .del{opacity:1}
-.att .del:hover{background:#7A2B33;color:#fff}
+.att .del:hover{background:#CF222E;color:#fff}
 #vwImg{max-width:min(880px,88vw);max-height:62vh;display:block}
 
 /* Suchergebnisse */
 .srch{padding:16px;max-width:980px}
 .srch h2{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:600;margin:0 0 3px;letter-spacing:.02em}
 .srch .sub{color:var(--ink-faint);font-size:12px;margin-bottom:16px}
-.hit{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:11px}
+.hit{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:11px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .hit .top{display:flex;justify-content:space-between;gap:14px;align-items:baseline;flex-wrap:wrap}
 .hit b{font-size:15px}
 .hit .adr{color:var(--ink-dim);font-size:12.5px;margin-top:2px}
@@ -332,9 +332,9 @@ dialog h3{
 .runs{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
 .run{
   display:flex;align-items:center;gap:6px;border-radius:13px;padding:3px 10px 3px 4px;
-  font-size:11.5px;font-weight:600;color:#0C1117;cursor:pointer;border:0;
+  font-size:11.5px;font-weight:600;color:#FFFFFF;cursor:pointer;border:0; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
-.run .d{background:rgba(0,0,0,.2);border-radius:10px;padding:1px 6px;font-weight:500}
+.run .d{background:rgba(0,0,0,0.15);border-radius:10px;padding:1px 6px;font-weight:500}
 .hit .files{margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(74px,1fr))}
 .hit .acts{display:flex;gap:7px;margin-top:13px}
 .hit .acts button{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 12px;font-size:11.5px;color:var(--ink-dim)}
@@ -358,13 +358,13 @@ dialog h3{
 .kdbox .who{font-size:13.5px;font-weight:600}
 .kdbox .det{color:var(--ink-dim);font-size:12px;line-height:1.5;margin-top:3px}
 .kdbox .acts{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
-.kdbox .acts a, .kdbox .acts button{
-  background:#141A23;border:1px solid var(--line);border-radius:4px;
+.kdbox .acts a,.kdbox .acts button{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
   padding:7px 12px;font-size:12px;color:var(--ink-dim);text-decoration:none;display:inline-block;
 }
 .kdbox .acts a:hover,.kdbox .acts button:hover{color:var(--ink);border-color:var(--focus)}
-.kdbox .acts a.wa{color:#6FD48A;border-color:#2C4A36}
-.kdbox .acts a.wa:hover{border-color:#6FD48A}
+.kdbox .acts a.wa{color:#116329;border-color:#2ea043;background:#dafbe1}
+.kdbox .acts a.wa:hover{border-color:#116329}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){.slot.empty:hover{transition:background .1s}}
 </style>
@@ -720,12 +720,12 @@ function demoState(){
   const t = (name,color,members)=>({id:uid(),name,color,members});
   const j = (name,address,lat,lng,contact="")=>({id:uid(),name,address,lat,lng,contact,note:""});
   const teams = [
-    t("Team 1","#F2B01E",["Anton","Igor"]),
-    t("Team 2","#2FA8E0",["Murat","Kevin"]),
-    t("Team 3","#E04F5F",["Sergej","Daniel"]),
-    t("Team 4","#59C26A",["Tobias","Pawel"]),
-    t("Team 5","#A77BF3",["Ahmet"]),
-    t("Team 6","#FF8A3D",["Viktor"])
+    t("Team 1","#1F6FEB",["Anton","Igor"]),
+    t("Team 2","#0969DA",["Murat","Kevin"]),
+    t("Team 3","#CF222E",["Sergej","Daniel"]),
+    t("Team 4","#116329",["Tobias","Pawel"]),
+    t("Team 5","#8250DF",["Ahmet"]),
+    t("Team 6","#BC4C00",["Viktor"])
   ];
   const jobs = [
     j("Zählerschrank + Unterverteilung","Julius-Rietz-Straße 6, 40231 Düsseldorf",51.2170,6.8010,"Andreas"),
@@ -1284,7 +1284,7 @@ function renderMonth(){
       const t=new Date();
       if(t.getFullYear()===y && t.getMonth()===mo){
         const dayW=(tbl.offsetWidth-150)/n;
-        stage.scrollLeft=Math.max(0,(t.getDate()-1)*dayW);
+        stage.scrollLeft=Math.max(0,(t.getDate()-3)*dayW);
       }else{
         stage.scrollLeft=0;
       }
@@ -1309,12 +1309,12 @@ function renderPool(){
   }
   list.forEach(j=>{
     const c=document.createElement("div"); c.className="jobcard"; c.draggable=true;
-    if(planned.has(j.id)) c.style.borderLeftColor="#3D4A5C";
+    if(planned.has(j.id)) c.style.borderLeftColor="#8C959F";
     c.innerHTML=`<b>${esc(j.name)}</b><small>${esc(j.address||"keine Adresse")}</small>
       ${(()=>{const k=kundeById(j.customerId);
         return k?`<small style="margin-top:3px;color:var(--ink-dim)">${esc(k.company)}</small>`:"";})()}
       ${j.contact?`<small style="margin-top:3px;color:var(--ink-faint)">${esc(j.contact)}</small>`:""}
-      ${(j.address&&j.lat==null)?`<small style="margin-top:3px;color:#FFB65C">noch kein Pin – über „Bearbeiten“ Adresse suchen</small>`:""}
+      ${(j.address&&j.lat==null)?`<small style="margin-top:3px;color:#9A6700">noch kein Pin – über „Bearbeiten“ Adresse suchen</small>`:""}
       ${fileCounts[j.id]?`<small style="margin-top:3px;color:var(--ink-dim)">${fileCounts[j.id]} Foto${fileCounts[j.id]===1?"":"s"} / Datei${fileCounts[j.id]===1?"":"en"}</small>`:""}
       <div class="row"><button data-e="${j.id}">Bearbeiten</button><button data-m="${j.id}">Karte</button></div>`;
     c.ondragstart=e=>e.dataTransfer.setData("text/plain",j.id);
@@ -1333,7 +1333,7 @@ function renderMap(){
   const wrap=document.createElement("div"); wrap.id="mapview";
   wrap.innerHTML=`<div id="mapbar">
       <label style="font-size:11.5px;color:var(--ink-dim)">Tag
-        <input type="date" id="mapDate" value="${mapDay}" style="margin-left:7px;background:#0F141B;border:1px solid var(--line);border-radius:4px;padding:5px 8px;color:var(--ink)">
+        <input type="date" id="mapDate" value="${mapDay}" style="margin-left:7px;background:#FFFFFF;border:1px solid var(--line);border-radius:4px;padding:5px 8px;color:var(--ink)">
       </label>
       <label style="font-size:11.5px;color:var(--ink-dim)"><input type="checkbox" id="mapAll" style="margin-right:6px">Alle Objekte anzeigen, auch ungeplante</label>
       <div class="legend" id="mapLegend"></div>
@@ -1378,15 +1378,15 @@ function drawMarkers(showAll){
     const icon=L.divIcon({html:`<div class="pin${dim?" dim":""}" style="background:${team.color}"><span class="dot"></span>${esc(names)}</div>`,className:"",iconSize:null,iconAnchor:[10,12]});
     const slots=entries.map(e=>`${e.team.name}: ${e.slot==="AM"?"Vormittag":"Nachmittag"}`).join("<br>");
     L.marker([job.lat,job.lng],{icon,zIndexOffset:dim?0:500}).addTo(layer)
-      .bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#8B98AA">${slots}</span>`);
+      .bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#57606A">${slots}</span>`);
     bounds.push([job.lat,job.lng]);
   });
 
   if(showAll){
     state.jobs.forEach(job=>{
       if(job.lat==null||job.lng==null||byJob.has(job.id)) return;
-      const icon=L.divIcon({html:`<div class="pin" style="background:#5C6878;color:#E8EDF4"><span class="dot"></span>${esc(short(job.name,18))}</div>`,className:"",iconAnchor:[10,12]});
-      L.marker([job.lat,job.lng],{icon}).addTo(layer).bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#8B98AA">nicht eingeplant</span>`);
+      const icon=L.divIcon({html:`<div class="pin" style="background:#5C6878;color:#FFFFFF"><span class="dot"></span>${esc(short(job.name,18))}</div>`,className:"",iconAnchor:[10,12]});
+      L.marker([job.lat,job.lng],{icon}).addTo(layer).bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#57606A">nicht eingeplant</span>`);
       bounds.push([job.lat,job.lng]);
     });
   }
@@ -1400,7 +1400,7 @@ function drawMarkers(showAll){
   }
   if(!legend.children.length){
     const el=document.createElement("span"); el.className="leg";
-    el.textContent="An diesem Tag is kein Team eingeteilt."; legend.appendChild(el);
+    el.textContent="An diesem Tag ist kein Team eingeteilt."; legend.appendChild(el);
   }
 }
 function showOnMap(jobId,day){
@@ -1524,7 +1524,7 @@ async function zeigeAssignAnhaenge(){
 
   if(!assignJobId){
     cnt.textContent="";
-    note.innerHTML='Neues Objekt – sobald der Einsatz eingetragen ist, kannst du hier Fotos ablegen.';
+    note.innerHTML='Neues Objekt – sobald the Einsatz eingetragen ist, kannst du hier Fotos ablegen.';
     return;
   }
   note.innerHTML='Dateien hierher ziehen, oder <button type="button" class="linky" id="asPick">auswählen</button>';
@@ -2059,7 +2059,7 @@ document.getElementById("btnData").onclick=async()=>{
   const alle=await Files.all();
   const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
   el.textContent += alle.length
-    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“.`
+    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“ sichern.`
     : "";
 };
 
@@ -2181,6 +2181,21 @@ document.getElementById("next").onclick=()=>shift(1);
 document.getElementById("today").onclick=()=>{
   anchor=new Date();anchor.setHours(0,0,0,0);
   mapDay=todayISO();mapFocusJob=null;pendingScrollToday=true;render();
+  
+  requestAnimationFrame(()=>{
+    if(view==="month"){
+      const y=anchor.getFullYear(), mo=anchor.getMonth();
+      const n=new Date(y,mo+1,0).getDate();
+      const tbl=stage.querySelector("table");
+      if(tbl){
+        const dayW=(tbl.offsetWidth-150)/n;
+        const targetDay=new Date().getDate()-1;
+        stage.scrollLeft=Math.max(0,(targetDay-2)*dayW);
+      }
+    }else if(view==="week"){
+      stage.scrollLeft=0;
+    }
+  });
 };
 function shift(n){
   if(view==="week") anchor=addDays(anchor,7*n);
