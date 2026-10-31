@@ -1288,7 +1288,6 @@ function renderMonth(){
       if(t.getFullYear()===y && t.getMonth()===mo){
         const colW=(tbl.offsetWidth-150)/n;
         const targetDay=t.getDate()-1;
-        // Смещаем скролл так, чтобы текущий день был смещен влево (ровно на 9 колонок правее начала сетки дат)
         const targetColIndex = Math.max(0, targetDay - 8);
         stage.scrollLeft = targetColIndex * colW;
       }else{
