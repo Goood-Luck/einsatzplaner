@@ -2183,7 +2183,7 @@ document.getElementById("today").onclick = () => {
   mapDay = todayISO(); mapFocusJob = null; pendingScrollToday = true;
   render();
 
-  requestAnimationFrame(() => {
+  const performScroll = () => {
     const tbl = stage.querySelector("table");
     if (!tbl) return;
 
@@ -2192,7 +2192,10 @@ document.getElementById("today").onclick = () => {
       const n = new Date(y, mo + 1, 0).getDate();
       const colW = (tbl.offsetWidth - 150) / n;
       const targetDay = new Date().getDate() - 1;
-      stage.scrollLeft = Math.max(0, (targetDay - 2) * colW);
+      // Смещаем чуть левее, чтобы нужный день был правее (примерно в поле видимости с запасом 2-3 колонок справа)
+      const visibleWidth = stage.clientWidth - 150;
+      const targetScroll = (targetDay * colW) - (visibleWidth - (colW * 3));
+      stage.scrollLeft = Math.max(0, targetScroll);
     } else if (view === "week") {
       const m = mondayOf(anchor);
       const todayDate = new Date(); todayDate.setHours(0,0,0,0);
@@ -2201,8 +2204,12 @@ document.getElementById("today").onclick = () => {
       const colW = (tbl.offsetWidth - 150) / n;
       stage.scrollLeft = Math.max(0, (diffDays - 2) * colW);
     }
-  });
+  };
+
+  requestAnimationFrame(performScroll);
+  setTimeout(performScroll, 50);
 };
+
 function shift(n){
   if(view==="week") anchor=addDays(anchor,7*n);
   else if(view==="month"){ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+n,1); pendingScrollToday=true; }
