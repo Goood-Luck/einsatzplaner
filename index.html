@@ -1425,7 +1425,7 @@ let editing=null;
 
 function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,canDelete,delTxt){
   const ts=document.getElementById("asTeam"); ts.replaceChildren();
-  state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")||"–"}`;ts.appendChild(o);});
+  state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")|;|&nbsp;–"}`;ts.appendChild(o);});
   ts.value=teamId;
   const dl=document.getElementById("jobNames"); dl.replaceChildren();
   state.jobs.forEach(j=>{const o=document.createElement("option");o.value=j.name;o.label=j.address||"";dl.appendChild(o);});
@@ -1524,7 +1524,7 @@ async function zeigeAssignAnhaenge(){
 
   if(!assignJobId){
     cnt.textContent="";
-    note.innerHTML='Neues Objekt – sobald the Einsatz eingetragen ist, kannst du hier Fotos ablegen.';
+    note.innerHTML='Neues Objekt – sobald der Einsatz eingetragen ist, kannst du hier Fotos ablegen.';
     return;
   }
   note.innerHTML='Dateien hierher ziehen, oder <button type="button" class="linky" id="asPick">auswählen</button>';
@@ -2178,22 +2178,28 @@ document.getElementById("zoomOut").onclick=()=>{
 })();
 document.getElementById("prev").onclick=()=>shift(-1);
 document.getElementById("next").onclick=()=>shift(1);
-document.getElementById("today").onclick=()=>{
-  anchor=new Date();anchor.setHours(0,0,0,0);
-  mapDay=todayISO();mapFocusJob=null;pendingScrollToday=true;render();
-  
-  requestAnimationFrame(()=>{
-    if(view==="month"){
-      const y=anchor.getFullYear(), mo=anchor.getMonth();
-      const n=new Date(y,mo+1,0).getDate();
-      const tbl=stage.querySelector("table");
-      if(tbl){
-        const dayW=(tbl.offsetWidth-150)/n;
-        const targetDay=new Date().getDate()-1;
-        stage.scrollLeft=Math.max(0,(targetDay-2)*dayW);
-      }
-    }else if(view==="week"){
-      stage.scrollLeft=0;
+document.getElementById("today").onclick = () => {
+  anchor = new Date(); anchor.setHours(0,0,0,0);
+  mapDay = todayISO(); mapFocusJob = null; pendingScrollToday = true;
+  render();
+
+  requestAnimationFrame(() => {
+    const tbl = stage.querySelector("table");
+    if (!tbl) return;
+
+    if (view === "month") {
+      const y = anchor.getFullYear(), mo = anchor.getMonth();
+      const n = new Date(y, mo + 1, 0).getDate();
+      const dayW = (tbl.offsetWidth - 150) / n;
+      const targetDay = new Date().getDate() - 1;
+      stage.scrollLeft = Math.max(0, (targetDay - 2) * dayW);
+    } else if (view === "week") {
+      const m = mondayOf(anchor);
+      const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+      const diffDays = Math.round((todayDate - m) / (1000 * 60 * 60 * 24));
+      const n = state.settings.showWeekend ? 7 : 5;
+      const dayW = (tbl.offsetWidth - 150) / n;
+      stage.scrollLeft = Math.max(0, (diffDays - 2) * dayW);
     }
   });
 };
