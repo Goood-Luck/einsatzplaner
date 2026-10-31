@@ -1022,9 +1022,12 @@ async function renderSearch(){
           view="month"; suchText=""; document.getElementById("qSearch").value="";
           render();
           requestAnimationFrame(()=>{
-            const n=new Date(anchor.getFullYear(),anchor.getMonth()+1,0).getDate();
             const tbl=stage.querySelector("table");
-            if(tbl){ const dw=(tbl.offsetWidth-150)/n; stage.scrollLeft=Math.max(0,(parse(b.first[0]).getDate()-3)*dw); }
+            if(tbl){
+              const n=new Date(anchor.getFullYear(),anchor.getMonth()+1,0).getDate();
+              const colW=(tbl.offsetWidth-150)/n;
+              stage.scrollLeft=Math.max(0,(parse(b.first[0]).getDate()-3)*colW);
+            }
           });
         };
         row.appendChild(btn);
@@ -1283,8 +1286,10 @@ function renderMonth(){
     requestAnimationFrame(()=>{
       const t=new Date();
       if(t.getFullYear()===y && t.getMonth()===mo){
-        const dayW=(tbl.offsetWidth-150)/n;
-        stage.scrollLeft=Math.max(0,(t.getDate()-3)*dayW);
+        const colW=(tbl.offsetWidth-150)/n;
+        const targetDay=t.getDate()-1;
+        const visibleWidth=stage.clientWidth-150;
+        stage.scrollLeft=Math.max(0, (150 + targetDay * colW) - visibleWidth + (colW * 3));
       }else{
         stage.scrollLeft=0;
       }
@@ -2192,10 +2197,8 @@ document.getElementById("today").onclick = () => {
       const n = new Date(y, mo + 1, 0).getDate();
       const colW = (tbl.offsetWidth - 150) / n;
       const targetDay = new Date().getDate() - 1;
-      // Смещаем чуть левее, чтобы нужный день был правее (примерно в поле видимости с запасом 2-3 колонок справа)
       const visibleWidth = stage.clientWidth - 150;
-      const targetScroll = (targetDay * colW) - (visibleWidth - (colW * 3));
-      stage.scrollLeft = Math.max(0, targetScroll);
+      stage.scrollLeft = Math.max(0, (150 + targetDay * colW) - visibleWidth + (colW * 3));
     } else if (view === "week") {
       const m = mondayOf(anchor);
       const todayDate = new Date(); todayDate.setHours(0,0,0,0);
@@ -2207,7 +2210,7 @@ document.getElementById("today").onclick = () => {
   };
 
   requestAnimationFrame(performScroll);
-  setTimeout(performScroll, 50);
+  setTimeout(performScroll, 60);
 };
 
 function shift(n){
