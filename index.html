@@ -1425,7 +1425,7 @@ let editing=null;
 
 function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,canDelete,delTxt){
   const ts=document.getElementById("asTeam"); ts.replaceChildren();
-  state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")|;|&nbsp;–"}`;ts.appendChild(o);});
+  state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")||"–"}`;ts.appendChild(o);});
   ts.value=teamId;
   const dl=document.getElementById("jobNames"); dl.replaceChildren();
   state.jobs.forEach(j=>{const o=document.createElement("option");o.value=j.name;o.label=j.address||"";dl.appendChild(o);});
@@ -1937,7 +1937,7 @@ function openKunden(){
     row.innerHTML=`<div>
         <b>${esc(k.company)}</b>
         <small>${esc([k.contact,k.address].filter(Boolean).join(" · ")||"keine weiteren Angaben")}</small>
-        ${(k.phone||k.mobile)?`<small>${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}</small>`:""}
+        ${(k.phone||k.mobile)?`<small>${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}
       </div>
       <span class="n">${n?`${n} Auftrag${n===1?"":"­e"}`:"kein Auftrag"}</span>`;
     row.onclick=()=>openKunde(k.id);
