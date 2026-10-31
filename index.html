@@ -1568,12 +1568,29 @@ function renderMap(){
        Beim ersten Start braucht die Karte einmal Internet. Planung und Kalender funktionieren auch ohne.</div>`;
     return;
   }
+  
+  if(map){
+    map.remove();
+    map=null;
+  }
+  
   map=L.map("map",{zoomControl:true,attributionControl:true}).setView([51.45,6.9],9);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
   layer=L.layerGroup().addTo(map);
+  
   drawMarkers(false);
-  setTimeout(()=>map.invalidateSize(),60);
+  
+  setTimeout(()=>{
+    if(map){
+      map.invalidateSize();
+      if(mapFocusJob){
+        const f=jobById(mapFocusJob);
+        if(f&&f.lat!=null) map.setView([f.lat,f.lng],14);
+      }
+    }
+  }, 100);
 }
+
 
 function drawMarkers(showAll){
   if(!map) return;
