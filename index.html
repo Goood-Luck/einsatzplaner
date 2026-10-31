@@ -1288,8 +1288,9 @@ function renderMonth(){
       if(t.getFullYear()===y && t.getMonth()===mo){
         const colW=(tbl.offsetWidth-150)/n;
         const targetDay=t.getDate()-1;
-        const visibleWidth=stage.clientWidth-150;
-        stage.scrollLeft=Math.max(0, (150 + targetDay * colW) - visibleWidth + (colW * 3));
+        // Смещаем скролл так, чтобы текущий день был смещен влево (ровно на 9 колонок правее начала сетки дат)
+        const targetColIndex = Math.max(0, targetDay - 8);
+        stage.scrollLeft = targetColIndex * colW;
       }else{
         stage.scrollLeft=0;
       }
@@ -2197,8 +2198,8 @@ document.getElementById("today").onclick = () => {
       const n = new Date(y, mo + 1, 0).getDate();
       const colW = (tbl.offsetWidth - 150) / n;
       const targetDay = new Date().getDate() - 1;
-      const visibleWidth = stage.clientWidth - 150;
-      stage.scrollLeft = Math.max(0, (150 + targetDay * colW) - visibleWidth + (colW * 3));
+      const targetColIndex = Math.max(0, targetDay - 8);
+      stage.scrollLeft = targetColIndex * colW;
     } else if (view === "week") {
       const m = mondayOf(anchor);
       const todayDate = new Date(); todayDate.setHours(0,0,0,0);
