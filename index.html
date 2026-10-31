@@ -148,7 +148,6 @@ td.trackcell{padding:0;position:relative}
 .daybg.monatsstart{border-left:2px solid #4A5566}
 table.board thead th.monatsstart{border-left:2px solid #4A5566}
 
-/* Ein Einsatz = ein durchgehendes Feld */
 .bar{
   grid-row:1;position:relative;z-index:2;
   height:calc(var(--slot-h) - 8px);margin:0 2px;border-radius:5px;
@@ -184,7 +183,6 @@ aside.dropzone .pool::before{
   padding:11px 9px;color:var(--focus);font-size:11.5px;line-height:1.4;text-align:center;
 }
 
-/* Freie Fläche */
 .gap{grid-row:1;position:relative;z-index:1;height:100%;cursor:pointer}
 .gap::after{
   content:attr(data-slot);position:absolute;inset:0;
@@ -195,14 +193,12 @@ aside.dropzone .pool::before{
 .gap:hover::after{opacity:1}
 .gap.dragover{background:#203243;box-shadow:inset 0 0 0 2px var(--focus)}
 
-/* Monat */
 table.month{min-width:2050px;table-layout:fixed}
 table.month .track{height:34px}
 table.month .bar{height:26px;font-size:11px;padding:0 7px;margin:0 2px;border-radius:4px}
 table.month .bar .adr{display:none}
 table.month thead th{font-size:12px;padding:5px 2px}
 
-/* ---------- Jetzt-Ansicht ---------- */
 .now-wrap{padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
 .nowcard{
   background:var(--panel);border:1px solid var(--line);border-radius:7px;
@@ -222,7 +218,6 @@ table.month thead th{font-size:12px;padding:5px 2px}
 .nowcard .acts button{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 0;font-size:11.5px;color:var(--ink-dim)}
 .nowcard .acts button:hover{color:var(--ink);border-color:var(--focus)}
 
-/* ---------- Karte ---------- */
 #mapview{position:absolute;inset:0;display:flex;flex-direction:column}
 #mapbar{
   display:flex;align-items:center;gap:12px;padding:8px 14px;
@@ -244,7 +239,6 @@ table.month thead th{font-size:12px;padding:5px 2px}
 .leaflet-popup-content{margin:10px 13px;font-size:12.5px;line-height:1.5}
 .leaflet-popup-content b{font-size:13.5px}
 
-/* ---------- Dialoge ---------- */
 dialog{
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
   border-radius:8px;padding:0;width:min(520px,92vw);box-shadow:0 22px 60px rgba(0,0,0,.6);
@@ -297,7 +291,6 @@ dialog h3{
 .searchbox input:focus{outline:2px solid var(--focus);outline-offset:-1px;border-color:var(--focus)}
 .searchbox input::placeholder{color:var(--ink-faint)}
 
-/* Anhänge im Auftragsdialog */
 .cnt{color:var(--ink-faint);font-size:11px}
 .drop{border:1px dashed var(--line);border-radius:var(--radius);padding:10px;background:#0F141B}
 .drop.over{border-color:var(--focus);background:#1B2735}
@@ -322,7 +315,6 @@ dialog h3{
 .att .del:hover{background:#7A2B33;color:#fff}
 #vwImg{max-width:min(880px,88vw);max-height:62vh;display:block}
 
-/* Suchergebnisse */
 .srch{padding:16px;max-width:980px}
 .srch h2{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:600;margin:0 0 3px;letter-spacing:.02em}
 .srch .sub{color:var(--ink-faint);font-size:12px;margin-bottom:16px}
@@ -342,7 +334,7 @@ dialog h3{
 .hit .acts button{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 12px;font-size:11.5px;color:var(--ink-dim)}
 .hit .acts button:hover{color:var(--ink);border-color:var(--focus)}
 .srch .none{color:var(--ink-faint);padding:28px 4px;line-height:1.6}
-/* Auftrag scannen */
+
 #dlgScan{width:min(1020px,96vw)}
 .scan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
 .scan-img{
@@ -394,7 +386,6 @@ dialog h3{
 .pruefzeile{display:flex;gap:9px;align-items:center;margin-top:9px}
 @media (max-width:860px){.scan{grid-template-columns:1fr}.scan-img{min-height:240px}}
 
-/* Kontextmenü */
 .kontext{
   position:fixed;z-index:60;min-width:226px;
   background:var(--panel);border:1px solid var(--line);border-radius:7px;
@@ -412,13 +403,11 @@ dialog h3{
 .kontext button:hover{background:var(--panel-2);color:var(--ink)}
 .kontext button .pkt{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
 
-/* Abgerechnete Einsätze */
 .bar.abger{background:#6B7585 !important;color:#161B22}
 .bar.abger .nm{font-weight:500}
 .bar.abger .adr{opacity:.65}
 .swatch.abger{background:#6B7585 !important}
 
-/* Kunden */
 .kdlist{display:flex;flex-direction:column;gap:8px}
 .kdrow{
   background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
@@ -493,7 +482,6 @@ dialog h3{
   </aside>
 </main>
 
-<!-- Einsatz zuweisen -->
 <dialog id="dlgAssign">
   <h3 id="assignTitle">Einsatz eintragen</h3>
   <div class="dlg-body">
@@ -565,7 +553,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Auftrag -->
 <dialog id="dlgJob">
   <h3 id="jobTitle">Auftrag anlegen</h3>
   <div class="dlg-body">
@@ -611,7 +598,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Bild ansehen -->
 <dialog id="dlgView">
   <h3 id="vwTitle">Foto</h3>
   <div class="dlg-body" style="padding:0;background:#0A0E13;display:flex;align-items:center;justify-content:center;min-height:300px">
@@ -624,7 +610,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Auftrag scannen -->
 <dialog id="dlgScan">
   <h3>Auftrag aus Formular übernehmen</h3>
   <div class="dlg-body">
@@ -691,7 +676,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Kundenliste -->
 <dialog id="dlgCustomers">
   <h3>Kunden</h3>
   <div class="dlg-body">
@@ -704,7 +688,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Ein Kunde -->
 <dialog id="dlgCustomer">
   <h3 id="kdTitle">Kunde anlegen</h3>
   <div class="dlg-body">
@@ -728,7 +711,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Teams -->
 <dialog id="dlgTeams">
   <h3>Teams und Besetzung</h3>
   <div class="dlg-body">
@@ -742,7 +724,6 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Einstellungen -->
 <dialog id="dlgSettings">
   <h3>Einstellungen</h3>
   <div class="dlg-body">
@@ -788,15 +769,12 @@ dialog h3{
   </div>
 </dialog>
 
-<!-- Daten -->
 <dialog id="dlgData">
   <h3>Sichern und Laden</h3>
   <div class="dlg-body">
-    <p class="hint" style="margin-top:0">Alle Daten liegen nur auf diesem Mac im Browser. Für Backups oder den Wechsel auf einen anderen Rechner die Planung als Datei exportieren.</p>
+    <p class="hint" style="margin-top:0">Alle Daten liegen im Supabase-Cloud-Speicher. Für Backups kannst du die Planung als Datei exportieren.</p>
     <div style="display:flex;gap:9px;margin:16px 0">
       <button class="btn primary" id="dtExport">Planung exportieren</button>
-      <button class="btn" id="dtZip">Fotoordner herunterladen</button>
-      <button class="btn" id="dtExportAll">Mit Fotos sichern</button>
       <button class="btn" id="dtImportBtn">Sicherung laden</button>
       <input type="file" id="dtImport" accept="application/json" hidden>
     </div>
@@ -810,11 +788,9 @@ dialog h3{
 <script>
 "use strict";
 
-// === СИНХРОНИЗАЦИЯ С ОБЛАКОМ SUPABASE ===
 const SUPABASE_URL = 'https://ehoygnjlyqwhpsevtgtf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD';
 
-// Динамическое подключение библиотеки Supabase, чтобы текстовый редактор Mac ничего не урезал
 if (!window.supabase) {
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -826,86 +802,89 @@ let state = null;
 let supabaseClient = null;
 let storageOK = true;
 
-/* =========================================================
-   Данные
-   ========================================================= */
 const PALETTE = ["#F2B01E","#2FA8E0","#E04F5F","#59C26A","#A77BF3","#FF8A3D","#35D0C3","#E86BB0","#9FD356","#6E8BFF"];
 const STORE_KEY = "einsatzplaner.v1";
 
 /* =========================================================
-   Dateispeicher für Fotos und Dokumente
+   Файловое хранилище через Supabase Storage
    ========================================================= */
 const Files = (() => {
-  let dbp=null;
-  function open(){
-    if(dbp) return dbp;
-    dbp=new Promise((res,rej)=>{
-      const r=indexedDB.open("einsatzplaner-dateien",1);
-      r.onupgradeneeded=()=>{
-        const st=r.result.createObjectStore("files",{keyPath:"id"});
-        st.createIndex("jobId","jobId",{unique:false});
-      };
-      r.onsuccess=()=>res(r.result);
-      r.onerror=()=>rej(r.error);
-    }).catch(e=>{ dbp=null; throw e; });
-    return dbp;
-  }
-  const tx=async(mode,fn)=>{
-    const db=await open();
-    return new Promise((res,rej)=>{
-      const t=db.transaction("files",mode);
-      const out=fn(t.objectStore("files"));
-      t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out);
-      t.onerror=()=>rej(t.error);
-    });
-  };
   return {
-    async add(jobId,file){
-      const nr=naechsteNummer();
-      const rec={id:uid()+uid(),jobId,nr,
-                 name:file.name||"Datei",
-                 storedName:dateinameBauen(nr,jobId,file),
-                 type:file.type||"",size:file.size||0,
-                 added:new Date().toISOString(),blob:file};
-      await tx("readwrite",st=>st.put(rec));
+    async add(jobId, file) {
+      const nr = naechsteNummer();
+      const storedName = dateinameBauen(nr, jobId, file);
+      const filePath = `${jobId}/${storedName}`;
+
+      const { error } = await supabaseClient.storage
+        .from('einsatz-files')
+        .upload(filePath, file);
+
+      if (error) {
+        console.error("Ошибка загрузки файла в Supabase:", error);
+        throw error;
+      }
+
+      const rec = {
+        id: uid() + uid(),
+        jobId,
+        nr,
+        name: file.name || "Datei",
+        storedName: storedName,
+        type: file.type || "",
+        size: file.size || 0,
+        added: new Date().toISOString(),
+        path: filePath
+      };
+
+      if (!state.fileMetadata) state.fileMetadata = [];
+      state.fileMetadata.push(rec);
+      save();
+
       return rec;
     },
-    async forJob(jobId){
-      try{
-        const db=await open();
-        return await new Promise((res,rej)=>{
-          const out=[];
-          const t=db.transaction("files","readonly");
-          const rq=t.objectStore("files").index("jobId").openCursor(IDBKeyRange.only(jobId));
-          rq.onsuccess=()=>{ const c=rq.result; if(c){ out.push(c.value); c.continue(); } };
-          t.oncomplete=()=>res(out.sort((a,b)=>a.added.localeCompare(b.added)));
-          t.onerror=()=>rej(t.error);
-        });
-      }catch(e){ return []; }
+    async forJob(jobId) {
+      if (!state.fileMetadata) return [];
+      return state.fileMetadata.filter(f => f.jobId === jobId);
     },
-    async all(){
-      try{
-        const db=await open();
-        return await new Promise((res,rej)=>{
-          const rq=db.transaction("files","readonly").objectStore("files").getAll();
-          rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>rej(rq.error);
-        });
-      }catch(e){ return []; }
+    async all() {
+      return state.fileMetadata || [];
     },
-    async put(rec){ try{ await tx("readwrite",st=>st.put(rec)); }catch(e){} },
-    async remove(id){ try{ await tx("readwrite",st=>st.delete(id)); }catch(e){} },
-    async removeJob(jobId){
-      const list=await this.forJob(jobId);
-      for(const f of list) await this.remove(f.id);
+    async remove(id) {
+      if (!state.fileMetadata) return;
+      const index = state.fileMetadata.findIndex(f => f.id === id);
+      if (index !== -1) {
+        const file = state.fileMetadata[index];
+        if (file.path) {
+          await supabaseClient.storage
+            .from('einsatz-files')
+            .remove([file.path]);
+        }
+        state.fileMetadata.splice(index, 1);
+        save();
+      }
     },
-    async counts(){
-      const m={}; (await this.all()).forEach(f=>m[f.jobId]=(m[f.jobId]||0)+1); return m;
+    async removeJob(jobId) {
+      const list = await this.forJob(jobId);
+      for (const f of list) {
+        await this.remove(f.id);
+      }
+    },
+    async counts() {
+      const m = {};
+      const list = await this.all();
+      list.forEach(f => m[f.jobId] = (m[f.jobId] || 0) + 1);
+      return m;
     }
   };
 })();
 
-/* Jede abgelegte Datei bekommt eine eigene laufende Nummer,
-   damit sich Namen vom Handy (IMG_0001.jpg) nie überschreiben. */
+function getFileUrl(path) {
+  const { data } = supabaseClient.storage
+    .from('einsatz-files')
+    .getPublicUrl(path);
+  return data.publicUrl;
+}
+
 function naechsteNummer(){
   const n=(state.settings.fileCounter||0)+1;
   state.settings.fileCounter=n;
@@ -932,7 +911,6 @@ function dateinameBauen(nr,jobId,file){
 const anzeigeName = f => f.storedName || f.name;
 
 let fileCounts={};
-/* Ein Objekt mit Fotos gilt als belegt: der Einsatz ist dokumentiert und wird festgehalten. */
 const istFixiert = jobId => (fileCounts[jobId]||0) > 0;
 function fixHinweis(jobId){
   const n=fileCounts[jobId]||0;
@@ -942,7 +920,6 @@ function fixHinweis(jobId){
 }
 async function refreshCounts(){ fileCounts=await Files.counts(); }
 
-/* Dateien aus früheren Fassungen bekommen nachträglich Nummern */
 async function nummernNachtragen(){
   try{
     const alle=await Files.all();
@@ -954,7 +931,6 @@ async function nummernNachtragen(){
       const d=String(f.added||"").slice(0,10)||todayISO();
       f.nr=nr;
       f.storedName=`${String(nr).padStart(4,"0")}_${d}_${slug(job?job.name:"")}.${endungVon(f)}`;
-      await Files.put(f);
     }
     save();
   }catch(e){}
@@ -995,13 +971,11 @@ function demoState(){
   add(2,2,0,["AM"]); add(2,3,0,["PM"]); [1,2].forEach(o=>add(2,2,o,["AM","PM"]));
   [0,1,2,3,4].forEach(o=>add(3,4,o,["AM","PM"]));
   add(4,3,0,["AM","PM"]); add(4,5,1,["AM"]);
-  return {teams,jobs,assignments:A,settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
+  return {teams,jobs,assignments:A,fileMetadata:[],settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
 }
 
-// Функция автоматической загрузки актуальных данных из облака при старте
 async function initSupabaseAndLoad() {
   if (!window.supabase) {
-    // Если скрипт Supabase ещё загружается, подождем 100 миллисекунд
     setTimeout(initSupabaseAndLoad, 100);
     return;
   }
@@ -1031,26 +1005,23 @@ async function initSupabaseAndLoad() {
   }
   
   if (!state.settings) state.settings = demoState().settings;
+  if (!Array.isArray(state.fileMetadata)) state.fileMetadata = [];
   if (state.settings.showWeekend === undefined) state.settings.showWeekend = false;
-  if(!Array.isArray(state.customers)) state.customers=[];
-  if(!state.settings.model) state.settings.model="claude-sonnet-5-5";
+  if (!Array.isArray(state.customers)) state.customers = [];
+  if (!state.settings.model) state.settings.model = "claude-sonnet-5-5";
 
   await refreshCounts();
   await nummernNachtragen();
   renderPool();
   
-  // Отрисовываем таблицу на экране, когда данные получены из облака
   if (typeof render === 'function') render();
 }
 
-// Новая функция сохранения: пишет и локально в браузер, и отправляет коллеге в Дюссельдорф
 async function save() {
   if (!state) return;
   
-  // 1. Сохраняем локально (для подстраховки, если пропадет интернет)
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) { storageOK=false; }
   
-  // 2. Отправляем в базу данных Supabase
   if (window.supabase && !supabaseClient) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
@@ -1067,12 +1038,8 @@ async function save() {
   }
 }
 
-// Запускаем процесс при открытии страницы
 initSupabaseAndLoad();
 
-/* =========================================================
-   Datum
-   ========================================================= */
 const DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 const DSHORT=["Mo","Di","Mi","Do","Fr","Sa","So"];
 const MONTHS=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -1082,16 +1049,13 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function mondayOf(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
 const todayISO = ()=>iso(new Date());
 
-let zoomWeek=null;          // null = Breite an das Fenster anpassen
-let monthVisible=12;        // sichtbare Tage in der Monatsansicht
+let zoomWeek=null;
+let monthVisible=12;
 let pendingScrollToday=true;
 let view="month";
 let anchor=new Date(); anchor.setHours(0,0,0,0);
 let mapFocusJob=null, mapDay=todayISO();
 
-/* =========================================================
-   Zugriffshelfer
-   ========================================================= */
 const teamById=id=>state.teams.find(t=>t.id===id);
 function wunschText(ds){
   if(!ds) return "";
@@ -1100,7 +1064,6 @@ function wunschText(ds){
 }
 const kundeById=id=>state.customers.find(k=>k.id===id);
 
-/* Telefonnummer für WhatsApp: nur Ziffern, deutsche Vorwahl ergänzen */
 function waNummer(raw){
   if(!raw) return "";
   let n=String(raw).replace(/[^\d+]/g,"");
@@ -1125,12 +1088,10 @@ function currentSlot(now=new Date()){
   return null;
 }
 
-/* Nachbar-Halbtag: dir -1 = davor, +1 = danach */
 function neighborSlot(dateStr,slot,dir){
   if(dir<0) return slot==="PM" ? [dateStr,"AM"] : [iso(addDays(parse(dateStr),-1)),"PM"];
   return slot==="AM" ? [dateStr,"PM"] : [iso(addDays(parse(dateStr),1)),"AM"];
 }
-/* Zusammenhängender Einsatzblock (gleiches Team + gleicher Auftrag) */
 function runFor(teamId,jobId,dateStr,slot){
   const order=["AM","PM"];
   const step=(d,s,dir)=>{
@@ -1153,9 +1114,6 @@ function fmtDur(ms){
   return h+" Std "+(m?m+" Min":"");
 }
 
-/* =========================================================
-   Rendern
-   ========================================================= */
 const stage=document.getElementById("stage");
 
 function render(){
@@ -1198,10 +1156,8 @@ function renderPeriodLabel(){
   }
 }
 
-/* ---- Suche ---- */
 let suchText="", vorherigeAnsicht="month";
 
-/* Alle Einsätze eines Auftrags als zusammenhängende Blöcke */
 function einsaetzeZu(jobId){
   const list=state.assignments.filter(a=>a.jobId===jobId)
     .sort((a,b)=>a.date.localeCompare(b.date)||(a.slot==="AM"?0:1)-(b.slot==="AM"?0:1));
@@ -1254,13 +1210,11 @@ async function renderSearch(){
     wrap.appendChild(d); stage.replaceChildren(wrap); return;
   }
 
-  // Treffer mit jüngstem Einsatz zuerst
   const mitZeit=treffer.map(j=>{
     const bl=einsaetzeZu(j.id);
     return {job:j, blocks:bl, letzte: bl.length?bl[bl.length-1].last[0]:""};
   }).sort((a,b)=>b.letzte.localeCompare(a.letzte));
 
-  freiURLs();
   for(const {job,blocks} of mitZeit){
     const card=document.createElement("div"); card.className="hit";
     const tage=blocks.reduce((n,b)=>n+b.halbtage,0)/2;
@@ -1322,7 +1276,6 @@ async function renderSearch(){
   stage.replaceChildren(wrap);
 }
 
-/* ---- Jetzt ---- */
 function renderNow(){
   const now=new Date(), d=todayISO(), slot=currentSlot(now), t=slotTimes();
   const wrap=document.createElement("div"); wrap.className="now-wrap";
@@ -1339,8 +1292,6 @@ function renderNow(){
       const r=runFor(team.id,a.jobId,d,slot);
       const start=atTime(r.first[0], r.first[1]==="AM"?t.AM[0]:t.PM[0]);
       const end=atTime(r.last[0], r.last[1]==="AM"?t.AM[1]:t.PM[1]);
-      const slotStart=atTime(d, slot==="AM"?t.AM[0]:t.PM[0]);
-      const slotEnd=atTime(d, slot==="AM"?t.AM[1]:t.PM[1]);
       const pct=Math.max(0,Math.min(100,(now-start)/(end-start)*100));
       const mehrTage=r.first[0]!==d;
       const bisHeute=r.last[0]===d;
@@ -1373,7 +1324,6 @@ function renderNow(){
   });
 }
 
-/* ---- Woche / Monat ---- */
 function buildBoard(dates,isMonth){
   const n=dates.length;
   const tbl=document.createElement("table");
@@ -1400,7 +1350,6 @@ function buildBoard(dates,isMonth){
     const track=document.createElement("div"); track.className="track";
     track.style.gridTemplateColumns=`repeat(${n*2},1fr)`;
 
-    // Hintergrund: Tagesraster, Wochenende, heute
     dates.forEach((d,i)=>{
       const bg=document.createElement("div");
       bg.className="daybg"+(iso(d)===todayISO()?" today":"")
@@ -1409,7 +1358,6 @@ function buildBoard(dates,isMonth){
       track.appendChild(bg);
     });
 
-    // Halbtage der Reihe nach, gleiche Aufträge zu einem Feld zusammenfassen
     const units=[];
     dates.forEach(d=>{const ds=iso(d);["AM","PM"].forEach(s=>units.push({ds,s,a:assignAt(team.id,ds,s)}));});
 
@@ -1440,7 +1388,6 @@ function buildBoard(dates,isMonth){
   return tbl;
 }
 
-/* Teamzeile links: benennen, verschieben */
 function buildTeamCell(team,idx,total){
   const tc=document.createElement("td"); tc.className="teamcol";
   const inner=document.createElement("div"); inner.className="teamcell"; inner.draggable=true;
@@ -1481,7 +1428,6 @@ function placeTeam(id,targetIdx){
   state.teams.splice(targetIdx,0,t); save(); render();
 }
 
-/* Ein zusammenhängendes Einsatzfeld */
 function makeBar(team,jobId,firstU,lastU,span,isMonth){
   const job=jobById(jobId)||{name:"?",address:""};
   const l=neighborSlot(firstU.ds,firstU.s,-1), r=neighborSlot(lastU.ds,lastU.s,+1);
@@ -1526,7 +1472,6 @@ function makeBar(team,jobId,firstU,lastU,span,isMonth){
   return b;
 }
 
-/* Freie Fläche */
 function makeGap(team,ds,slot,span,full){
   const c=document.createElement("div");
   c.className="gap";
@@ -1555,12 +1500,11 @@ function renderWeek(){
   const n=7;
   stage.replaceChildren(buildBoard(Array.from({length:n},(_,i)=>addDays(m,i)),false));
 }
-/* Die Monatsansicht läuft über das Monatsende hinaus weiter,
-   damit am 30. eines Monats nicht die Übersicht endet. */
+
 function monatsTage(){
   const y=anchor.getFullYear(), mo=anchor.getMonth();
   const start=new Date(y,mo,1);
-  const ende=new Date(y,mo+2,0);              // bis Ende des Folgemonats
+  const ende=new Date(y,mo+2,0);
   const tage=[];
   for(let d=new Date(start); d<=ende; d=addDays(d,1)) tage.push(new Date(d));
   return tage;
@@ -1574,10 +1518,10 @@ function renderMonth(){
     pendingScrollToday=false;
     requestAnimationFrame(()=>{
       const dayW=(tbl.offsetWidth-150)/tage.length;
-      const vorlauf=Math.max(3,Math.round(monthVisible/4));   // heute ins erste Viertel
+      const vorlauf=Math.max(3,Math.round(monthVisible/4));
       const heute=todayISO();
       let i=tage.findIndex(d=>iso(d)===heute);
-      if(i<0) i=0;                                           // anderer Monat: an den Anfang
+      if(i<0) i=0;
       stage.scrollLeft=Math.max(0,(i-vorlauf)*dayW);
     });
   }
@@ -1585,7 +1529,6 @@ function renderMonth(){
 const short=(s,n)=>!s?"":(s.length>n?s.slice(0,n-1)+"…":s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* ---- Auftragspool ---- */
 function renderPool(){
   if(!state) return;
   const pool=document.getElementById("pool");
@@ -1619,9 +1562,6 @@ function renderPool(){
 }
 let poolShowAll=false;
 
-/* =========================================================
-   Karte
-   ========================================================= */
 let map=null, layer=null;
 function renderMap(){
   const wrap=document.createElement("div"); wrap.id="mapview";
@@ -1703,9 +1643,6 @@ function showOnMap(jobId,day){
   render();
 }
 
-/* =========================================================
-   Dialoge
-   ========================================================= */
 const dlgAssign=document.getElementById("dlgAssign");
 const dlgJob=document.getElementById("dlgJob");
 const dlgTeams=document.getElementById("dlgTeams");
@@ -1718,7 +1655,6 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest("di
 
 let editing=null;
 
-/* Gemeinsamer Dialog-Aufbau */
 function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,canDelete,delTxt){
   const ts=document.getElementById("asTeam"); ts.replaceChildren();
   state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")||"–"}`;ts.appendChild(o);});
@@ -1754,7 +1690,6 @@ function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,
   zeigeAssignAnhaenge();
 }
 
-/* Kundenblock im Einsatzdialog: anrufen, schreiben, bearbeiten */
 function zeigeKundeImEinsatz(jobId){
   const box=document.getElementById("assignKunde");
   const job=jobId?jobById(jobId):null;
@@ -1777,7 +1712,6 @@ function zeigeKundeImEinsatz(jobId){
   if(b) b.onclick=()=>openKunde(k.id,()=>zeigeKundeImEinsatz(jobId));
 }
 
-/* Einsatz festhalten, sobald Anhänge vorhanden sind */
 let entsperrt=false;
 function sperreSetzen(jobId){
   const fix = !!jobId && istFixiert(jobId) && !entsperrt;
@@ -1814,17 +1748,15 @@ document.getElementById("asUnlock").onclick=()=>{
   document.getElementById("asFrom").focus();
 };
 
-/* Beim Schließen gilt die Sperre wieder */
 document.getElementById("dlgAssign").addEventListener("close",()=>{ entsperrt=false; });
 
-/* Anhänge im Einsatzdialog: richten sich nach dem eingetippten Auftrag */
 let assignJobId=null;
 async function zeigeAssignAnhaenge(){
   const box=document.getElementById("asFiles");
   const note=document.getElementById("asDropNote");
   const cnt=document.getElementById("asFileCount");
   if(!box) return;
-  freiURLs(); box.replaceChildren();
+  box.replaceChildren();
   const name=document.getElementById("asJobName").value.trim().toLowerCase();
   const treffer=name?state.jobs.find(j=>j.name.toLowerCase()===name):null;
   assignJobId=treffer?treffer.id:null;
@@ -1843,15 +1775,15 @@ async function zeigeAssignAnhaenge(){
 
 function kachelAssign(f){
   const d=document.createElement("div"); d.className="att";
+  const fileUrl = f.path ? getFileUrl(f.path) : "";
   if(istBild(f.type)){
-    const u=URL.createObjectURL(f.blob); anhangURLs.push(u);
-    const img=document.createElement("img"); img.src=u; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=fileUrl; img.alt=f.name; img.loading="lazy";
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
   }else{
     const b=document.createElement("div"); b.className="doc";
     b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>ladeDatei(f);
+    b.onclick=()=>window.open(fileUrl, "_blank");
     d.appendChild(b);
   }
   d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
@@ -1872,7 +1804,7 @@ async function nimmDateienAssign(fileList){
   const files=[...fileList].filter(f=>f.size>0);
   if(!files.length) return;
   try{ for(const f of files) await Files.add(assignJobId,f); }
-  catch(e){ alert("Die Datei konnte nicht gespeichert werden. Vermutlich ist der Speicher des Browsers voll."); }
+  catch(e){ alert("Die Datei konnte nicht gespeichert werden."); }
   await refreshCounts(); zeigeAssignAnhaenge(); renderPool();
   sperreSetzen(editing && editing.mode==="run" ? editing.jobId : null); render();
 }
@@ -1890,7 +1822,6 @@ document.getElementById("asFileInput").onchange=e=>{ nimmDateienAssign(e.target.
   });
 })();
 
-/* Bestehendes Einsatzfeld anklicken: immer der ganze zusammenhängende Einsatz */
 function openRun(teamId,jobId,dateStr,slot){
   const r=runFor(teamId,jobId,dateStr,slot);
   editing={mode:"run",teamId,jobId,first:r.first,last:r.last};
@@ -1902,7 +1833,6 @@ function openRun(teamId,jobId,dateStr,slot){
     true,"Aus Kalender nehmen");
 }
 
-/* Freie Fläche anklicken */
 function openNew(teamId,dateStr,slot,full){
   editing={mode:"new",teamId};
   const d=parse(dateStr);
@@ -1913,13 +1843,11 @@ function openNew(teamId,dateStr,slot,full){
     false);
 }
 
-/* Aus der Jetzt-Ansicht */
 function openAssign(teamId,date,slot){
   const a=assignAt(teamId,date,slot);
   if(a) openRun(teamId,a.jobId,date,slot); else openNew(teamId,date,slot,false);
 }
 
-/* Schnellwahl-Knöpfe */
 function markQuick(){
   const f=document.getElementById("asFrom").value, t=document.getElementById("asTo").value;
   const fs=document.getElementById("asFromSlot").value, ts=document.getElementById("asToSlot").value;
@@ -1936,17 +1864,17 @@ document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>{
   markQuick();
 });
 ["asFrom","asTo","asFromSlot","asToSlot"].forEach(id=>document.getElementById(id).addEventListener("change",markQuick));
-/* Auftrag aus den Eingabefeldern holen oder neu anlegen */
+
 function ensureJob(){
   const name=document.getElementById("asJobName").value.trim();
   const adr=document.getElementById("asJobAdr").value.trim();
   if(!name) return null;
   const hit=state.jobs.find(j=>j.name.toLowerCase()===name.toLowerCase());
   if(hit){
-    if(adr && !hit.address) hit.address=adr;            // Adresse nachgetragen
+    if(adr && !hit.address) hit.address=adr;
     if(adr && hit.address.toLowerCase()!==adr.toLowerCase()){
       const created={id:uid(),name,address:adr,lat:null,lng:null,contact:"",note:""};
-      state.jobs.push(created); geocodeQuiet(created);   // gleicher Name, andere Adresse = eigenes Objekt
+      state.jobs.push(created); geocodeQuiet(created);
       return created;
     }
     return hit;
@@ -1955,17 +1883,16 @@ function ensureJob(){
   state.jobs.push(created); geocodeQuiet(created);
   return created;
 }
-/* Koordinaten im Hintergrund holen, damit der Pin auf der Karte erscheint */
+
 async function geocodeQuiet(job){
   if(!job.address) return;
   try{
     const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q="+encodeURIComponent(job.address));
     const d=await r.json();
     if(d.length){ job.lat=parseFloat(d[0].lat); job.lng=parseFloat(d[0].lon); save(); if(view==="map") render(); }
-  }catch(e){/* ohne Internet bleibt das Objekt ohne Pin */}
+  }catch(e){}
 }
 
-/* Adresse automatisch füllen, wenn ein bekannter Auftrag gewählt wird */
 document.getElementById("asJobName").addEventListener("input",e=>{
   const hit=state.jobs.find(j=>j.name.toLowerCase()===e.target.value.trim().toLowerCase());
   const adr=document.getElementById("asJobAdr");
@@ -2002,7 +1929,6 @@ document.getElementById("asSave").onclick=()=>{
   save(); dlgAssign.close(); render();
 };
 
-/* Alle Halbtage zwischen zwei Punkten, Wochenende optional übersprungen */
 function slotSpan(from,fromSlot,to,toSlot){
   const out=[];
   let d=parse(from), end=parse(to), guard=0;
@@ -2024,7 +1950,6 @@ document.getElementById("asDelete").onclick=()=>{
   save(); dlgAssign.close(); render();
 };
 
-/* Alle Halbtage eines zusammenhängenden Einsatzes entfernen */
 function clearRun(e){
   const ids=new Set(slotSpan(e.first[0],e.first[1],e.last[0],e.last[1])
     .map(u=>{const a=assignAt(e.teamId,u.date,u.slot);return a&&a.jobId===e.jobId?a.id:null;})
@@ -2032,7 +1957,6 @@ function clearRun(e){
   state.assignments=state.assignments.filter(a=>!ids.has(a.id));
 }
 
-/* Einsatz mit gleicher Dauer an eine andere Stelle verschieben */
 function moveRun(r,teamId,ds,slot){
   if(istFixiert(r.jobId)){ alert(fixHinweis(r.jobId)); return; }
   clearRun(r);
@@ -2052,7 +1976,6 @@ function spanFromStart(ds,slot,count){
   return out;
 }
 
-/* Auftrag per Drag auf ein bestehendes Feld: tauscht den ganzen Einsatz aus */
 function replaceRun(teamId,jobId,dateStr,slot,newJobId){
   if(istFixiert(jobId)){ alert(fixHinweis(jobId)); return; }
   const r=runFor(teamId,jobId,dateStr,slot);
@@ -2077,7 +2000,6 @@ function dropAssign(teamId,date,slot,jobId){
   save(); render();
 }
 
-/* ---- Auftrag ---- */
 let jobEditId=null, jobIsNew=false;
 function openJob(id){
   jobIsNew=!id;
@@ -2108,21 +2030,17 @@ document.getElementById("jbSave").onclick=()=>{
   save(); dlgJob.close(); render();
 };
 
-/* ---- Anhänge ---- */
-let anhangURLs=[];
-function freiURLs(){ anhangURLs.forEach(u=>URL.revokeObjectURL(u)); anhangURLs=[]; }
-
 function kachel(f,klein){
   const d=document.createElement("div"); d.className="att";
+  const fileUrl = f.path ? getFileUrl(f.path) : "";
   if(istBild(f.type)){
-    const u=URL.createObjectURL(f.blob); anhangURLs.push(u);
-    const img=document.createElement("img"); img.src=u; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=fileUrl; img.alt=f.name; img.loading="lazy";
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
   }else{
     const b=document.createElement("div"); b.className="doc";
     b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>ladeDatei(f);
+    b.onclick=()=>window.open(fileUrl, "_blank");
     d.appendChild(b);
   }
   d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
@@ -2141,7 +2059,7 @@ function kachel(f,klein){
 
 async function zeigeAnhaenge(jobId){
   const box=document.getElementById("jbFiles"); if(!box) return;
-  freiURLs(); box.replaceChildren();
+  box.replaceChildren();
   const list=await Files.forJob(jobId);
   document.getElementById("jbFileCount").textContent = list.length ? `· ${list.length}` : "";
   list.forEach(f=>box.appendChild(kachel(f,false)));
@@ -2150,12 +2068,10 @@ async function zeigeAnhaenge(jobId){
 async function nimmDateien(fileList){
   const files=[...fileList].filter(f=>f.size>0);
   if(!files.length) return;
-  const gross=files.filter(f=>f.size>25*1024*1024);
-  if(gross.length && !confirm(`${gross.length} Datei(en) sind größer als 25 MB. Viele große Dateien können den Browserspeicher füllen. Trotzdem hinzufügen?`)) return;
   try{
     for(const f of files) await Files.add(jobEditId,f);
   }catch(e){
-    alert("Die Datei konnte nicht gespeichert werden. Vermutlich ist der Speicher des Browsers voll. Bitte über „Sichern / Laden“ eine Sicherung anlegen und ältere Fotos entfernen.");
+    alert("Die Datei konnte nicht gespeichert werden.");
   }
   await refreshCounts(); zeigeAnhaenge(jobEditId); render();
 }
@@ -2172,28 +2088,27 @@ document.getElementById("jbFileInput").onchange=e=>{ nimmDateien(e.target.files)
   });
 })();
 
-/* Bild groß ansehen */
-let vwURL=null, vwFile=null;
+let vwFile=null;
 function zeigeBild(f){
-  if(vwURL) URL.revokeObjectURL(vwURL);
-  vwFile=f; vwURL=URL.createObjectURL(f.blob);
-  document.getElementById("vwImg").src=vwURL;
+  vwFile=f;
+  const fileUrl = f.path ? getFileUrl(f.path) : "";
+  document.getElementById("vwImg").src=fileUrl;
   document.getElementById("vwTitle").textContent=anzeigeName(f);
   const d=new Date(f.added);
   document.getElementById("vwMeta").textContent=
     `${groesse(f.size)} · hinzugefügt ${d.toLocaleDateString("de-DE")}`;
   document.getElementById("dlgView").showModal();
 }
-function ladeDatei(f){
-  const u=URL.createObjectURL(f.blob);
-  const a=document.createElement("a"); a.href=u; a.download=anzeigeName(f); a.click();
-  setTimeout(()=>URL.revokeObjectURL(u),3000);
-}
-document.getElementById("vwDown").onclick=()=>{ if(vwFile) ladeDatei(vwFile); };
+document.getElementById("vwDown").onclick=()=>{ 
+  if(vwFile && vwFile.path) {
+    const fileUrl = getFileUrl(vwFile.path);
+    const a=document.createElement("a"); a.href=fileUrl; a.download=anzeigeName(vwFile); a.target="_blank"; a.click();
+  }
+};
 document.getElementById("dlgView").addEventListener("close",()=>{
   document.getElementById("vwImg").src="";
-  if(vwURL){ URL.revokeObjectURL(vwURL); vwURL=null; }
 });
+
 document.getElementById("jbDelete").onclick=async()=>{
   if(!jobEditId) return;
   const n=state.assignments.filter(a=>a.jobId===jobEditId).length;
@@ -2207,6 +2122,7 @@ document.getElementById("jbDelete").onclick=async()=>{
   await Files.removeJob(jobEditId); await refreshCounts();
   save(); dlgJob.close(); render();
 };
+
 document.getElementById("jbGeo").onclick=async()=>{
   const q=jbAdr.value.trim(); const h=document.getElementById("geoHint");
   if(!q){h.textContent="Erst eine Adresse eintragen.";return;}
@@ -2219,7 +2135,7 @@ document.getElementById("jbGeo").onclick=async()=>{
     h.className="hint geo-ok"; h.textContent="Gefunden: "+d[0].display_name;
   }catch(e){h.className="hint geo-no";h.textContent="Suche nicht möglich (keine Internetverbindung). Koordinaten von Hand eintragen.";}
 };
-/* Einsatz aus dem Kalender zurück in den Auftragspool ziehen */
+
 (function(){
   const zone=document.querySelector("aside");
   const isRun=e=>[...e.dataTransfer.types].includes("application/json");
@@ -2239,7 +2155,6 @@ document.getElementById("jbGeo").onclick=async()=>{
 document.getElementById("btnNewJob").onclick=()=>openJob(null);
 document.getElementById("btnAllJobs").onclick=()=>{poolShowAll=!poolShowAll;renderPool();};
 
-/* ---- Kontextmenü auf einem Einsatz ---- */
 function abrechnungSetzen(jobId,wert){
   const j=jobById(jobId); if(!j) return;
   if(wert) j.billed=true; else delete j.billed;
@@ -2275,7 +2190,6 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".kontext")) schlies
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") schliesseKontext(); });
 window.addEventListener("scroll",schliesseKontext,true);
 
-/* ---- Auftrag aus Formular übernehmen ---- */
 const API_KEY="einsatzplaner.apikey";
 const MODELL_STANDARD="claude-sonnet-5-5";
 const schluessel = () => { try{ return localStorage.getItem(API_KEY)||""; }catch(e){ return ""; } };
@@ -2372,7 +2286,6 @@ function fuelleScanKunden(selId){
 }
 document.getElementById("scKundeNeu").onclick=()=>openKunde(null,id=>fuelleScanKunden(id));
 
-/* ---------- Auftrag aus Text übernehmen ---------- */
 const VORLAGE =
   "Kunde: \n"+
   "Ansprechpartner: \n"+
@@ -2381,7 +2294,6 @@ const VORLAGE =
   "Betrag: \n"+
   "Auftrag: ";
 
-/* Welche Beschriftung gehört zu welchem Feld */
 const FELDWORTE = [
   ["auftraggeber", ["kunde","auftraggeber","firma","auftraggeberin","bauherr"]],
   ["ansprechpartner", ["ansprechpartner","ansprechpartnerin","kontakt","telefon","tel","handy","mobil","rufnummer"]],
@@ -2397,7 +2309,6 @@ function feldFuer(wort){
   return null;
 }
 
-/* Datumsangaben aus dem Text verstehen */
 function datumLesen(txt){
   if(!txt) return "";
   const t=txt.trim();
@@ -2431,7 +2342,6 @@ function datumLesen(txt){
   return "";
 }
 
-/* Zeilen der Form „Beschriftung: Inhalt“ auswerten */
 function textAuswerten(roh){
   const felder={}; let aktuell=null;
   roh.split(/\r?\n/).forEach(zeile=>{
@@ -2510,7 +2420,6 @@ document.getElementById("scanVorlage").onclick=async()=>{
   }
 };
 
-/* Umschalten zwischen Foto und Text */
 function scanQuelle(q){
   document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.q===q));
   document.getElementById("scanImgBox").hidden = q!=="foto";
@@ -2532,7 +2441,6 @@ function scanQuelle(q){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>scanQuelle(b.dataset.q));
 document.getElementById("btnScan").onclick=openScan;
 
-/* Bild für die Übertragung vorbereiten: verkleinern und als Text kodieren */
 function bildVerkleinern(file,maxKante=1600){
   return new Promise((res,rej)=>{
     const u=URL.createObjectURL(file);
@@ -2641,7 +2549,6 @@ document.getElementById("scanSave").onclick=async()=>{
     document.getElementById("scanHint").textContent="Bitte wenigstens Adresse oder Bezeichnung eintragen.";
     scAdr.focus(); return;
   }
-  // Kunde bestimmen oder neu anlegen
   let kid=document.getElementById("scKunde").value;
   const neuerName=document.getElementById("scKundeText").value.trim();
   if(!kid && neuerName){
@@ -2666,7 +2573,6 @@ document.getElementById("scanSave").onclick=async()=>{
   openJob(job.id);
 };
 
-/* ---- Kunden ---- */
 function openKunden(){
   const list=document.getElementById("kdList"); list.replaceChildren();
   if(!state.customers.length){
@@ -2728,7 +2634,6 @@ document.getElementById("kdDelete").onclick=()=>{
 document.getElementById("kdAdd").onclick=()=>openKunde(null);
 document.getElementById("btnKunden").onclick=openKunden;
 
-/* Kundenauswahl im Auftragsdialog */
 function fuelleKundenAuswahl(selId){
   const sel=document.getElementById("jbCustomer"); sel.replaceChildren();
   const leer=document.createElement("option"); leer.value=""; leer.textContent="– kein Kunde zugeordnet –";
@@ -2750,7 +2655,6 @@ document.getElementById("jbNewCustomer").onclick=()=>openKunde(null,id=>{
   fuelleKundenAuswahl(id);
 });
 
-/* ---- Teams ---- */
 function openTeams(){
   const list=document.getElementById("teamList"); list.replaceChildren();
   state.teams.forEach(t=>list.appendChild(teamRow(t)));
@@ -2783,7 +2687,6 @@ document.getElementById("teamsSave").onclick=()=>{
 };
 document.getElementById("btnTeams").onclick=openTeams;
 
-/* ---- Einstellungen ---- */
 document.getElementById("btnSettings").onclick=()=>{
   const s=state.settings;
   stCompany.value=s.company; stAmS.value=s.amStart; stAmE.value=s.amEnd; stPmS.value=s.pmStart; stPmE.value=s.pmEnd;
@@ -2826,96 +2729,10 @@ document.getElementById("stSave").onclick=()=>{
   save(); dlgSettings.close(); render();
 };
 
-/* ---- Daten ---- */
 document.getElementById("btnData").onclick=async()=>{
   const el=document.getElementById("storeState");
-  el.textContent = storageOK
-    ? "Automatisch gespeichert auf diesem Rechner."
-    : "Achtung: Der Browser erlaubt hier kein automatisches Speichern. Bitte vor dem Schließen exportieren.";
+  el.textContent = "Daten sind in der Supabase-Cloud gespeichert.";
   dlgData.showModal();
-  const alle=await Files.all();
-  const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
-  el.textContent += alle.length
-    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“.`
-    : "";
-};
-
-/* ---------- Einfacher ZIP-Packer (ohne Komprimierung) ---------- */
-const CRC_TAB=(()=>{const t=new Uint32Array(256);
-  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}
-  return t;})();
-function crc32(buf){
-  let c=0xFFFFFFFF;
-  for(let i=0;i<buf.length;i++) c=CRC_TAB[(c^buf[i])&0xFF]^(c>>>8);
-  return (c^0xFFFFFFFF)>>>0;
-}
-function dosZeit(d){
-  const t=((d.getHours()<<11)|(d.getMinutes()<<5)|Math.floor(d.getSeconds()/2))&0xFFFF;
-  const g=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
-  return [t,g];
-}
-function zipBauen(eintraege){
-  const enc=new TextEncoder(), teile=[], verz=[];
-  let pos=0;
-  eintraege.forEach(e=>{
-    const name=enc.encode(e.name);
-    const crc=crc32(e.data);
-    const [zt,zd]=dosZeit(e.datum||new Date());
-    const lok=new DataView(new ArrayBuffer(30));
-    lok.setUint32(0,0x04034b50,true); lok.setUint16(4,20,true); lok.setUint16(6,0x0800,true);
-    lok.setUint16(8,0,true); lok.setUint16(10,zt,true); lok.setUint16(12,zd,true);
-    lok.setUint32(14,crc,true); lok.setUint32(18,e.data.length,true); lok.setUint32(22,e.data.length,true);
-    lok.setUint16(26,name.length,true); lok.setUint16(28,0,true);
-    teile.push(new Uint8Array(lok.buffer),name,e.data);
-    const z=new DataView(new ArrayBuffer(46));
-    z.setUint32(0,0x02014b50,true); z.setUint16(4,20,true); z.setUint16(6,20,true);
-    z.setUint16(8,0x0800,true); z.setUint16(10,0,true); z.setUint16(12,zt,true); z.setUint16(14,zd,true);
-    z.setUint32(16,crc,true); z.setUint32(20,e.data.length,true); z.setUint32(24,e.data.length,true);
-    z.setUint16(28,name.length,true); z.setUint32(42,pos,true);
-    verz.push(new Uint8Array(z.buffer),name);
-    pos+=30+name.length+e.data.length;
-  });
-  const vStart=pos;
-  let vLen=0; verz.forEach(v=>vLen+=v.length);
-  const end=new DataView(new ArrayBuffer(22));
-  end.setUint32(0,0x06054b50,true);
-  end.setUint16(8,eintraege.length,true); end.setUint16(10,eintraege.length,true);
-  end.setUint32(12,vLen,true); end.setUint32(16,vStart,true);
-  return new Blob([...teile,...verz,new Uint8Array(end.buffer)],{type:"application/zip"});
-}
-
-document.getElementById("dtZip").onclick=async()=>{
-  const btn=document.getElementById("dtZip"); const alt=btn.textContent;
-  const alle=await Files.all();
-  if(!alle.length){ alert("Es sind noch keine Fotos oder Dateien gespeichert."); return; }
-  btn.disabled=true;
-  try{
-    alle.sort((a,b)=>(a.nr||0)-(b.nr||0));
-    const eintraege=[];
-    const zeilen=["Dateiname;Objekt;Adresse;Kunde;Hinzugefuegt;Groesse"];
-    for(let i=0;i<alle.length;i++){
-      const f=alle[i];
-      btn.textContent=`Packe ${i+1} von ${alle.length} …`;
-      const job=jobById(f.jobId)||{};
-      const kunde=kundeById(job.customerId);
-      eintraege.push({name:"fotos/"+anzeigeName(f),
-        data:new Uint8Array(await f.blob.arrayBuffer()),
-        datum:new Date(f.added||Date.now())});
-      zeilen.push([anzeigeName(f),job.name||"",job.address||"",kunde?kunde.company:"",
-        String(f.added||"").slice(0,10),groesse(f.size)]
-        .map(x=>String(x).replace(/;/g,",")).join(";"));
-    }
-    eintraege.push({name:"uebersicht.csv",
-      data:new TextEncoder().encode("\uFEFF"+zeilen.join("\r\n")),datum:new Date()});
-    const blob=zipBauen(eintraege);
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="einsatzplaner-fotos-"+todayISO()+".zip"; a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),6000);
-  }catch(e){
-    alert("Der Ordner konnte nicht gepackt werden: "+e.message);
-  }
-  btn.disabled=false; btn.textContent=alt;
 };
 
 function ladeJSON(obj,name){
@@ -2924,43 +2741,11 @@ function ladeJSON(obj,name){
   a.href=URL.createObjectURL(blob); a.download=name; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
-const blobZuText = blob => new Promise(res=>{
-  const r=new FileReader();
-  r.onload=()=>res(String(r.result).split(",")[1]||"");
-  r.onerror=()=>res("");
-  r.readAsDataURL(blob);
-});
-function textZuBlob(b64,type){
-  const bin=atob(b64||""); const arr=new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
-  return new Blob([arr],{type:type||"application/octet-stream"});
-}
+
 document.getElementById("dtExport").onclick=()=>{
   ladeJSON(state,"einsatzplanung-"+todayISO()+".json");
 };
 
-document.getElementById("dtExportAll").onclick=async()=>{
-  const btn=document.getElementById("dtExportAll");
-  const alle=await Files.all();
-  if(!alle.length){ ladeJSON(state,"einsatzplanung-"+todayISO()+".json"); return; }
-  const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
-  if(!confirm(`${alle.length} Foto(s) und Datei(en) mit ${groesse(bytes)} werden in die Sicherung gepackt. Das dauert einen Moment. Fortfahren?`)) return;
-  btn.disabled=true; const alt=btn.textContent;
-  try{
-    const dateien=[];
-    for(let i=0;i<alle.length;i++){
-      const f=alle[i];
-      btn.textContent=`Packe ${i+1} von ${alle.length} …`;
-      dateien.push({id:f.id,jobId:f.jobId,nr:f.nr,name:f.name,storedName:anzeigeName(f),
-                    type:f.type,size:f.size,added:f.added,
-                    inhalt:await blobZuText(f.blob)});
-    }
-    ladeJSON({...state,_dateien:dateien},"einsatzplanung-mit-fotos-"+todayISO()+".json");
-  }catch(e){
-    alert("Die Sicherung konnte nicht erstellt werden. Bei sehr vielen Fotos hilft es, einzelne Aufträge zu bereinigen.");
-  }
-  btn.disabled=false; btn.textContent=alt;
-};
 document.getElementById("dtImportBtn").onclick=()=>document.getElementById("dtImport").click();
 document.getElementById("dtImport").onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
@@ -2969,34 +2754,19 @@ document.getElementById("dtImport").onchange=e=>{
     try{
       const d=JSON.parse(rd.result);
       if(!d.teams||!d.jobs) throw 0;
-      const dateien=d._dateien||[]; delete d._dateien;
       state=d; if(!state.settings) state.settings=demoState().settings;
-      if(dateien.length){
-        const btn=document.getElementById("dtImportBtn"); btn.disabled=true;
-        for(let i=0;i<dateien.length;i++){
-          const x=dateien[i];
-          btn.textContent=`Lade ${i+1} von ${dateien.length} …`;
-          try{ await Files.add(x.jobId,
-            Object.assign(textZuBlob(x.inhalt,x.type),{name:x.name})); }catch(_){}
-        }
-        btn.disabled=false; btn.textContent="Sicherung laden";
-        await refreshCounts();
-      }
+      if(!Array.isArray(state.fileMetadata)) state.fileMetadata=[];
       save(); dlgData.close(); render();
     }catch(err){alert("Diese Datei ist keine gültige Planung.");}
   };
   rd.readAsText(f); e.target.value="";
 };
+
 document.getElementById("dtReset").onclick=async()=>{
-  if(!confirm("Alle Teams, Aufträge, Einsätze UND alle gespeicherten Fotos löschen und neu anfangen?")) return;
-  for(const f of await Files.all()) await Files.remove(f.id);
-  await refreshCounts();
+  if(!confirm("Alle Teams, Aufträge, Einsätze UND alle gespeicherten Dateien löschen und neu anfangen?")) return;
   state=demoState(); save(); dlgData.close(); render();
 };
 
-/* =========================================================
-   Navigation
-   ========================================================= */
 document.querySelectorAll(".views button").forEach(b=>b.onclick=()=>{
   view=b.dataset.view;
   suchText=""; document.getElementById("qSearch").value="";
@@ -3037,7 +2807,7 @@ document.getElementById("next").onclick=()=>shift(1);
 document.getElementById("today").onclick=()=>{
   anchor=new Date(); anchor.setHours(0,0,0,0);
   mapDay=todayISO(); mapFocusJob=null; pendingScrollToday=true;
-  if(view==="search"){                       // aus der Suche zurück in den Kalender
+  if(view==="search"){
     suchText=""; document.getElementById("qSearch").value="";
     view = (vorherigeAnsicht==="search") ? "month" : vorherigeAnsicht;
   }
