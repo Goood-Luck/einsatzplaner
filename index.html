@@ -35,7 +35,6 @@ body{
 button{font-family:inherit;color:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:13px}
 
-/* ---------- Kopfzeile ---------- */
 header{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:10px 14px;
@@ -74,7 +73,6 @@ header{
 .ghost.heute:hover{background:#16222C;border-color:var(--focus)}
 .spacer{flex:1}
 
-/* ---------- Layout ---------- */
 main{flex:1;display:flex;min-height:0}
 #stage{flex:1;min-width:0;overflow:auto;position:relative}
 
@@ -107,7 +105,6 @@ aside h2 .count{color:var(--ink-faint);font-size:12px;font-family:Inter,sans-ser
 .aside-foot button{flex:1;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel-2);padding:7px 0;font-size:12px}
 .aside-foot button.primary{background:var(--focus);color:#0A1119;border-color:var(--focus);font-weight:600}
 
-/* ---------- Planungsraster ---------- */
 table.board{border-collapse:separate;border-spacing:0;width:100%;min-width:660px;table-layout:fixed}
 table.board th,table.board td{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);padding:0}
 table.board thead th{
@@ -542,7 +539,6 @@ dialog h3{
       </div>
     </div>
     <p class="hint" id="assignHint"></p>
-
   </div>
   <div class="dlg-foot">
     <button class="btn warn" id="asDelete" style="margin-right:auto">Aus Kalender nehmen</button>
@@ -772,7 +768,7 @@ dialog h3{
 <dialog id="dlgData">
   <h3>Sichern und Laden</h3>
   <div class="dlg-body">
-    <p class="hint" style="margin-top:0">Alle Daten liegen im Supabase-Cloud-Speicher. Für Backups kannst du die Planung als Datei exportieren.</p>
+    <p class="hint" style="margin-top:0">Alle Daten liegen im Supabase-Cloudspeicher und sind für alle Teammitglieder verfügbar.</p>
     <div style="display:flex;gap:9px;margin:16px 0">
       <button class="btn primary" id="dtExport">Planung exportieren</button>
       <button class="btn" id="dtImportBtn">Sicherung laden</button>
@@ -790,6 +786,7 @@ dialog h3{
 
 const SUPABASE_URL = 'https://ehoygnjlyqwhpsevtgtf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD';
+const BUCKET_NAME = 'einsatz-files';
 
 if (!window.supabase) {
   const script = document.createElement('script');
@@ -805,85 +802,79 @@ let storageOK = true;
 const PALETTE = ["#F2B01E","#2FA8E0","#E04F5F","#59C26A","#A77BF3","#FF8A3D","#35D0C3","#E86BB0","#9FD356","#6E8BFF"];
 const STORE_KEY = "einsatzplaner.v1";
 
-/* =========================================================
-   Файловое хранилище через Supabase Storage
-   ========================================================= */
 const Files = (() => {
   return {
     async add(jobId, file) {
-      const nr = naechsteNummer();
-      const storedName = dateinameBauen(nr, jobId, file);
-      const filePath = `${jobId}/${storedName}`;
-
-      const { error } = await supabaseClient.storage
-        .from('einsatz-files')
-        .upload(filePath, file);
+      if (!supabaseClient) return null;
+      const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+      const storedName = `${jobId}_${Date.now()}_${cleanName}`;
+      
+      const { data, error } = await supabaseClient.storage
+        .from(BUCKET_NAME)
+        .upload(storedName, file);
 
       if (error) {
-        console.error("Ошибка загрузки файла в Supabase:", error);
+        console.error('Ошибка загрузки файла в облако:', error);
         throw error;
       }
 
+      const { data: urlData } = supabaseClient.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(storedName);
+
+      const nr = naechsteNummer();
       const rec = {
         id: uid() + uid(),
         jobId,
         nr,
         name: file.name || "Datei",
-        storedName: storedName,
+        storedName,
         type: file.type || "",
         size: file.size || 0,
         added: new Date().toISOString(),
-        path: filePath
+        url: urlData.publicUrl
       };
 
-      if (!state.fileMetadata) state.fileMetadata = [];
-      state.fileMetadata.push(rec);
+      if (!state.fileRegistry) state.fileRegistry = [];
+      state.fileRegistry.push(rec);
       save();
-
       return rec;
     },
     async forJob(jobId) {
-      if (!state.fileMetadata) return [];
-      return state.fileMetadata.filter(f => f.jobId === jobId);
+      if (!state.fileRegistry) return [];
+      return state.fileRegistry.filter(f => f.jobId === jobId).sort((a,b)=>a.added.localeCompare(b.added));
     },
     async all() {
-      return state.fileMetadata || [];
+      return state.fileRegistry || [];
     },
-    async remove(id) {
-      if (!state.fileMetadata) return;
-      const index = state.fileMetadata.findIndex(f => f.id === id);
-      if (index !== -1) {
-        const file = state.fileMetadata[index];
-        if (file.path) {
-          await supabaseClient.storage
-            .from('einsatz-files')
-            .remove([file.path]);
-        }
-        state.fileMetadata.splice(index, 1);
-        save();
+    async put(rec) { 
+      if(!state.fileRegistry) state.fileRegistry=[];
+      const idx = state.fileRegistry.findIndex(f => f.id === rec.id);
+      if(idx>=0) state.fileRegistry[idx]=rec; else state.fileRegistry.push(rec);
+      save();
+    },
+    async remove(id) { 
+      if (!state.fileRegistry) return;
+      const file = state.fileRegistry.find(f => f.id === id);
+      if (file && supabaseClient) {
+        try {
+          await supabaseClient.storage.from(BUCKET_NAME).remove([file.storedName]);
+        } catch(e) {}
       }
+      state.fileRegistry = state.fileRegistry.filter(f => f.id !== id);
+      save();
     },
     async removeJob(jobId) {
       const list = await this.forJob(jobId);
-      for (const f of list) {
-        await this.remove(f.id);
-      }
+      for(const f of list) await this.remove(f.id);
     },
     async counts() {
-      const m = {};
-      const list = await this.all();
-      list.forEach(f => m[f.jobId] = (m[f.jobId] || 0) + 1);
+      const m = {}; 
+      (state.fileRegistry || []).forEach(f => m[f.jobId] = (m[f.jobId] || 0) + 1); 
       return m;
     }
   };
 })();
-
-function getFileUrl(path) {
-  const { data } = supabaseClient.storage
-    .from('einsatz-files')
-    .getPublicUrl(path);
-  return data.publicUrl;
-}
 
 function naechsteNummer(){
   const n=(state.settings.fileCounter||0)+1;
@@ -903,12 +894,7 @@ function endungVon(file){
   const t=(file.type||"").split("/")[1]||"";
   return (t==="jpeg"?"jpg":t) || "dat";
 }
-function dateinameBauen(nr,jobId,file){
-  const job=jobById(jobId);
-  const d=new Date().toISOString().slice(0,10);
-  return `${String(nr).padStart(4,"0")}_${d}_${slug(job?job.name:"")}.${endungVon(file)}`;
-}
-const anzeigeName = f => f.storedName || f.name;
+const anzeigeName = f => f.name;
 
 let fileCounts={};
 const istFixiert = jobId => (fileCounts[jobId]||0) > 0;
@@ -923,14 +909,11 @@ async function refreshCounts(){ fileCounts=await Files.counts(); }
 async function nummernNachtragen(){
   try{
     const alle=await Files.all();
-    const ohne=alle.filter(f=>!f.storedName).sort((a,b)=>String(a.added).localeCompare(String(b.added)));
+    const ohne=alle.filter(f=>!f.nr).sort((a,b)=>String(a.added).localeCompare(String(b.added)));
     if(!ohne.length) return;
     for(const f of ohne){
-      const nr=naechsteNummer();
-      const job=jobById(f.jobId);
-      const d=String(f.added||"").slice(0,10)||todayISO();
-      f.nr=nr;
-      f.storedName=`${String(nr).padStart(4,"0")}_${d}_${slug(job?job.name:"")}.${endungVon(f)}`;
+      f.nr=naechsteNummer();
+      await Files.put(f);
     }
     save();
   }catch(e){}
@@ -971,7 +954,7 @@ function demoState(){
   add(2,2,0,["AM"]); add(2,3,0,["PM"]); [1,2].forEach(o=>add(2,2,o,["AM","PM"]));
   [0,1,2,3,4].forEach(o=>add(3,4,o,["AM","PM"]));
   add(4,3,0,["AM","PM"]); add(4,5,1,["AM"]);
-  return {teams,jobs,assignments:A,fileMetadata:[],settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
+  return {teams,jobs,assignments:A,fileRegistry:[],settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
 }
 
 async function initSupabaseAndLoad() {
@@ -1005,10 +988,10 @@ async function initSupabaseAndLoad() {
   }
   
   if (!state.settings) state.settings = demoState().settings;
-  if (!Array.isArray(state.fileMetadata)) state.fileMetadata = [];
+  if (!state.fileRegistry) state.fileRegistry = [];
   if (state.settings.showWeekend === undefined) state.settings.showWeekend = false;
-  if (!Array.isArray(state.customers)) state.customers = [];
-  if (!state.settings.model) state.settings.model = "claude-sonnet-5-5";
+  if(!Array.isArray(state.customers)) state.customers=[];
+  if(!state.settings.model) state.settings.model="claude-sonnet-5-5";
 
   await refreshCounts();
   await nummernNachtragen();
@@ -1292,6 +1275,8 @@ function renderNow(){
       const r=runFor(team.id,a.jobId,d,slot);
       const start=atTime(r.first[0], r.first[1]==="AM"?t.AM[0]:t.PM[0]);
       const end=atTime(r.last[0], r.last[1]==="AM"?t.AM[1]:t.PM[1]);
+      const slotStart=atTime(d, slot==="AM"?t.AM[0]:t.PM[0]);
+      const slotEnd=atTime(d, slot==="AM"?t.AM[1]:t.PM[1]);
       const pct=Math.max(0,Math.min(100,(now-start)/(end-start)*100));
       const mehrTage=r.first[0]!==d;
       const bisHeute=r.last[0]===d;
@@ -1775,15 +1760,14 @@ async function zeigeAssignAnhaenge(){
 
 function kachelAssign(f){
   const d=document.createElement("div"); d.className="att";
-  const fileUrl = f.path ? getFileUrl(f.path) : "";
   if(istBild(f.type)){
-    const img=document.createElement("img"); img.src=fileUrl; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=f.url; img.alt=f.name; img.loading="lazy";
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
   }else{
     const b=document.createElement("div"); b.className="doc";
     b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>window.open(fileUrl, "_blank");
+    b.onclick=()=>ladeDatei(f);
     d.appendChild(b);
   }
   d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
@@ -2032,15 +2016,14 @@ document.getElementById("jbSave").onclick=()=>{
 
 function kachel(f,klein){
   const d=document.createElement("div"); d.className="att";
-  const fileUrl = f.path ? getFileUrl(f.path) : "";
   if(istBild(f.type)){
-    const img=document.createElement("img"); img.src=fileUrl; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=f.url; img.alt=f.name; img.loading="lazy";
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
   }else{
     const b=document.createElement("div"); b.className="doc";
     b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>window.open(fileUrl, "_blank");
+    b.onclick=()=>ladeDatei(f);
     d.appendChild(b);
   }
   d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
@@ -2091,24 +2074,20 @@ document.getElementById("jbFileInput").onchange=e=>{ nimmDateien(e.target.files)
 let vwFile=null;
 function zeigeBild(f){
   vwFile=f;
-  const fileUrl = f.path ? getFileUrl(f.path) : "";
-  document.getElementById("vwImg").src=fileUrl;
+  document.getElementById("vwImg").src=f.url;
   document.getElementById("vwTitle").textContent=anzeigeName(f);
   const d=new Date(f.added);
   document.getElementById("vwMeta").textContent=
     `${groesse(f.size)} · hinzugefügt ${d.toLocaleDateString("de-DE")}`;
   document.getElementById("dlgView").showModal();
 }
-document.getElementById("vwDown").onclick=()=>{ 
-  if(vwFile && vwFile.path) {
-    const fileUrl = getFileUrl(vwFile.path);
-    const a=document.createElement("a"); a.href=fileUrl; a.download=anzeigeName(vwFile); a.target="_blank"; a.click();
-  }
-};
+function ladeDatei(f){
+  const a=document.createElement("a"); a.href=f.url; a.download=anzeigeName(f); a.target="_blank"; a.click();
+}
+document.getElementById("vwDown").onclick=()=>{ if(vwFile) ladeDatei(vwFile); };
 document.getElementById("dlgView").addEventListener("close",()=>{
   document.getElementById("vwImg").src="";
 });
-
 document.getElementById("jbDelete").onclick=async()=>{
   if(!jobEditId) return;
   const n=state.assignments.filter(a=>a.jobId===jobEditId).length;
@@ -2122,7 +2101,6 @@ document.getElementById("jbDelete").onclick=async()=>{
   await Files.removeJob(jobEditId); await refreshCounts();
   save(); dlgJob.close(); render();
 };
-
 document.getElementById("jbGeo").onclick=async()=>{
   const q=jbAdr.value.trim(); const h=document.getElementById("geoHint");
   if(!q){h.textContent="Erst eine Adresse eintragen.";return;}
@@ -2586,7 +2564,8 @@ function openKunden(){
     row.innerHTML=`<div>
         <b>${esc(k.company)}</b>
         <small>${esc([k.contact,k.address].filter(Boolean).join(" · ")||"keine weiteren Angaben")}</small>
-        ${(k.phone||k.mobile)?`<small>${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}</small>`:""}
+        ${(k.phone||k.mobile)?`<small>${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}
+        </small>`:""}
       </div>
       <span class="n">${n?`${n} Auftrag${n===1?"":"­e"}`:"kein Auftrag"}</span>`;
     row.onclick=()=>openKunde(k.id);
@@ -2731,8 +2710,10 @@ document.getElementById("stSave").onclick=()=>{
 
 document.getElementById("btnData").onclick=async()=>{
   const el=document.getElementById("storeState");
-  el.textContent = "Daten sind in der Supabase-Cloud gespeichert.";
+  el.textContent = "Daten werden in Supabase (Cloud) synchronisiert.";
   dlgData.showModal();
+  const alle=await Files.all();
+  el.textContent += alle.length ? ` · ${alle.length} Datei(en) im Cloud-Storage.` : "";
 };
 
 function ladeJSON(obj,name){
@@ -2741,7 +2722,6 @@ function ladeJSON(obj,name){
   a.href=URL.createObjectURL(blob); a.download=name; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
-
 document.getElementById("dtExport").onclick=()=>{
   ladeJSON(state,"einsatzplanung-"+todayISO()+".json");
 };
@@ -2755,15 +2735,14 @@ document.getElementById("dtImport").onchange=e=>{
       const d=JSON.parse(rd.result);
       if(!d.teams||!d.jobs) throw 0;
       state=d; if(!state.settings) state.settings=demoState().settings;
-      if(!Array.isArray(state.fileMetadata)) state.fileMetadata=[];
+      if(!state.fileRegistry) state.fileRegistry=[];
       save(); dlgData.close(); render();
     }catch(err){alert("Diese Datei ist keine gültige Planung.");}
   };
   rd.readAsText(f); e.target.value="";
 };
-
 document.getElementById("dtReset").onclick=async()=>{
-  if(!confirm("Alle Teams, Aufträge, Einsätze UND alle gespeicherten Dateien löschen und neu anfangen?")) return;
+  if(!confirm("Alle Teams, Aufträge, Einsätze UND alle gespeicherten Fotos löschen und neu anfangen?")) return;
   state=demoState(); save(); dlgData.close(); render();
 };
 
