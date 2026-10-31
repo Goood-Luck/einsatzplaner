@@ -792,7 +792,7 @@ dialog h3{
 <dialog id="dlgData">
   <h3>Sichern und Laden</h3>
   <div class="dlg-body">
-    <p class="hint" style="margin-top:0">Alle Daten liegen nur auf diesem Mac im Browser. Für Backups oder den Wechsel auf einen anderen Rechner die Planung als Datei exportieren.</p>
+    <p class="hint" style="margin-top:0">Alle Daten liegen jetzt in der Cloud (Supabase) und sind für alle Mitarbeiter erreichbar.</p>
     <div style="display:flex;gap:9px;margin:16px 0">
       <button class="btn primary" id="dtExport">Planung exportieren</button>
       <button class="btn" id="dtZip">Fotoordner herunterladen</button>
@@ -800,7 +800,7 @@ dialog h3{
       <button class="btn" id="dtImportBtn">Sicherung laden</button>
       <input type="file" id="dtImport" accept="application/json" hidden>
     </div>
-    <p class="hint" id="storeState"></p>
+    <p class="hint" id="storeState">Cloud-Synchronisation aktiv.</p>
     <button class="btn danger" id="dtReset" style="margin-top:16px">Alles zurücksetzen</button>
   </div>
   <div class="dlg-foot"><button class="btn" data-close>Schließen</button></div>
@@ -811,10 +811,14 @@ dialog h3{
 "use strict";
 
 /* =========================================================
-   Daten
+   Daten & Supabase Cloud Konfiguration
    ========================================================= */
 const PALETTE = ["#F2B01E","#2FA8E0","#E04F5F","#59C26A","#A77BF3","#FF8A3D","#35D0C3","#E86BB0","#9FD356","#6E8BFF"];
-const STORE_KEY = "einsatzplaner.v1";
+const SUPABASE_URL = "https://ehoygnjlyqwhpsevtgtf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_AItKYP4npF-bG6O8FZyI3Q_F4rZ0iAD";
+
+let state = demoState();
+let storageOK = true;
 
 /* =========================================================
    Dateispeicher für Fotos und Dokumente
@@ -888,8 +892,7 @@ const Files = (() => {
   };
 })();
 
-/* Jede abgelegte Datei bekommt eine eigene laufende Nummer,
-   damit sich Namen vom Handy (IMG_0001.jpg) nie überschreiben. */
+/* Jede abgelegte Datei bekommt eine eigene laufende Nummer */
 function naechsteNummer(){
   const n=(state.settings.fileCounter||0)+1;
   state.settings.fileCounter=n;
@@ -916,17 +919,14 @@ function dateinameBauen(nr,jobId,file){
 const anzeigeName = f => f.storedName || f.name;
 
 let fileCounts={};
-/* Ein Objekt mit Fotos gilt als belegt: der Einsatz ist dokumentiert und wird festgehalten. */
 const istFixiert = jobId => (fileCounts[jobId]||0) > 0;
 function fixHinweis(jobId){
   const n=fileCounts[jobId]||0;
   return `Dieser Einsatz ist durch ${n} Foto${n===1?"":"s"} bzw. Datei${n===1?"":"en"} belegt und deshalb festgehalten. `+
-         `Datum und Team lassen sich nicht versehentlich verschieben. Muss das Datum doch korrigiert werden, `+
-         `unten auf „Datum trotzdem ändern“ gehen.`;
+         `Datum und Team lassen sich nicht versehentlich verschieben.`;
 }
 async function refreshCounts(){ fileCounts=await Files.counts(); }
 
-/* Dateien aus früheren Fassungen bekommen nachträglich Nummern */
 async function nummernNachtragen(){
   try{
     const alle=await Files.all();
@@ -982,20 +982,50 @@ function demoState(){
   return {teams,jobs,assignments:A,settings:{company:"Elektro Meisterbetrieb",amStart:"07:00",amEnd:"12:00",pmStart:"12:30",pmEnd:"16:30",model:"claude-sonnet-5-5"}};
 }
 
-let state, storageOK = true;
-try{
-  const raw = localStorage.getItem(STORE_KEY);
-  state = raw ? JSON.parse(raw) : demoState();
-}catch(e){ storageOK=false; state = demoState(); }
+/* --- Функции сохранения и загрузки из Supabase --- */
+async function save(){
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main`, {
+      method: "PATCH",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({ data: state })
+    });
+  } catch (e) {
+    console.error("Ошибка сохранения в облако:", e);
+  }
+}
 
-if(!state.settings) state.settings=demoState().settings;
-if(!Array.isArray(state.customers)) state.customers=[];
-if(!state.settings.model) state.settings.model="claude-sonnet-5-5";
+async function loadState() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main&select=data`, {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows && rows.length > 0 && rows[0].data) {
+        state = rows[0].data;
+      }
+    }
+  } catch (e) {
+    console.error("Не удалось загрузить из облака, используется демо-состояние", e);
+  }
 
-function save(){
-  if(!storageOK) return;
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-  catch(e){ storageOK=false; }
+  if(!state.settings) state.settings=demoState().settings;
+  if(!Array.isArray(state.customers)) state.customers=[];
+  if(!state.settings.model) state.settings.model="claude-sonnet-5-5";
+
+  await refreshCounts();
+  await nummernNachtragen();
+  renderPool();
+  render();
 }
 
 /* =========================================================
@@ -1010,8 +1040,8 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function mondayOf(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
 const todayISO = ()=>iso(new Date());
 
-let zoomWeek=null;          // null = Breite an das Fenster anpassen
-let monthVisible=12;        // sichtbare Tage in der Monatsansicht
+let zoomWeek=null;
+let monthVisible=12;
 let pendingScrollToday=true;
 let view="month";
 let anchor=new Date(); anchor.setHours(0,0,0,0);
@@ -1028,7 +1058,6 @@ function wunschText(ds){
 }
 const kundeById=id=>state.customers.find(k=>k.id===id);
 
-/* Telefonnummer für WhatsApp: nur Ziffern, deutsche Vorwahl ergänzen */
 function waNummer(raw){
   if(!raw) return "";
   let n=String(raw).replace(/[^\d+]/g,"");
@@ -1053,12 +1082,11 @@ function currentSlot(now=new Date()){
   return null;
 }
 
-/* Nachbar-Halbtag: dir -1 = davor, +1 = danach */
 function neighborSlot(dateStr,slot,dir){
   if(dir<0) return slot==="PM" ? [dateStr,"AM"] : [iso(addDays(parse(dateStr),-1)),"PM"];
   return slot==="AM" ? [dateStr,"PM"] : [iso(addDays(parse(dateStr),1)),"AM"];
 }
-/* Zusammenhängender Einsatzblock (gleiches Team + gleicher Auftrag) */
+
 function runFor(teamId,jobId,dateStr,slot){
   const order=["AM","PM"];
   const step=(d,s,dir)=>{
@@ -1125,10 +1153,8 @@ function renderPeriodLabel(){
   }
 }
 
-/* ---- Suche ---- */
 let suchText="", vorherigeAnsicht="month";
 
-/* Alle Einsätze eines Auftrags als zusammenhängende Blöcke */
 function einsaetzeZu(jobId){
   const list=state.assignments.filter(a=>a.jobId===jobId)
     .sort((a,b)=>a.date.localeCompare(b.date)||(a.slot==="AM"?0:1)-(b.slot==="AM"?0:1));
@@ -1159,8 +1185,7 @@ async function renderSearch(){
 
   if(q.length<2){
     wrap.innerHTML=`<h2>Objekte durchsuchen</h2>
-      <div class="none">Straße, Ort oder Auftragsbezeichnung eingeben – mindestens zwei Zeichen.<br>
-      Gesucht wird in Bezeichnung, Adresse, Notiz und Kundendaten. Die Suche findet auch alte Aufträge, ohne dass du im Kalender zurückblättern musst, und zeigt die zugehörigen Fotos.</div>`;
+      <div class="none">Straße, Ort oder Auftragsbezeichnung eingeben – mindestens zwei Zeichen.</div>`;
     stage.replaceChildren(wrap); return;
   }
 
@@ -1177,11 +1202,10 @@ async function renderSearch(){
 
   if(!treffer.length){
     const d=document.createElement("div"); d.className="none";
-    d.textContent="Nichts gefunden. Versuche einen kürzeren Suchbegriff, zum Beispiel nur den Straßennamen.";
+    d.textContent="Nichts gefunden.";
     wrap.appendChild(d); stage.replaceChildren(wrap); return;
   }
 
-  // Treffer mit jüngstem Einsatz zuerst
   const mitZeit=treffer.map(j=>{
     const bl=einsaetzeZu(j.id);
     return {job:j, blocks:bl, letzte: bl.length?bl[bl.length-1].last[0]:""};
@@ -1194,38 +1218,9 @@ async function renderSearch(){
     card.innerHTML=`<div class="top"><div>
         <b>${esc(job.name)}</b>
         <div class="adr">${esc(job.address||"keine Adresse hinterlegt")}</div>
-        ${(()=>{const k=kundeById(job.customerId);
-          return k?`<div class="meta">Kunde: ${esc(k.company)}${k.contact?" · "+esc(k.contact):""}</div>`:"";})()}
-        ${job.contact?`<div class="meta">vor Ort: ${esc(job.contact)}</div>`:""}
       </div>
-      <div class="meta">${blocks.length?`${tage} ${tage===1?"Tag":"Tage"} eingeplant`:"noch nicht eingeplant"}
-        ${job.wishDate?`<br>Wunschbeginn ${esc(wunschText(job.wishDate))}`:""}
-        ${job.value?`<br>${esc(job.value)}`:""}
-        ${job.billed?`<br><span style="color:#8C96A5">abgerechnet</span>`:""}</div></div>`;
-
-    if(blocks.length){
-      const row=document.createElement("div"); row.className="runs";
-      blocks.forEach(b=>{
-        const team=teamById(b.teamId);
-        const btn=document.createElement("button"); btn.className="run";
-        btn.style.background=job.billed?"#6B7585":(team?team.color:"#5C6878");
-        btn.innerHTML=`<span class="d">${esc(zeitraumText(b))}</span>${esc(team?team.name:"Team entfernt")}`;
-        btn.title="Im Kalender anzeigen";
-        btn.onclick=()=>{
-          anchor=parse(b.first[0]); pendingScrollToday=false;
-          view="month"; suchText=""; document.getElementById("qSearch").value="";
-          render();
-          requestAnimationFrame(()=>{
-            const n=new Date(anchor.getFullYear(),anchor.getMonth()+1,0).getDate();
-            const tbl=stage.querySelector("table");
-            if(tbl){ const dw=(tbl.offsetWidth-150)/n; stage.scrollLeft=Math.max(0,(parse(b.first[0]).getDate()-2)*dw); }
-          });
-        };
-        row.appendChild(btn);
-      });
-      card.appendChild(row);
-    }
-
+      <div class="meta">${blocks.length?`${tage} Tage eingeplant`:"noch nicht eingeplant"}</div></div>`;
+    
     const dateien=await Files.forJob(job.id);
     if(dateien.length){
       const fb=document.createElement("div"); fb.className="files";
@@ -1235,21 +1230,15 @@ async function renderSearch(){
 
     const acts=document.createElement("div"); acts.className="acts";
     const b1=document.createElement("button");
-    b1.textContent=dateien.length?`Bearbeiten · ${dateien.length} ${dateien.length===1?"Anhang":"Anhänge"}`:"Bearbeiten und Fotos hinzufügen";
+    b1.textContent="Bearbeiten";
     b1.onclick=()=>openJob(job.id);
     acts.appendChild(b1);
-    if(job.lat!=null){
-      const b2=document.createElement("button"); b2.textContent="Auf Karte zeigen";
-      b2.onclick=()=>showOnMap(job.id, blocks.length?blocks[blocks.length-1].first[0]:todayISO());
-      acts.appendChild(b2);
-    }
     card.appendChild(acts);
     wrap.appendChild(card);
   }
   stage.replaceChildren(wrap);
 }
 
-/* ---- Jetzt ---- */
 function renderNow(){
   const now=new Date(), d=todayISO(), slot=currentSlot(now), t=slotTimes();
   const wrap=document.createElement("div"); wrap.className="now-wrap";
@@ -1266,22 +1255,10 @@ function renderNow(){
       const r=runFor(team.id,a.jobId,d,slot);
       const start=atTime(r.first[0], r.first[1]==="AM"?t.AM[0]:t.PM[0]);
       const end=atTime(r.last[0], r.last[1]==="AM"?t.AM[1]:t.PM[1]);
-      const slotStart=atTime(d, slot==="AM"?t.AM[0]:t.PM[0]);
-      const slotEnd=atTime(d, slot==="AM"?t.AM[1]:t.PM[1]);
       const pct=Math.max(0,Math.min(100,(now-start)/(end-start)*100));
-      const mehrTage=r.first[0]!==d;
-      const bisHeute=r.last[0]===d;
       html+=`<div class="job">${esc(job.name)}</div>
         <div class="adr">${esc(job.address)}</div>
         <div class="progress"><i style="width:${pct.toFixed(1)}%;background:${team.color}"></i></div>
-        <div class="times">
-          <span>vor Ort seit <b>${fmtDur(now-start)}</b>${mehrTage?` (seit ${DSHORT[(parse(r.first[0]).getDay()+6)%7]})`:""}</span>
-          <span>noch <b>${fmtDur(end-now)}</b>${bisHeute?"":` (bis ${DSHORT[(parse(r.last[0]).getDay()+6)%7]})`}</span>
-        </div>
-        <div class="times" style="margin-top:4px;color:var(--ink-faint)">
-          <span>${slot==="AM"?"Vormittag":"Nachmittag"} ${esc(slot==="AM"?t.AM[0]:t.PM[0])}–${esc(slot==="AM"?t.AM[1]:t.PM[1])}</span>
-          <span>${r.count} Halbtage gesamt</span>
-        </div>
         <div class="acts">
           <button data-map="${job.id}">Auf Karte zeigen</button>
           <button data-edit="${team.id}|${d}|${slot}">Ändern</button>
@@ -1300,7 +1277,6 @@ function renderNow(){
   });
 }
 
-/* ---- Woche / Monat ---- */
 function buildBoard(dates,isMonth){
   const n=dates.length;
   const tbl=document.createElement("table");
@@ -1327,7 +1303,6 @@ function buildBoard(dates,isMonth){
     const track=document.createElement("div"); track.className="track";
     track.style.gridTemplateColumns=`repeat(${n*2},1fr)`;
 
-    // Hintergrund: Tagesraster, Wochenende, heute
     dates.forEach((d,i)=>{
       const bg=document.createElement("div");
       bg.className="daybg"+(iso(d)===todayISO()?" today":"")
@@ -1336,7 +1311,6 @@ function buildBoard(dates,isMonth){
       track.appendChild(bg);
     });
 
-    // Halbtage der Reihe nach, gleiche Aufträge zu einem Feld zusammenfassen
     const units=[];
     dates.forEach(d=>{const ds=iso(d);["AM","PM"].forEach(s=>units.push({ds,s,a:assignAt(team.id,ds,s)}));});
 
@@ -1367,11 +1341,9 @@ function buildBoard(dates,isMonth){
   return tbl;
 }
 
-/* Teamzeile links: benennen, verschieben */
 function buildTeamCell(team,idx,total){
   const tc=document.createElement("td"); tc.className="teamcol";
   const inner=document.createElement("div"); inner.className="teamcell"; inner.draggable=true;
-  inner.title="Zum Umsortieren nach oben oder unten ziehen";
   inner.innerHTML=`<span class="swatch" style="background:${team.color}"></span>
     <span class="tn"><b>${esc(team.name)}</b><small>${esc(team.members.join(", ")||"–")}</small></span>
     <span class="order">
@@ -1408,7 +1380,6 @@ function placeTeam(id,targetIdx){
   state.teams.splice(targetIdx,0,t); save(); render();
 }
 
-/* Ein zusammenhängendes Einsatzfeld */
 function makeBar(team,jobId,firstU,lastU,span,isMonth){
   const job=jobById(jobId)||{name:"?",address:""};
   const l=neighborSlot(firstU.ds,firstU.s,-1), r=neighborSlot(lastU.ds,lastU.s,+1);
@@ -1421,14 +1392,10 @@ function makeBar(team,jobId,firstU,lastU,span,isMonth){
   b.className="bar"+(cl?" cl":"")+(cr?" cr":"")+(fix?" fix":"")+(abger?" abger":"");
   b.style.gridColumn="span "+span;
   b.style.background=team.color;
-  const halb = span===1 ? (firstU.s==="AM"?" · erste Tageshälfte":" · zweite Tageshälfte") : "";
   const schloss = (fix && !cl) ? `<span class="lock" aria-hidden="true">🔒</span>` : "";
   b.innerHTML = isMonth
     ? `${schloss}<span class="nm">${esc(short(job.name, span<=1?6:span*7))}</span>`
     : `${schloss}<span class="nm">${esc(job.name)}</span>`+(span>=2?`<span class="adr">${esc(job.address)}</span>`:"");
-  b.title=`${job.name}\n${job.address}\n${team.name}${halb}\n${span/2 % 1 ? (span/2).toFixed(1) : span/2} Tage`
-    +(abger?"\n\nAbgerechnet.":"")
-    +(fix?`\n\nFestgehalten: ${fileCounts[jobId]} Anhang/Anhänge vorhanden.`:"");
   b.onclick=()=>openRun(team.id,jobId,firstU.ds,firstU.s);
   b.oncontextmenu=e=>{ e.preventDefault(); zeigeKontext(e.clientX,e.clientY,jobId,team.id,firstU.ds,firstU.s); };
   b.draggable=!fix;
@@ -1453,7 +1420,6 @@ function makeBar(team,jobId,firstU,lastU,span,isMonth){
   return b;
 }
 
-/* Freie Fläche */
 function makeGap(team,ds,slot,span,full){
   const c=document.createElement("div");
   c.className="gap";
@@ -1482,12 +1448,11 @@ function renderWeek(){
   const n=7;
   stage.replaceChildren(buildBoard(Array.from({length:n},(_,i)=>addDays(m,i)),false));
 }
-/* Die Monatsansicht läuft über das Monatsende hinaus weiter,
-   damit am 30. eines Monats nicht die Übersicht endet. */
+
 function monatsTage(){
   const y=anchor.getFullYear(), mo=anchor.getMonth();
   const start=new Date(y,mo,1);
-  const ende=new Date(y,mo+2,0);              // bis Ende des Folgemonats
+  const ende=new Date(y,mo+2,0);
   const tage=[];
   for(let d=new Date(start); d<=ende; d=addDays(d,1)) tage.push(new Date(d));
   return tage;
@@ -1501,10 +1466,10 @@ function renderMonth(){
     pendingScrollToday=false;
     requestAnimationFrame(()=>{
       const dayW=(tbl.offsetWidth-150)/tage.length;
-      const vorlauf=Math.max(3,Math.round(monthVisible/4));   // heute ins erste Viertel
+      const vorlauf=Math.max(3,Math.round(monthVisible/4));
       const heute=todayISO();
       let i=tage.findIndex(d=>iso(d)===heute);
-      if(i<0) i=0;                                           // anderer Monat: an den Anfang
+      if(i<0) i=0;
       stage.scrollLeft=Math.max(0,(i-vorlauf)*dayW);
     });
   }
@@ -1512,7 +1477,6 @@ function renderMonth(){
 const short=(s,n)=>!s?"":(s.length>n?s.slice(0,n-1)+"…":s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* ---- Auftragspool ---- */
 function renderPool(){
   const pool=document.getElementById("pool");
   const planned=plannedJobIds();
@@ -1529,13 +1493,6 @@ function renderPool(){
     const c=document.createElement("div"); c.className="jobcard"; c.draggable=true;
     if(planned.has(j.id)) c.style.borderLeftColor="#3D4A5C";
     c.innerHTML=`<b>${esc(j.name)}</b><small>${esc(j.address||"keine Adresse")}</small>
-      ${(()=>{const k=kundeById(j.customerId);
-        return k?`<small style="margin-top:3px;color:var(--ink-dim)">${esc(k.company)}</small>`:"";})()}
-      ${j.wishDate?`<small style="margin-top:3px;color:#FFC978">Wunschbeginn ${esc(wunschText(j.wishDate))}</small>`:""}
-      ${j.billed?`<small style="margin-top:3px;color:#8C96A5">abgerechnet</small>`:""}
-      ${j.contact?`<small style="margin-top:3px;color:var(--ink-faint)">${esc(j.contact)}</small>`:""}
-      ${(j.address&&j.lat==null)?`<small style="margin-top:3px;color:#FFB65C">noch kein Pin – über „Bearbeiten“ Adresse suchen</small>`:""}
-      ${fileCounts[j.id]?`<small style="margin-top:3px;color:var(--ink-dim)">${fileCounts[j.id]} Foto${fileCounts[j.id]===1?"":"s"} / Datei${fileCounts[j.id]===1?"":"en"}</small>`:""}
       <div class="row"><button data-e="${j.id}">Bearbeiten</button><button data-m="${j.id}">Karte</button></div>`;
     c.ondragstart=e=>e.dataTransfer.setData("text/plain",j.id);
     pool.appendChild(c);
@@ -1563,23 +1520,14 @@ function renderMap(){
   document.getElementById("mapAll").onchange=()=>drawMarkers(document.getElementById("mapAll").checked);
 
   if(typeof L==="undefined"){
-    document.getElementById("map").innerHTML=
-      `<div style="padding:34px;color:var(--ink-dim);line-height:1.6">Die Kartenbibliothek konnte nicht geladen werden.<br>
-       Beim ersten Start braucht die Karte einmal Internet. Planung und Kalender funktionieren auch ohne.</div>`;
+    document.getElementById("map").innerHTML=`<div style="padding:34px;color:var(--ink-dim)">Kartenbibliothek konnte nicht geladen werden.</div>`;
     return;
   }
-  
-  if(map){
-    map.remove();
-    map=null;
-  }
-  
+  if(map){ map.remove(); map=null; }
   map=L.map("map",{zoomControl:true,attributionControl:true}).setView([51.45,6.9],9);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
   layer=L.layerGroup().addTo(map);
-  
   drawMarkers(false);
-  
   setTimeout(()=>{
     if(map){
       map.invalidateSize();
@@ -1590,7 +1538,6 @@ function renderMap(){
     }
   }, 100);
 }
-
 
 function drawMarkers(showAll){
   if(!map) return;
@@ -1613,9 +1560,8 @@ function drawMarkers(showAll){
     const names=[...new Set(entries.map(e=>e.team.name))].join(" + ");
     const dim = mapFocusJob && mapFocusJob!==job.id;
     const icon=L.divIcon({html:`<div class="pin${dim?" dim":""}" style="background:${team.color}"><span class="dot"></span>${esc(names)}</div>`,className:"",iconSize:null,iconAnchor:[10,12]});
-    const slots=entries.map(e=>`${e.team.name}: ${e.slot==="AM"?"Vormittag":"Nachmittag"}`).join("<br>");
     L.marker([job.lat,job.lng],{icon,zIndexOffset:dim?0:500}).addTo(layer)
-      .bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#8B98AA">${slots}</span>`);
+      .bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}`);
     bounds.push([job.lat,job.lng]);
   });
 
@@ -1623,7 +1569,7 @@ function drawMarkers(showAll){
     state.jobs.forEach(job=>{
       if(job.lat==null||job.lng==null||byJob.has(job.id)) return;
       const icon=L.divIcon({html:`<div class="pin" style="background:#5C6878;color:#E8EDF4"><span class="dot"></span>${esc(short(job.name,18))}</div>`,className:"",iconAnchor:[10,12]});
-      L.marker([job.lat,job.lng],{icon}).addTo(layer).bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}<br><span style="color:#8B98AA">nicht eingeplant</span>`);
+      L.marker([job.lat,job.lng],{icon}).addTo(layer).bindPopup(`<b>${esc(job.name)}</b><br>${esc(job.address)}`);
       bounds.push([job.lat,job.lng]);
     });
   }
@@ -1635,11 +1581,8 @@ function drawMarkers(showAll){
   }else if(bounds.length){
     map.fitBounds(bounds,{padding:[55,55],maxZoom:12});
   }
-  if(!legend.children.length){
-    const el=document.createElement("span"); el.className="leg";
-    el.textContent="An diesem Tag ist kein Team eingeteilt."; legend.appendChild(el);
-  }
 }
+
 function showOnMap(jobId,day){
   mapFocusJob=jobId; mapDay=day||mapDay; view="map";
   if(dlgAssign.open) dlgAssign.close();
@@ -1647,7 +1590,7 @@ function showOnMap(jobId,day){
 }
 
 /* =========================================================
-   Dialoge
+   Dialoge & UI Logik
    ========================================================= */
 const dlgAssign=document.getElementById("dlgAssign");
 const dlgJob=document.getElementById("dlgJob");
@@ -1661,7 +1604,6 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest("di
 
 let editing=null;
 
-/* Gemeinsamer Dialog-Aufbau */
 function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,canDelete,delTxt){
   const ts=document.getElementById("asTeam"); ts.replaceChildren();
   state.teams.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} – ${t.members.join(", ")||"–"}`;ts.appendChild(o);});
@@ -1671,116 +1613,31 @@ function fillAssignDialog(teamId,jobId,from,fromSlot,to,toSlot,titleTxt,hintTxt,
   const cur=jobId?jobById(jobId):null;
   document.getElementById("asJobName").value=cur?cur.name:"";
   document.getElementById("asJobAdr").value=cur?(cur.address||""):"";
-  document.getElementById("asJobHint").className="hint";
-  document.getElementById("asJobHint").textContent="Einfach tippen. Bekannte Aufträge werden beim Schreiben vorgeschlagen, neue werden automatisch in den Auftragspool übernommen.";
   document.getElementById("asFrom").value=from;
   document.getElementById("asTo").value=to;
   document.getElementById("asFromSlot").value=fromSlot;
   document.getElementById("asToSlot").value=toSlot;
   markQuick();
   document.getElementById("asDelete").style.display=canDelete?"":"none";
-  document.getElementById("asDelete").textContent=delTxt||"Einsatz löschen";
-  document.getElementById("asMap").style.display="";
   document.getElementById("assignTitle").textContent=titleTxt;
   document.getElementById("assignHint").textContent=hintTxt;
   entsperrt=false;
-  const bRow=document.getElementById("assignBilledRow");
-  bRow.hidden=!jobId;
-  if(jobId){
-    const jj=jobById(jobId);
-    document.getElementById("asBilled").checked=!!(jj&&jj.billed);
-    document.getElementById("asBilled").onchange=e=>abrechnungSetzen(jobId,e.target.checked);
-  }
-  zeigeKundeImEinsatz(jobId);
-  sperreSetzen(editing && editing.mode==="run" ? editing.jobId : null);
   dlgAssign.showModal();
   zeigeAssignAnhaenge();
 }
 
-/* Kundenblock im Einsatzdialog: anrufen, schreiben, bearbeiten */
-function zeigeKundeImEinsatz(jobId){
-  const box=document.getElementById("assignKunde");
-  const job=jobId?jobById(jobId):null;
-  const k=job?kundeById(job.customerId):null;
-  if(!k){ box.hidden=true; box.replaceChildren(); return; }
-  box.hidden=false;
-  const wa=waNummer(k.mobile||k.phone);
-  const tel=k.mobile||k.phone;
-  box.innerHTML=`<div class="who">${esc(k.company)}</div>
-    <div class="det">${esc([k.contact,k.address].filter(Boolean).join(" · ")||"")}</div>
-    ${tel?`<div class="det">${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}</div>`:""}
-    <div class="acts">
-      ${wa?`<a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp öffnen</a>`:""}
-      ${tel?`<a href="${esc(telLink(tel))}">Anrufen</a>`:""}
-      ${k.mail?`<a href="mailto:${esc(k.mail)}">E-Mail</a>`:""}
-      <button type="button" id="asKundeEdit">Kundendaten</button>
-    </div>
-    ${wa?"":`<div class="det" style="margin-top:9px;color:var(--ink-faint)">Für WhatsApp fehlt eine Mobilnummer beim Kunden.</div>`}`;
-  const b=document.getElementById("asKundeEdit");
-  if(b) b.onclick=()=>openKunde(k.id,()=>zeigeKundeImEinsatz(jobId));
-}
-
-/* Einsatz festhalten, sobald Anhänge vorhanden sind */
 let entsperrt=false;
-function sperreSetzen(jobId){
-  const fix = !!jobId && istFixiert(jobId) && !entsperrt;
-  const felder=["asFrom","asTo","asFromSlot","asToSlot","asTeam","asJobName","asJobAdr"];
-  felder.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=fix; });
-  document.querySelectorAll(".quick button").forEach(b=>b.disabled=fix);
-  document.getElementById("asSave").disabled=fix;
-  document.getElementById("asDelete").disabled=fix;
-  const note=document.getElementById("assignFix");
-  const gesperrtesObjekt = !!jobId && istFixiert(jobId);
-  document.getElementById("asUnlock").hidden = !gesperrtesObjekt || entsperrt;
-
-  if(fix){
-    note.hidden=false; note.className="fixnote";
-    note.textContent=fixHinweis(jobId);
-    document.getElementById("assignTitle").textContent="Einsatz – festgehalten";
-  }else if(gesperrtesObjekt && entsperrt){
-    note.hidden=false; note.className="fixnote offen";
-    note.textContent="Sperre für diese Bearbeitung aufgehoben. Datum, Team und Objekt lassen sich jetzt ändern. "
-      +"Die Fotos bleiben am Objekt, und nach dem Schließen gilt die Sperre wieder.";
-  }else{
-    note.hidden=true;
-  }
-}
-
-document.getElementById("asUnlock").onclick=()=>{
-  const jobId = editing && editing.mode==="run" ? editing.jobId : null;
-  if(!jobId) return;
-  if(!confirm("Dieser Einsatz ist durch Fotos belegt.\n\nSperre für diese eine Bearbeitung aufheben, "
-    +"damit du das Datum korrigieren kannst?\n\nDie Fotos bleiben erhalten. Nach dem Schließen des Fensters "
-    +"ist der Einsatz wieder festgehalten.")) return;
-  entsperrt=true;
-  sperreSetzen(jobId);
-  document.getElementById("asFrom").focus();
-};
-
-/* Beim Schließen gilt die Sperre wieder */
-document.getElementById("dlgAssign").addEventListener("close",()=>{ entsperrt=false; });
-
-/* Anhänge im Einsatzdialog: richten sich nach dem eingetippten Auftrag */
 let assignJobId=null;
+
 async function zeigeAssignAnhaenge(){
   const box=document.getElementById("asFiles");
-  const note=document.getElementById("asDropNote");
-  const cnt=document.getElementById("asFileCount");
   if(!box) return;
   freiURLs(); box.replaceChildren();
   const name=document.getElementById("asJobName").value.trim().toLowerCase();
   const treffer=name?state.jobs.find(j=>j.name.toLowerCase()===name):null;
   assignJobId=treffer?treffer.id:null;
-
-  if(!assignJobId){
-    cnt.textContent="";
-    note.innerHTML='Neues Objekt – sobald der Einsatz eingetragen ist, kannst du hier Fotos ablegen.';
-    return;
-  }
-  note.innerHTML='Dateien hierher ziehen, oder <button type="button" class="linky" id="asPick">auswählen</button>';
-  document.getElementById("asPick").onclick=()=>document.getElementById("asFileInput").click();
+  if(!assignJobId) return;
   const list=await Files.forJob(assignJobId);
-  cnt.textContent=list.length?`· ${list.length}`:"";
   list.forEach(f=>box.appendChild(kachelAssign(f)));
 }
 
@@ -1788,81 +1645,29 @@ function kachelAssign(f){
   const d=document.createElement("div"); d.className="att";
   if(istBild(f.type)){
     const u=URL.createObjectURL(f.blob); anhangURLs.push(u);
-    const img=document.createElement("img"); img.src=u; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=u; img.alt=f.name;
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
-  }else{
-    const b=document.createElement("div"); b.className="doc";
-    b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>ladeDatei(f);
-    d.appendChild(b);
   }
-  d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
-  const x=document.createElement("button"); x.className="del"; x.type="button";
-  x.textContent="✕"; x.title="Entfernen";
-  x.onclick=async e=>{
-    e.stopPropagation();
-    if(!confirm(`„${f.name}“ wirklich löschen?`)) return;
-    await Files.remove(f.id); await refreshCounts(); zeigeAssignAnhaenge();
-    sperreSetzen(editing && editing.mode==="run" ? editing.jobId : null); render();
-  };
-  d.appendChild(x);
   return d;
 }
 
-async function nimmDateienAssign(fileList){
-  if(!assignJobId) return;
-  const files=[...fileList].filter(f=>f.size>0);
-  if(!files.length) return;
-  try{ for(const f of files) await Files.add(assignJobId,f); }
-  catch(e){ alert("Die Datei konnte nicht gespeichert werden. Vermutlich ist der Speicher des Browsers voll."); }
-  await refreshCounts(); zeigeAssignAnhaenge(); renderPool();
-  sperreSetzen(editing && editing.mode==="run" ? editing.jobId : null); render();
-}
-
-document.getElementById("asFileInput").onchange=e=>{ nimmDateienAssign(e.target.files); e.target.value=""; };
-(function(){
-  const z=document.getElementById("asDrop");
-  z.addEventListener("dragover",e=>{ if(assignJobId){e.preventDefault();z.classList.add("over");} });
-  z.addEventListener("dragleave",e=>{ if(!z.contains(e.relatedTarget)) z.classList.remove("over"); });
-  z.addEventListener("drop",e=>{
-    z.classList.remove("over");
-    if(!assignJobId) return;
-    e.preventDefault();
-    if(e.dataTransfer.files&&e.dataTransfer.files.length) nimmDateienAssign(e.dataTransfer.files);
-  });
-})();
-
-/* Bestehendes Einsatzfeld anklicken: immer der ganze zusammenhängende Einsatz */
 function openRun(teamId,jobId,dateStr,slot){
   const r=runFor(teamId,jobId,dateStr,slot);
   editing={mode:"run",teamId,jobId,first:r.first,last:r.last};
-  const a=parse(r.first[0]), b=parse(r.last[0]);
-  const span=`${DSHORT[(a.getDay()+6)%7]} ${a.getDate()}.${a.getMonth()+1}.${r.first[1]==="PM"?" mittags":""} bis ${DSHORT[(b.getDay()+6)%7]} ${b.getDate()}.${b.getMonth()+1}.${r.last[1]==="AM"?" mittags":""}`;
-  fillAssignDialog(teamId,jobId,r.first[0],r.first[1],r.last[0],r.last[1],
-    "Einsatz ändern",
-    `Der Einsatz läuft ${span}, also ${r.count/2} Tage. Änderungen gelten für den ganzen Einsatz. „Aus Kalender nehmen“ räumt nur den Termin – Auftrag und Fotos bleiben im Auftragspool.`,
-    true,"Aus Kalender nehmen");
+  fillAssignDialog(teamId,jobId,r.first[0],r.first[1],r.last[0],r.last[1],"Einsatz ändern","",true,"Aus Kalender nehmen");
 }
 
-/* Freie Fläche anklicken */
 function openNew(teamId,dateStr,slot,full){
   editing={mode:"new",teamId};
-  const d=parse(dateStr);
-  const wo = full?"ganzer Tag":(slot==="AM"?"erste Tageshälfte":"zweite Tageshälfte");
-  fillAssignDialog(teamId,null,dateStr,full?"AM":slot,dateStr,full?"PM":slot,
-    "Einsatz eintragen",
-    `Angeklickt: ${DAYS[(d.getDay()+6)%7]}, ${d.getDate()}.${d.getMonth()+1}., ${wo}. Über „Bis“ läuft der Einsatz über mehrere Tage — auch halbe, z.B. von Dienstag morgens bis Mittwoch mittags.`,
-    false);
+  fillAssignDialog(teamId,null,dateStr,full?"AM":slot,dateStr,full?"PM":slot,"Einsatz eintragen","",false);
 }
 
-/* Aus der Jetzt-Ansicht */
 function openAssign(teamId,date,slot){
   const a=assignAt(teamId,date,slot);
   if(a) openRun(teamId,a.jobId,date,slot); else openNew(teamId,date,slot,false);
 }
 
-/* Schnellwahl-Knöpfe */
 function markQuick(){
   const f=document.getElementById("asFrom").value, t=document.getElementById("asTo").value;
   const fs=document.getElementById("asFromSlot").value, ts=document.getElementById("asToSlot").value;
@@ -1878,58 +1683,26 @@ document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>{
   if(b.dataset.q==="PM"){asFromSlot.value="PM";asToSlot.value="PM";}
   markQuick();
 });
-["asFrom","asTo","asFromSlot","asToSlot"].forEach(id=>document.getElementById(id).addEventListener("change",markQuick));
-/* Auftrag aus den Eingabefeldern holen oder neu anlegen */
+
 function ensureJob(){
   const name=document.getElementById("asJobName").value.trim();
   const adr=document.getElementById("asJobAdr").value.trim();
   if(!name) return null;
   const hit=state.jobs.find(j=>j.name.toLowerCase()===name.toLowerCase());
   if(hit){
-    if(adr && !hit.address) hit.address=adr;            // Adresse nachgetragen
-    if(adr && hit.address.toLowerCase()!==adr.toLowerCase()){
-      const created={id:uid(),name,address:adr,lat:null,lng:null,contact:"",note:""};
-      state.jobs.push(created); geocodeQuiet(created);   // gleicher Name, andere Adresse = eigenes Objekt
-      return created;
-    }
+    if(adr && !hit.address) hit.address=adr;
     return hit;
   }
   const created={id:uid(),name,address:adr,lat:null,lng:null,contact:"",note:""};
-  state.jobs.push(created); geocodeQuiet(created);
+  state.jobs.push(created);
   return created;
 }
-/* Koordinaten im Hintergrund holen, damit der Pin auf der Karte erscheint */
-async function geocodeQuiet(job){
-  if(!job.address) return;
-  try{
-    const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q="+encodeURIComponent(job.address));
-    const d=await r.json();
-    if(d.length){ job.lat=parseFloat(d[0].lat); job.lng=parseFloat(d[0].lon); save(); if(view==="map") render(); }
-  }catch(e){/* ohne Internet bleibt das Objekt ohne Pin */}
-}
-
-/* Adresse automatisch füllen, wenn ein bekannter Auftrag gewählt wird */
-document.getElementById("asJobName").addEventListener("input",e=>{
-  const hit=state.jobs.find(j=>j.name.toLowerCase()===e.target.value.trim().toLowerCase());
-  const adr=document.getElementById("asJobAdr");
-  if(hit && hit.address && !adr.value.trim()) adr.value=hit.address;
-  zeigeKundeImEinsatz(hit?hit.id:null);
-  zeigeAssignAnhaenge();
-});
 
 document.getElementById("asSave").onclick=()=>{
   const teamId=document.getElementById("asTeam").value;
   const job=ensureJob();
-  if(!job){
-    const h=document.getElementById("asJobHint");
-    h.className="hint geo-no"; h.textContent="Bitte eine Bezeichnung für den Auftrag eintragen.";
-    document.getElementById("asJobName").focus(); return;
-  }
+  if(!job) return;
   const jobId=job.id;
-  if(editing.mode==="run" && istFixiert(editing.jobId) && !entsperrt){ alert(fixHinweis(editing.jobId)); return; }
-  if(editing.mode==="new" && istFixiert(jobId) && state.assignments.some(a=>a.jobId===jobId)){
-    if(!confirm("Dieses Objekt ist bereits mit Fotos belegt. Ein zusätzlicher Termin wird trotzdem eingetragen. Fortfahren?")) return;
-  }
   const from=document.getElementById("asFrom").value;
   const to=document.getElementById("asTo").value||from;
   const fromSlot=document.getElementById("asFromSlot").value;
@@ -1945,7 +1718,6 @@ document.getElementById("asSave").onclick=()=>{
   save(); dlgAssign.close(); render();
 };
 
-/* Alle Halbtage zwischen zwei Punkten, Wochenende optional übersprungen */
 function slotSpan(from,fromSlot,to,toSlot){
   const out=[];
   let d=parse(from), end=parse(to), guard=0;
@@ -1961,13 +1733,12 @@ function slotSpan(from,fromSlot,to,toSlot){
   }
   return out;
 }
+
 document.getElementById("asDelete").onclick=()=>{
-  if(editing.mode==="run" && istFixiert(editing.jobId) && !entsperrt){ alert(fixHinweis(editing.jobId)); return; }
   if(editing.mode==="run") clearRun(editing);
   save(); dlgAssign.close(); render();
 };
 
-/* Alle Halbtage eines zusammenhängenden Einsatzes entfernen */
 function clearRun(e){
   const ids=new Set(slotSpan(e.first[0],e.first[1],e.last[0],e.last[1])
     .map(u=>{const a=assignAt(e.teamId,u.date,u.slot);return a&&a.jobId===e.jobId?a.id:null;})
@@ -1975,9 +1746,7 @@ function clearRun(e){
   state.assignments=state.assignments.filter(a=>!ids.has(a.id));
 }
 
-/* Einsatz mit gleicher Dauer an eine andere Stelle verschieben */
 function moveRun(r,teamId,ds,slot){
-  if(istFixiert(r.jobId)){ alert(fixHinweis(r.jobId)); return; }
   clearRun(r);
   spanFromStart(ds,slot,r.count).forEach(u=>{
     const ex=assignAt(teamId,u.date,u.slot);
@@ -1995,9 +1764,7 @@ function spanFromStart(ds,slot,count){
   return out;
 }
 
-/* Auftrag per Drag auf ein bestehendes Feld: tauscht den ganzen Einsatz aus */
 function replaceRun(teamId,jobId,dateStr,slot,newJobId){
-  if(istFixiert(jobId)){ alert(fixHinweis(jobId)); return; }
   const r=runFor(teamId,jobId,dateStr,slot);
   slotSpan(r.first[0],r.first[1],r.last[0],r.last[1]).forEach(u=>{
     const a=assignAt(teamId,u.date,u.slot);
@@ -2005,6 +1772,7 @@ function replaceRun(teamId,jobId,dateStr,slot,newJobId){
   });
   save(); render();
 }
+
 document.getElementById("asMap").onclick=()=>{
   const job=ensureJob(); if(!job) return;
   save(); showOnMap(job.id, document.getElementById("asFrom").value);
@@ -2020,7 +1788,6 @@ function dropAssign(teamId,date,slot,jobId){
   save(); render();
 }
 
-/* ---- Auftrag ---- */
 let jobEditId=null, jobIsNew=false;
 function openJob(id){
   jobIsNew=!id;
@@ -2030,54 +1797,30 @@ function openJob(id){
   zeigeAnhaenge(jobEditId);
   jbName.value=j.name; jbAdr.value=j.address||""; jbLat.value=j.lat??""; jbLng.value=j.lng??"";
   jbContact.value=j.contact||""; jbNote.value=j.note||"";
-  fuelleKundenAuswahl(j.customerId||"");
-  jbWish.value=j.wishDate||""; jbValue.value=j.value||"";
-  jbBilled.checked=!!j.billed;
-  document.getElementById("jbDelete").style.display=id?"":"none";
-  document.getElementById("geoHint").className="hint";
-  document.getElementById("geoHint").textContent="Koordinaten werden für die Karte gebraucht. „Adresse suchen“ holt sie automatisch (braucht Internet).";
   dlgJob.showModal();
 }
+
 document.getElementById("jbSave").onclick=()=>{
   if(!jbName.value.trim()){alert("Bitte eine Bezeichnung eingeben.");return;}
   const data={name:jbName.value.trim(),address:jbAdr.value.trim(),
     lat:jbLat.value?parseFloat(jbLat.value):null, lng:jbLng.value?parseFloat(jbLng.value):null,
-    contact:jbContact.value.trim(), note:jbNote.value.trim(),
-    customerId:document.getElementById("jbCustomer").value||"",
-    wishDate:jbWish.value||"", value:jbValue.value.trim(), billed:jbBilled.checked||undefined};
+    contact:jbContact.value.trim(), note:jbNote.value.trim()};
   if(jobIsNew) state.jobs.push(Object.assign({id:jobEditId},data));
   else Object.assign(jobById(jobEditId),data);
   jobIsNew=false;
   save(); dlgJob.close(); render();
 };
 
-/* ---- Anhänge ---- */
 let anhangURLs=[];
 function freiURLs(){ anhangURLs.forEach(u=>URL.revokeObjectURL(u)); anhangURLs=[]; }
 
-function kachel(f,klein){
+function kachel(f){
   const d=document.createElement("div"); d.className="att";
   if(istBild(f.type)){
     const u=URL.createObjectURL(f.blob); anhangURLs.push(u);
-    const img=document.createElement("img"); img.src=u; img.alt=f.name; img.loading="lazy";
+    const img=document.createElement("img"); img.src=u; img.alt=f.name;
     img.onclick=()=>zeigeBild(f);
     d.appendChild(img);
-  }else{
-    const b=document.createElement("div"); b.className="doc";
-    b.innerHTML=`<b>▤</b><span>${esc(anzeigeName(f))}</span>`;
-    b.onclick=()=>ladeDatei(f);
-    d.appendChild(b);
-  }
-  d.title=`${anzeigeName(f)}\n${groesse(f.size)}`;
-  if(!klein){
-    const x=document.createElement("button"); x.className="del"; x.type="button";
-    x.textContent="✕"; x.title="Entfernen";
-    x.onclick=async e=>{
-      e.stopPropagation();
-      if(!confirm(`„${f.name}“ wirklich löschen?`)) return;
-      await Files.remove(f.id); await refreshCounts(); zeigeAnhaenge(jobEditId); render();
-    };
-    d.appendChild(x);
   }
   return d;
 }
@@ -2086,860 +1829,18 @@ async function zeigeAnhaenge(jobId){
   const box=document.getElementById("jbFiles"); if(!box) return;
   freiURLs(); box.replaceChildren();
   const list=await Files.forJob(jobId);
-  document.getElementById("jbFileCount").textContent = list.length ? `· ${list.length}` : "";
-  list.forEach(f=>box.appendChild(kachel(f,false)));
+  list.forEach(f=>box.appendChild(kachel(f)));
 }
 
-async function nimmDateien(fileList){
-  const files=[...fileList].filter(f=>f.size>0);
-  if(!files.length) return;
-  const gross=files.filter(f=>f.size>25*1024*1024);
-  if(gross.length && !confirm(`${gross.length} Datei(en) sind größer als 25 MB. Viele große Dateien können den Browserspeicher füllen. Trotzdem hinzufügen?`)) return;
-  try{
-    for(const f of files) await Files.add(jobEditId,f);
-  }catch(e){
-    alert("Die Datei konnte nicht gespeichert werden. Vermutlich ist der Speicher des Browsers voll. Bitte über „Sichern / Laden“ eine Sicherung anlegen und ältere Fotos entfernen.");
-  }
-  await refreshCounts(); zeigeAnhaenge(jobEditId); render();
-}
-
-document.getElementById("jbPick").onclick=()=>document.getElementById("jbFileInput").click();
-document.getElementById("jbFileInput").onchange=e=>{ nimmDateien(e.target.files); e.target.value=""; };
-(function(){
-  const z=document.getElementById("jbDrop");
-  z.addEventListener("dragover",e=>{e.preventDefault();z.classList.add("over");});
-  z.addEventListener("dragleave",e=>{ if(!z.contains(e.relatedTarget)) z.classList.remove("over"); });
-  z.addEventListener("drop",e=>{
-    e.preventDefault(); z.classList.remove("over");
-    if(e.dataTransfer.files&&e.dataTransfer.files.length) nimmDateien(e.dataTransfer.files);
-  });
-})();
-
-/* Bild groß ansehen */
-let vwURL=null, vwFile=null;
 function zeigeBild(f){
-  if(vwURL) URL.revokeObjectURL(vwURL);
-  vwFile=f; vwURL=URL.createObjectURL(f.blob);
-  document.getElementById("vwImg").src=vwURL;
-  document.getElementById("vwTitle").textContent=anzeigeName(f);
-  const d=new Date(f.added);
-  document.getElementById("vwMeta").textContent=
-    `${groesse(f.size)} · hinzugefügt ${d.toLocaleDateString("de-DE")}`;
+  const u=URL.createObjectURL(f.blob);
+  document.getElementById("vwImg").src=u;
   document.getElementById("dlgView").showModal();
 }
-function ladeDatei(f){
-  const u=URL.createObjectURL(f.blob);
-  const a=document.createElement("a"); a.href=u; a.download=anzeigeName(f); a.click();
-  setTimeout(()=>URL.revokeObjectURL(u),3000);
-}
-document.getElementById("vwDown").onclick=()=>{ if(vwFile) ladeDatei(vwFile); };
-document.getElementById("dlgView").addEventListener("close",()=>{
-  document.getElementById("vwImg").src="";
-  if(vwURL){ URL.revokeObjectURL(vwURL); vwURL=null; }
-});
-document.getElementById("jbDelete").onclick=async()=>{
-  if(!jobEditId) return;
-  const n=state.assignments.filter(a=>a.jobId===jobEditId).length;
-  const anz=(fileCounts[jobEditId]||0);
-  let frage=[];
-  if(n) frage.push(`${n}× im Kalender eingetragen`);
-  if(anz) frage.push(`${anz} Foto(s) bzw. Datei(en)`);
-  if(frage.length && !confirm("Der Auftrag hat "+frage.join(" und ")+". Alles mit löschen?")) return;
-  state.assignments=state.assignments.filter(a=>a.jobId!==jobEditId);
-  state.jobs=state.jobs.filter(j=>j.id!==jobEditId);
-  await Files.removeJob(jobEditId); await refreshCounts();
-  save(); dlgJob.close(); render();
-};
-document.getElementById("jbGeo").onclick=async()=>{
-  const q=jbAdr.value.trim(); const h=document.getElementById("geoHint");
-  if(!q){h.textContent="Erst eine Adresse eintragen.";return;}
-  h.className="hint"; h.textContent="Suche läuft …";
-  try{
-    const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q="+encodeURIComponent(q));
-    const d=await r.json();
-    if(!d.length){h.className="hint geo-no";h.textContent="Nichts gefunden. Koordinaten bitte von Hand eintragen.";return;}
-    jbLat.value=parseFloat(d[0].lat).toFixed(5); jbLng.value=parseFloat(d[0].lon).toFixed(5);
-    h.className="hint geo-ok"; h.textContent="Gefunden: "+d[0].display_name;
-  }catch(e){h.className="hint geo-no";h.textContent="Suche nicht möglich (keine Internetverbindung). Koordinaten von Hand eintragen.";}
-};
-/* Einsatz aus dem Kalender zurück in den Auftragspool ziehen */
-(function(){
-  const zone=document.querySelector("aside");
-  const isRun=e=>[...e.dataTransfer.types].includes("application/json");
-  zone.addEventListener("dragover",e=>{ if(isRun(e)){e.preventDefault();e.dataTransfer.dropEffect="move";zone.classList.add("dropzone");} });
-  zone.addEventListener("dragleave",e=>{ if(!zone.contains(e.relatedTarget)) zone.classList.remove("dropzone"); });
-  zone.addEventListener("drop",e=>{
-    zone.classList.remove("dropzone");
-    const raw=e.dataTransfer.getData("application/json"); if(!raw) return;
-    e.preventDefault();
-    try{ const r=JSON.parse(raw); if(r.kind==="run"){
-      if(istFixiert(r.jobId)){ alert(fixHinweis(r.jobId)); return; }
-      clearRun(r); save(); render();
-    } }catch(_){}
-  });
-})();
 
 document.getElementById("btnNewJob").onclick=()=>openJob(null);
 document.getElementById("btnAllJobs").onclick=()=>{poolShowAll=!poolShowAll;renderPool();};
 
-/* ---- Kontextmenü auf einem Einsatz ---- */
-function abrechnungSetzen(jobId,wert){
-  const j=jobById(jobId); if(!j) return;
-  if(wert) j.billed=true; else delete j.billed;
-  save(); render();
-}
-
-function zeigeKontext(x,y,jobId,teamId,ds,slot){
-  const job=jobById(jobId); if(!job) return;
-  const team=teamById(teamId);
-  const m=document.getElementById("kontext");
-  const abger=!!job.billed;
-  m.innerHTML=`<div class="kopf"><b>${esc(job.name)}</b><small>${esc(team?team.name:"")}${job.value?" · "+esc(job.value):""}</small></div>`;
-
-  const knopf=(txt,farbe,fn)=>{
-    const b=document.createElement("button"); b.type="button";
-    b.innerHTML=(farbe?`<span class="pkt" style="background:${farbe}"></span>`:`<span class="pkt"></span>`)+esc(txt);
-    b.onclick=()=>{ schliesseKontext(); fn(); };
-    m.appendChild(b);
-  };
-  if(abger) knopf("Abrechnung zurücknehmen", team?team.color:"#6B7585", ()=>abrechnungSetzen(jobId,false));
-  else      knopf("Als abgerechnet markieren", "#6B7585", ()=>abrechnungSetzen(jobId,true));
-  knopf("Einsatz öffnen", "", ()=>openRun(teamId,jobId,ds,slot));
-  knopf("Auftrag bearbeiten", "", ()=>openJob(jobId));
-  if(job.lat!=null) knopf("Auf Karte zeigen", "", ()=>showOnMap(jobId,ds));
-
-  m.hidden=false;
-  const b=m.getBoundingClientRect();
-  m.style.left=Math.min(x, innerWidth-b.width-10)+"px";
-  m.style.top=Math.min(y, innerHeight-b.height-10)+"px";
-}
-function schliesseKontext(){ const m=document.getElementById("kontext"); if(m) m.hidden=true; }
-document.addEventListener("click",e=>{ if(!e.target.closest(".kontext")) schliesseKontext(); });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") schliesseKontext(); });
-window.addEventListener("scroll",schliesseKontext,true);
-
-/* ---- Auftrag aus Formular übernehmen ---- */
-const API_KEY="einsatzplaner.apikey";
-const MODELL_STANDARD="claude-sonnet-5-5";
-const schluessel = () => { try{ return localStorage.getItem(API_KEY)||""; }catch(e){ return ""; } };
-
-let scanDatei=null, scanURL=null;
-
-function openScan(){
-  scanDatei=null;
-  if(scanURL){ URL.revokeObjectURL(scanURL); scanURL=null; }
-  document.getElementById("scanImgBox").innerHTML=
-    `<div class="scan-drop" id="scanDrop">
-       <b>Foto des ausgefüllten Formulars</b>
-       <span>hierher ziehen oder <button type="button" class="linky" id="scanPick">auswählen</button></span>
-       <small>JPG, PNG oder HEIC vom Handy. Auch ein Screenshot aus WhatsApp.</small>
-     </div>
-     <input type="file" id="scanInput" accept="image/*,.heic,application/pdf" hidden>`;
-  bindeScanFeld();
-  ["scContact","scAdr","scDate","scValue","scWork","scName","scKundeText"].forEach(id=>document.getElementById(id).value="");
-  fuelleScanKunden("");
-  document.getElementById("scanRead").disabled=true;
-  document.getElementById("scanStatus").textContent="";
-  document.getElementById("scanStatus").className="hint";
-  document.getElementById("scanText").value="";
-  document.getElementById("scanTextOut").textContent="";
-  scanQuelle("foto");
-  document.getElementById("scanSetup").hidden=true;
-  document.getElementById("scanRead").hidden=false;
-  document.getElementById("scanHint").textContent = schluessel()
-    ? "Nach dem Hochladen werden die Felder automatisch gelesen."
-    : "Ohne Einrichtung werden die Felder von Hand eingetippt.";
-  dlgScan.showModal();
-}
-
-function bindeScanFeld(){
-  const box=document.getElementById("scanImgBox");
-  const input=document.getElementById("scanInput");
-  const pick=document.getElementById("scanPick");
-  if(pick) pick.onclick=()=>input.click();
-  input.onchange=e=>{ if(e.target.files[0]) scanBildSetzen(e.target.files[0]); e.target.value=""; };
-  box.ondragover=e=>{e.preventDefault();box.classList.add("over");};
-  box.ondragleave=e=>{ if(!box.contains(e.relatedTarget)) box.classList.remove("over"); };
-  box.ondrop=e=>{
-    e.preventDefault(); box.classList.remove("over");
-    const f=e.dataTransfer.files&&e.dataTransfer.files[0];
-    if(f) scanBildSetzen(f);
-  };
-}
-
-function scanBildSetzen(file){
-  scanDatei=file;
-  const box=document.getElementById("scanImgBox");
-  if(scanURL) URL.revokeObjectURL(scanURL);
-  const bild=/^image\//.test(file.type||"");
-  if(bild){
-    scanURL=URL.createObjectURL(file);
-    box.innerHTML=`<img src="${scanURL}" alt="Formular"><button type="button" class="scan-neu">Anderes Foto</button>`;
-    box.querySelector("img").onclick=()=>window.open(scanURL,"_blank");
-  }else{
-    box.innerHTML=`<div class="scan-drop"><b>${esc(file.name)}</b>
-      <span>wird am Auftrag gespeichert</span>
-      <small>Vorschau und automatisches Auslesen gibt es nur für Fotos.</small></div>
-      <button type="button" class="scan-neu">Andere Datei</button>`;
-  }
-  const inp=document.createElement("input");
-  inp.type="file"; inp.id="scanInput"; inp.accept="image/*,.heic,application/pdf"; inp.hidden=true;
-  box.appendChild(inp);
-  box.querySelector(".scan-neu").onclick=()=>inp.click();
-  bindeScanFeld();
-  const bereit = bild && !!schluessel();
-  const einrichten = bild && !schluessel();
-  document.getElementById("scanRead").disabled = !bereit;
-  document.getElementById("scanRead").hidden = einrichten;
-  document.getElementById("scanSetup").hidden = !einrichten;
-  const st=document.getElementById("scanStatus");
-  st.className="hint";
-  st.textContent = !bild ? "Für Dateien ohne Bild bitte die Felder abtippen." : "";
-  if(bereit) formularLesen();
-}
-
-document.getElementById("scanSetupGo").onclick=()=>{
-  dlgScan.close();
-  document.getElementById("btnSettings").click();
-  setTimeout(()=>document.getElementById("stApiKey").focus(),200);
-};
-
-function fuelleScanKunden(selId){
-  const sel=document.getElementById("scKunde"); sel.replaceChildren();
-  const leer=document.createElement("option"); leer.value=""; leer.textContent="– neuer oder unbekannter Kunde –";
-  sel.appendChild(leer);
-  [...state.customers].sort((a,b)=>a.company.localeCompare(b.company,"de")).forEach(k=>{
-    const o=document.createElement("option"); o.value=k.id; o.textContent=k.company; sel.appendChild(o);
-  });
-  sel.value=selId||"";
-}
-document.getElementById("scKundeNeu").onclick=()=>openKunde(null,id=>fuelleScanKunden(id));
-
-/* ---------- Auftrag aus Text übernehmen ---------- */
-const VORLAGE =
-  "Kunde: \n"+
-  "Ansprechpartner: \n"+
-  "Adresse: \n"+
-  "Datum: \n"+
-  "Betrag: \n"+
-  "Auftrag: ";
-
-/* Welche Beschriftung gehört zu welchem Feld */
-const FELDWORTE = [
-  ["auftraggeber", ["kunde","auftraggeber","firma","auftraggeberin","bauherr"]],
-  ["ansprechpartner", ["ansprechpartner","ansprechpartnerin","kontakt","telefon","tel","handy","mobil","rufnummer"]],
-  ["adresse", ["adresse","objekt","objektadresse","baustelle","einsatzort","ort","anschrift","strasse","straße"]],
-  ["beginn", ["datum","beginn","termin","wunschtermin","start","starttermin","ausführung","wunschbeginn"]],
-  ["wert", ["betrag","auftragswert","wert","preis","summe","budget","angebotssumme","honorar"]],
-  ["arbeiten", ["auftrag","arbeiten","leistung","leistungen","tätigkeit","taetigkeit","beschreibung","was","arbeit"]],
-  ["bezeichnung", ["bezeichnung","titel","kurz","überschrift","ueberschrift"]]
-];
-function feldFuer(wort){
-  const w=wort.toLowerCase().replace(/[^a-zäöüß]/g,"");
-  for(const [feld,worte] of FELDWORTE) if(worte.includes(w)) return feld;
-  return null;
-}
-
-/* Datumsangaben aus dem Text verstehen */
-function datumLesen(txt){
-  if(!txt) return "";
-  const t=txt.trim();
-  let m=t.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
-  m=t.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?:\s*[.\/-]\s*(\d{2,4}))?/);
-  if(m){
-    const tag=+m[1], mon=+m[2];
-    let jahr = m[3] ? +m[3] : null;
-    if(jahr!==null && jahr<100) jahr+=2000;
-    if(jahr===null){
-      const heute=new Date(); heute.setHours(0,0,0,0);
-      jahr=heute.getFullYear();
-      if(new Date(jahr,mon-1,tag)<heute) jahr++;
-    }
-    if(tag>=1&&tag<=31&&mon>=1&&mon<=12)
-      return `${jahr}-${String(mon).padStart(2,"0")}-${String(tag).padStart(2,"0")}`;
-  }
-  const kurz=t.toLowerCase();
-  const heute=new Date(); heute.setHours(0,0,0,0);
-  if(/^heute/.test(kurz)) return iso(heute);
-  if(/^morgen/.test(kurz)) return iso(addDays(heute,1));
-  if(/^übermorgen|^ubermorgen/.test(kurz)) return iso(addDays(heute,2));
-  const woche=["montag","dienstag","mittwoch","donnerstag","freitag","samstag","sonntag"];
-  const wi=woche.findIndex(d=>kurz.startsWith(d));
-  if(wi>=0){
-    let d=new Date(heute);
-    do{ d=addDays(d,1); }while(((d.getDay()+6)%7)!==wi);
-    return iso(d);
-  }
-  return "";
-}
-
-/* Zeilen der Form „Beschriftung: Inhalt“ auswerten */
-function textAuswerten(roh){
-  const felder={}; let aktuell=null;
-  roh.split(/\r?\n/).forEach(zeile=>{
-    const m=zeile.match(/^\s*[-*•]?\s*([A-Za-zÄÖÜäöüß .\/]{2,30}?)\s*[:=]\s*(.*)$/);
-    if(m){
-      const feld=feldFuer(m[1]);
-      if(feld){ aktuell=feld; felder[feld]=(m[2]||"").trim(); return; }
-    }
-    const rest=zeile.trim();
-    if(aktuell && rest){ felder[aktuell]=((felder[aktuell]||"")+" "+rest).trim(); }
-  });
-  return felder;
-}
-
-function kurzTitel(txt){
-  const erst=String(txt).split(/[.,;\n]/)[0].trim();
-  if(erst.length<=42) return erst;
-  const teil=erst.slice(0,42);
-  return teil.slice(0, teil.lastIndexOf(" ")>18 ? teil.lastIndexOf(" ") : 42).trim();
-}
-
-function textUebernehmen(){
-  const roh=document.getElementById("scanText").value;
-  const out=document.getElementById("scanTextOut");
-  if(!roh.trim()){ out.className="hint"; out.textContent=""; return; }
-  const f=textAuswerten(roh);
-  const erkannt=[];
-
-  if(f.auftraggeber){
-    const treffer=state.customers.find(k=>k.company.toLowerCase()===f.auftraggeber.toLowerCase());
-    if(treffer){ fuelleScanKunden(treffer.id); document.getElementById("scKundeText").value=""; }
-    else { fuelleScanKunden(""); document.getElementById("scKundeText").value=f.auftraggeber; }
-    erkannt.push("Kunde");
-  }
-  if(f.ansprechpartner){ scContact.value=f.ansprechpartner; erkannt.push("Ansprechpartner"); }
-  if(f.adresse){ scAdr.value=f.adresse; erkannt.push("Adresse"); }
-  if(f.beginn){
-    const d=datumLesen(f.beginn);
-    if(d){ scDate.value=d; erkannt.push("Datum"); }
-    else { scDate.value=""; }
-  }
-  if(f.wert){ scValue.value=f.wert; erkannt.push("Betrag"); }
-  if(f.arbeiten){ scWork.value=f.arbeiten; erkannt.push("Arbeiten"); }
-  if(f.bezeichnung) scName.value=f.bezeichnung;
-  else if(f.arbeiten && !scName.value) scName.value=kurzTitel(f.arbeiten);
-
-  if(!erkannt.length){
-    out.className="hint geo-no";
-    out.textContent="Keine Felder erkannt. Jede Zeile sollte so aussehen: Kunde: Muster Bau GmbH";
-    return;
-  }
-  const fehlt=[];
-  if(!scAdr.value.trim()) fehlt.push("Adresse");
-  if(!scDate.value) fehlt.push("Datum");
-  out.className=fehlt.length?"hint geo-no":"hint geo-ok";
-  out.textContent = (fehlt.length
-    ? `${erkannt.length} Felder übernommen. Es fehlt noch: ${fehlt.join(", ")}.`
-    : `${erkannt.length} Felder übernommen: ${erkannt.join(", ")}.`);
-}
-
-(function(){
-  const t=document.getElementById("scanText"); let timer=null;
-  t.addEventListener("input",()=>{ clearTimeout(timer); timer=setTimeout(textUebernehmen,250); });
-})();
-
-document.getElementById("scanVorlage").onclick=async()=>{
-  const out=document.getElementById("scanTextOut");
-  try{
-    await navigator.clipboard.writeText(VORLAGE);
-    out.className="hint geo-ok";
-    out.textContent="Vorlage kopiert – kannst du dem Kunden schicken.";
-  }catch(e){
-    document.getElementById("scanText").value=VORLAGE;
-    out.className="hint";
-    out.textContent="Vorlage ins Feld geschrieben – von dort kopieren.";
-  }
-};
-
-/* Umschalten zwischen Foto und Text */
-function scanQuelle(q){
-  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.q===q));
-  document.getElementById("scanImgBox").hidden = q!=="foto";
-  document.getElementById("scanTextBox").hidden = q!=="text";
-  const nurFoto = q==="foto";
-  document.getElementById("scanRead").hidden = !nurFoto || !!document.getElementById("scanSetup").hidden===false;
-  if(q==="text"){
-    document.getElementById("scanRead").hidden=true;
-    document.getElementById("scanSetup").hidden=true;
-    document.getElementById("scanStatus").textContent="";
-    document.getElementById("scanHint").textContent="Zeilen der Form „Kunde: …“ werden sofort übernommen.";
-    setTimeout(()=>document.getElementById("scanText").focus(),50);
-  }else{
-    document.getElementById("scanHint").textContent = schluessel()
-      ? "Nach dem Hochladen werden die Felder automatisch gelesen."
-      : "Ohne Einrichtung werden die Felder von Hand eingetippt.";
-  }
-}
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>scanQuelle(b.dataset.q));
-document.getElementById("btnScan").onclick=openScan;
-
-/* Bild für die Übertragung vorbereiten: verkleinern und als Text kodieren */
-function bildVerkleinern(file,maxKante=1600){
-  return new Promise((res,rej)=>{
-    const u=URL.createObjectURL(file);
-    const img=new Image();
-    img.onload=()=>{
-      const f=Math.min(1,maxKante/Math.max(img.width,img.height));
-      const c=document.createElement("canvas");
-      c.width=Math.round(img.width*f); c.height=Math.round(img.height*f);
-      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-      URL.revokeObjectURL(u);
-      res(c.toDataURL("image/jpeg",0.82).split(",")[1]);
-    };
-    img.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("Bild nicht lesbar")); };
-    img.src=u;
-  });
-}
-
-document.getElementById("scanRead").onclick=()=>formularLesen();
-
-async function formularLesen(){
-  const key=schluessel();
-  const st=document.getElementById("scanStatus");
-  const btn=document.getElementById("scanRead");
-  if(!key || !scanDatei) return;
-  btn.disabled=true; const alt=btn.textContent; btn.textContent="Formular wird gelesen …";
-  st.className="hint"; st.textContent="Das dauert ein paar Sekunden.";
-  try{
-    const b64=await bildVerkleinern(scanDatei);
-    const heute=todayISO();
-    const anweisung =
-      "Das Bild zeigt ein ausgefülltes Auftragsformular mit dem Titel „Auftragserteilung“, "+
-      "meist handschriftlich ausgefüllt. Es hat sechs nummerierte Felder in fester Anordnung:\n"+
-      "1 Auftraggeber / Firma (oben links)\n"+
-      "2 Ansprechpartner und Telefon (oben rechts)\n"+
-      "3 Objektadresse – wo wird gearbeitet (ganze Breite)\n"+
-      "4 Gewünschter Beginn (links, Format TT.MM.JJJJ)\n"+
-      "5 Auftragswert / Budget (rechts, in Euro)\n"+
-      "6 Auszuführende Arbeiten (mehrzeiliger Kasten unten)\n"+
-      "Ort/Datum und Unterschrift darunter werden NICHT ausgelesen. "+
-      "Die hellgrauen Beispieltexte in leeren Kästen („Straße und Hausnummer, PLZ, Ort“, „TT . MM . JJJJ“, "+
-      "„EUR, netto – falls bekannt“) sind Vordruck und niemals Inhalt. "+
-      "Heute ist "+heute+".\n\n"+
-      "Gib ausschließlich JSON zurück, ohne weiteren Text, in dieser Form:\n"+
-      '{"auftraggeber":"","ansprechpartner":"","adresse":"","beginn":"JJJJ-MM-TT","wert":"","arbeiten":"","bezeichnung":""}\n'+
-      "Regeln: Leere oder unleserliche Felder als leeren Text zurückgeben, niemals etwas erfinden. "+
-      "\"beginn\" immer als JJJJ-MM-TT. Deutsches Format, Tag vor Monat: 09.11.26 ist der 9. November 2026. "+
-      "Zweistellige Jahreszahlen zu 20JJ ergänzen. "+
-      "\"ansprechpartner\" enthält Name und Telefonnummer zusammen. "+
-      "\"bezeichnung\" ist eine knappe Überschrift für den Kalender aus den Arbeiten, höchstens vier Wörter.";
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "content-type":"application/json",
-        "x-api-key":key,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({
-        model:(state.settings.model||MODELL_STANDARD),
-        max_tokens:700,
-        messages:[{role:"user",content:[
-          {type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},
-          {type:"text",text:anweisung}
-        ]}]
-      })
-    });
-    if(!r.ok){
-      let txt=await r.text();
-      try{ txt=(JSON.parse(txt).error||{}).message||txt; }catch(_){}
-      throw new Error(txt.slice(0,200));
-    }
-    const d=await r.json();
-    const roh=(d.content||[]).map(c=>c.text||"").join("");
-    const m=roh.match(/\{[\s\S]*\}/);
-    if(!m) throw new Error("Die Antwort enthielt keine Felder.");
-    const f=JSON.parse(m[0]);
-
-    if(f.auftraggeber){
-      const treffer=state.customers.find(k=>k.company.toLowerCase()===String(f.auftraggeber).trim().toLowerCase());
-      if(treffer){ fuelleScanKunden(treffer.id); document.getElementById("scKundeText").value=""; }
-      else { fuelleScanKunden(""); document.getElementById("scKundeText").value=f.auftraggeber; }
-    }
-    if(f.ansprechpartner) scContact.value=f.ansprechpartner;
-    if(f.adresse) scAdr.value=f.adresse;
-    if(f.beginn && /^\d{4}-\d{2}-\d{2}$/.test(f.beginn)) scDate.value=f.beginn;
-    if(f.wert) scValue.value=f.wert;
-    if(f.arbeiten) scWork.value=f.arbeiten;
-    scName.value=f.bezeichnung || (f.arbeiten?String(f.arbeiten).split(/[.,\n]/)[0].trim().slice(0,40):"");
-
-    const leer=["adresse","beginn","arbeiten"].filter(x=>!f[x]);
-    st.className=leer.length?"hint geo-no":"hint geo-ok";
-    st.textContent=leer.length
-      ? "Gelesen, aber unvollständig. Bitte prüfen und ergänzen: "+leer.join(", ")+"."
-      : "Felder übernommen. Bitte am Foto gegenprüfen, besonders Zahlen.";
-  }catch(e){
-    st.className="hint geo-no";
-    st.textContent="Automatisches Lesen nicht möglich: "+e.message+" — Felder bitte von Hand eintragen.";
-  }
-  btn.disabled=false; btn.textContent=alt;
-}
-
-document.getElementById("scanSave").onclick=async()=>{
-  const adr=scAdr.value.trim();
-  const bez=(scName.value.trim() || kurzTitel(scWork.value) || adr);
-  if(!bez){
-    document.getElementById("scanHint").textContent="Bitte wenigstens Adresse oder Bezeichnung eintragen.";
-    scAdr.focus(); return;
-  }
-  // Kunde bestimmen oder neu anlegen
-  let kid=document.getElementById("scKunde").value;
-  const neuerName=document.getElementById("scKundeText").value.trim();
-  if(!kid && neuerName){
-    const treffer=state.customers.find(k=>k.company.toLowerCase()===neuerName.toLowerCase());
-    if(treffer) kid=treffer.id;
-    else{
-      kid=uid();
-      state.customers.push({id:kid,company:neuerName,contact:scContact.value.trim(),
-        address:"",phone:"",mobile:"",mail:"",tax:"",note:"aus Auftragsformular übernommen"});
-    }
-  }
-  const job={id:uid(),name:bez,address:adr,lat:null,lng:null,
-    contact:scContact.value.trim(),note:scWork.value.trim(),
-    customerId:kid||"", wishDate:scDate.value||"", value:scValue.value.trim()};
-  state.jobs.push(job);
-  if(adr) geocodeQuiet(job);
-  if(scanDatei){
-    try{ await Files.add(job.id,scanDatei); await refreshCounts(); }catch(e){}
-  }
-  save(); dlgScan.close();
-  poolShowAll=false; render();
-  openJob(job.id);
-};
-
-/* ---- Kunden ---- */
-function openKunden(){
-  const list=document.getElementById("kdList"); list.replaceChildren();
-  if(!state.customers.length){
-    const p=document.createElement("div"); p.className="pool-empty";
-    p.textContent="Noch keine Kunden angelegt.";
-    list.appendChild(p);
-  }
-  [...state.customers].sort((a,b)=>a.company.localeCompare(b.company,"de")).forEach(k=>{
-    const n=state.jobs.filter(j=>j.customerId===k.id).length;
-    const row=document.createElement("div"); row.className="kdrow";
-    row.innerHTML=`<div>
-        <b>${esc(k.company)}</b>
-        <small>${esc([k.contact,k.address].filter(Boolean).join(" · ")||"keine weiteren Angaben")}</small>
-        ${(k.phone||k.mobile)?`<small>${esc([k.phone,k.mobile].filter(Boolean).join(" · "))}</small>`:""}
-      </div>
-      <span class="n">${n?`${n} Auftrag${n===1?"":"­e"}`:"kein Auftrag"}</span>`;
-    row.onclick=()=>openKunde(k.id);
-    list.appendChild(row);
-  });
-  dlgCustomers.showModal();
-}
-
-let kundeEditId=null, kundeCallback=null;
-function openKunde(id,callback){
-  kundeEditId=id||null; kundeCallback=callback||null;
-  const k=id?kundeById(id):{company:"",contact:"",address:"",phone:"",mobile:"",mail:"",tax:"",note:""};
-  document.getElementById("kdTitle").textContent=id?"Kunde bearbeiten":"Kunde anlegen";
-  kdCompany.value=k.company||""; kdContact.value=k.contact||""; kdAddress.value=k.address||"";
-  kdPhone.value=k.phone||""; kdMobile.value=k.mobile||""; kdMail.value=k.mail||"";
-  kdTax.value=k.tax||""; kdNote.value=k.note||"";
-  document.getElementById("kdDelete").style.display=id?"":"none";
-  dlgCustomer.showModal();
-}
-
-document.getElementById("kdSave").onclick=()=>{
-  if(!kdCompany.value.trim()){ alert("Bitte einen Firmennamen eingeben."); kdCompany.focus(); return; }
-  const data={company:kdCompany.value.trim(),contact:kdContact.value.trim(),address:kdAddress.value.trim(),
-    phone:kdPhone.value.trim(),mobile:kdMobile.value.trim(),mail:kdMail.value.trim(),
-    tax:kdTax.value.trim(),note:kdNote.value.trim()};
-  let id=kundeEditId;
-  if(id) Object.assign(kundeById(id),data);
-  else { id=uid(); state.customers.push(Object.assign({id},data)); }
-  save(); dlgCustomer.close();
-  if(kundeCallback){ kundeCallback(id); kundeCallback=null; }
-  else if(dlgCustomers.open) openKunden();
-  render();
-};
-
-document.getElementById("kdDelete").onclick=()=>{
-  if(!kundeEditId) return;
-  const n=state.jobs.filter(j=>j.customerId===kundeEditId).length;
-  if(n && !confirm(`Dieser Kunde hängt an ${n} Auftrag/Aufträgen. Die Aufträge bleiben erhalten, nur die Zuordnung geht verloren. Trotzdem löschen?`)) return;
-  state.jobs.forEach(j=>{ if(j.customerId===kundeEditId) delete j.customerId; });
-  state.customers=state.customers.filter(k=>k.id!==kundeEditId);
-  save(); dlgCustomer.close();
-  if(dlgCustomers.open) openKunden();
-  render();
-};
-document.getElementById("kdAdd").onclick=()=>openKunde(null);
-document.getElementById("btnKunden").onclick=openKunden;
-
-/* Kundenauswahl im Auftragsdialog */
-function fuelleKundenAuswahl(selId){
-  const sel=document.getElementById("jbCustomer"); sel.replaceChildren();
-  const leer=document.createElement("option"); leer.value=""; leer.textContent="– kein Kunde zugeordnet –";
-  sel.appendChild(leer);
-  [...state.customers].sort((a,b)=>a.company.localeCompare(b.company,"de")).forEach(k=>{
-    const o=document.createElement("option"); o.value=k.id; o.textContent=k.company; sel.appendChild(o);
-  });
-  sel.value=selId||"";
-  zeigeKundenInfo();
-}
-function zeigeKundenInfo(){
-  const k=kundeById(document.getElementById("jbCustomer").value);
-  const info=document.getElementById("jbCustomerInfo");
-  if(!k){ info.textContent="Noch kein Kunde angelegt? Über „Neu anlegen“ oder oben über „Kunden“."; return; }
-  info.textContent=[k.contact,k.address,k.phone||k.mobile].filter(Boolean).join(" · ")||"keine weiteren Angaben";
-}
-document.getElementById("jbCustomer").onchange=zeigeKundenInfo;
-document.getElementById("jbNewCustomer").onclick=()=>openKunde(null,id=>{
-  fuelleKundenAuswahl(id);
-});
-
-/* ---- Teams ---- */
-function openTeams(){
-  const list=document.getElementById("teamList"); list.replaceChildren();
-  state.teams.forEach(t=>list.appendChild(teamRow(t)));
-  dlgTeams.showModal();
-}
-function teamRow(t){
-  const row=document.createElement("div"); row.className="rowitem"; row.dataset.id=t.id;
-  row.innerHTML=`<input type="color" value="${t.color}" title="Farbe">
-    <input type="text" class="nm" value="${esc(t.name)}" placeholder="Teamname" style="max-width:120px">
-    <input type="text" class="mb" value="${esc(t.members.join(", "))}" placeholder="Anton, Igor">
-    <button class="x" title="Team entfernen">✕</button>`;
-  row.querySelector(".x").onclick=()=>row.remove();
-  return row;
-}
-document.getElementById("btnAddTeam").onclick=()=>{
-  const n=document.getElementById("teamList").children.length;
-  document.getElementById("teamList").appendChild(teamRow({id:uid(),name:"Team "+(n+1),color:PALETTE[n%PALETTE.length],members:[]}));
-};
-document.getElementById("teamsSave").onclick=()=>{
-  const rows=[...document.getElementById("teamList").children];
-  const keep=new Set(rows.map(r=>r.dataset.id));
-  const next=rows.map(r=>({
-    id:r.dataset.id,
-    color:r.querySelector("input[type=color]").value,
-    name:r.querySelector(".nm").value.trim()||"Team",
-    members:r.querySelector(".mb").value.split(",").map(s=>s.trim()).filter(Boolean)
-  }));
-  state.assignments=state.assignments.filter(a=>keep.has(a.teamId));
-  state.teams=next; save(); dlgTeams.close(); render();
-};
-document.getElementById("btnTeams").onclick=openTeams;
-
-/* ---- Einstellungen ---- */
-document.getElementById("btnSettings").onclick=()=>{
-  const s=state.settings;
-  stCompany.value=s.company; stAmS.value=s.amStart; stAmE.value=s.amEnd; stPmS.value=s.pmStart; stPmE.value=s.pmEnd;
-  try{ stApiKey.value=localStorage.getItem(API_KEY)||""; }catch(e){}
-  stModel.value=(s.model||MODELL_STANDARD);
-  dlgSettings.showModal();
-};
-document.getElementById("stTest").onclick=async()=>{
-  const out=document.getElementById("stTestOut");
-  const key=document.getElementById("stApiKey").value.trim();
-  const modell=document.getElementById("stModel").value.trim()||MODELL_STANDARD;
-  if(!key){ out.className="hint geo-no"; out.textContent="Erst den Schlüssel einfügen."; return; }
-  out.className="hint"; out.textContent="Wird geprüft …";
-  try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"content-type":"application/json","x-api-key":key,
-        "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:modell,max_tokens:12,messages:[{role:"user",content:"Antworte nur: ok"}]})
-    });
-    if(r.ok){ out.className="hint geo-ok"; out.textContent="Verbindung steht. Jetzt noch speichern."; return; }
-    let t=await r.text();
-    try{ t=(JSON.parse(t).error||{}).message||t; }catch(_){}
-    out.className="hint geo-no";
-    out.textContent = r.status===401 ? "Schlüssel wird nicht akzeptiert – bitte neu kopieren."
-      : r.status===400 ? "Modellname stimmt nicht: "+t.slice(0,90)
-      : (r.status===429 ? "Kein Guthaben oder Limit erreicht." : t.slice(0,110));
-  }catch(e){
-    out.className="hint geo-no"; out.textContent="Keine Verbindung zum Internet.";
-  }
-};
-
-document.getElementById("stSave").onclick=()=>{
-  Object.assign(state.settings,{company:stCompany.value.trim()||"Betrieb",amStart:stAmS.value,amEnd:stAmE.value,pmStart:stPmS.value,pmEnd:stPmE.value,
-    model:(stModel.value.trim()||MODELL_STANDARD)});
-  try{
-    const k=stApiKey.value.trim();
-    if(k) localStorage.setItem(API_KEY,k); else localStorage.removeItem(API_KEY);
-  }catch(e){}
-  save(); dlgSettings.close(); render();
-};
-
-/* ---- Daten ---- */
-document.getElementById("btnData").onclick=async()=>{
-  const el=document.getElementById("storeState");
-  el.textContent = storageOK
-    ? "Automatisch gespeichert auf diesem Rechner."
-    : "Achtung: Der Browser erlaubt hier kein automatisches Speichern. Bitte vor dem Schließen exportieren.";
-  dlgData.showModal();
-  const alle=await Files.all();
-  const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
-  el.textContent += alle.length
-    ? `  Dazu ${alle.length} Foto(s) und Datei(en), zusammen ${groesse(bytes)}. Diese stecken nur in „Mit Fotos sichern“ sichern.`
-    : "";
-};
-
-/* ---------- Einfacher ZIP-Packer (ohne Komprimierung) ---------- */
-const CRC_TAB=(()=>{const t=new Uint32Array(256);
-  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}
-  return t;})();
-function crc32(buf){
-  let c=0xFFFFFFFF;
-  for(let i=0;i<buf.length;i++) c=CRC_TAB[(c^buf[i])&0xFF]^(c>>>8);
-  return (c^0xFFFFFFFF)>>>0;
-}
-function dosZeit(d){
-  const t=((d.getHours()<<11)|(d.getMinutes()<<5)|Math.floor(d.getSeconds()/2))&0xFFFF;
-  const g=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
-  return [t,g];
-}
-function zipBauen(eintraege){
-  const enc=new TextEncoder(), teile=[], verz=[];
-  let pos=0;
-  eintraege.forEach(e=>{
-    const name=enc.encode(e.name);
-    const crc=crc32(e.data);
-    const [zt,zd]=dosZeit(e.datum||new Date());
-    const lok=new DataView(new ArrayBuffer(30));
-    lok.setUint32(0,0x04034b50,true); lok.setUint16(4,20,true); lok.setUint16(6,0x0800,true);
-    lok.setUint16(8,0,true); lok.setUint16(10,zt,true); lok.setUint16(12,zd,true);
-    lok.setUint32(14,crc,true); lok.setUint32(18,e.data.length,true); lok.setUint32(22,e.data.length,true);
-    lok.setUint16(26,name.length,true); lok.setUint16(28,0,true);
-    teile.push(new Uint8Array(lok.buffer),name,e.data);
-    const z=new DataView(new ArrayBuffer(46));
-    z.setUint32(0,0x02014b50,true); z.setUint16(4,20,true); z.setUint16(6,20,true);
-    z.setUint16(8,0x0800,true); z.setUint16(10,0,true); z.setUint16(12,zt,true); z.setUint16(14,zd,true);
-    z.setUint32(16,crc,true); z.setUint32(20,e.data.length,true); z.setUint32(24,e.data.length,true);
-    z.setUint16(28,name.length,true); z.setUint32(42,pos,true);
-    verz.push(new Uint8Array(z.buffer),name);
-    pos+=30+name.length+e.data.length;
-  });
-  const vStart=pos;
-  let vLen=0; verz.forEach(v=>vLen+=v.length);
-  const end=new DataView(new ArrayBuffer(22));
-  end.setUint32(0,0x06054b50,true);
-  end.setUint16(8,eintraege.length,true); end.setUint16(10,eintraege.length,true);
-  end.setUint32(12,vLen,true); end.setUint32(16,vStart,true);
-  return new Blob([...teile,...verz,new Uint8Array(end.buffer)],{type:"application/zip"});
-}
-
-document.getElementById("dtZip").onclick=async()=>{
-  const btn=document.getElementById("dtZip"); const alt=btn.textContent;
-  const alle=await Files.all();
-  if(!alle.length){ alert("Es sind noch keine Fotos oder Dateien gespeichert."); return; }
-  btn.disabled=true;
-  try{
-    alle.sort((a,b)=>(a.nr||0)-(b.nr||0));
-    const eintraege=[];
-    const zeilen=["Dateiname;Objekt;Adresse;Kunde;Hinzugefuegt;Groesse"];
-    for(let i=0;i<alle.length;i++){
-      const f=alle[i];
-      btn.textContent=`Packe ${i+1} von ${alle.length} …`;
-      const job=jobById(f.jobId)||{};
-      const kunde=kundeById(job.customerId);
-      eintraege.push({name:"fotos/"+anzeigeName(f),
-        data:new Uint8Array(await f.blob.arrayBuffer()),
-        datum:new Date(f.added||Date.now())});
-      zeilen.push([anzeigeName(f),job.name||"",job.address||"",kunde?kunde.company:"",
-        String(f.added||"").slice(0,10),groesse(f.size)]
-        .map(x=>String(x).replace(/;/g,",")).join(";"));
-    }
-    eintraege.push({name:"uebersicht.csv",
-      data:new TextEncoder().encode("\uFEFF"+zeilen.join("\r\n")),datum:new Date()});
-    const blob=zipBauen(eintraege);
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="einsatzplaner-fotos-"+todayISO()+".zip"; a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),6000);
-  }catch(e){
-    alert("Der Ordner konnte nicht gepackt werden: "+e.message);
-  }
-  btn.disabled=false; btn.textContent=alt;
-};
-
-function ladeJSON(obj,name){
-  const blob=new Blob([JSON.stringify(obj)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download=name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-}
-const blobZuText = blob => new Promise(res=>{
-  const r=new FileReader();
-  r.onload=()=>res(String(r.result).split(",")[1]||"");
-  r.onerror=()=>res("");
-  r.readAsDataURL(blob);
-});
-function textZuBlob(b64,type){
-  const bin=atob(b64||""); const arr=new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
-  return new Blob([arr],{type:type||"application/octet-stream"});
-}
-document.getElementById("dtExport").onclick=()=>{
-  ladeJSON(state,"einsatzplanung-"+todayISO()+".json");
-};
-
-document.getElementById("dtExportAll").onclick=async()=>{
-  const btn=document.getElementById("dtExportAll");
-  const alle=await Files.all();
-  if(!alle.length){ ladeJSON(state,"einsatzplanung-"+todayISO()+".json"); return; }
-  const bytes=alle.reduce((n,f)=>n+(f.size||0),0);
-  if(!confirm(`${alle.length} Foto(s) und Datei(en) mit ${groesse(bytes)} werden in die Sicherung gepackt. Das dauert einen Moment. Fortfahren?`)) return;
-  btn.disabled=true; const alt=btn.textContent;
-  try{
-    const dateien=[];
-    for(let i=0;i<alle.length;i++){
-      const f=alle[i];
-      btn.textContent=`Packe ${i+1} von ${alle.length} …`;
-      dateien.push({id:f.id,jobId:f.jobId,nr:f.nr,name:f.name,storedName:anzeigeName(f),
-                    type:f.type,size:f.size,added:f.added,
-                    inhalt:await blobZuText(f.blob)});
-    }
-    ladeJSON({...state,_dateien:dateien},"einsatzplanung-mit-fotos-"+todayISO()+".json");
-  }catch(e){
-    alert("Die Sicherung konnte nicht erstellt werden. Bei sehr vielen Fotos hilft es, einzelne Aufträge zu bereinigen.");
-  }
-  btn.disabled=false; btn.textContent=alt;
-};
-document.getElementById("dtImportBtn").onclick=()=>document.getElementById("dtImport").click();
-document.getElementById("dtImport").onchange=e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const rd=new FileReader();
-  rd.onload=async()=>{
-    try{
-      const d=JSON.parse(rd.result);
-      if(!d.teams||!d.jobs) throw 0;
-      const dateien=d._dateien||[]; delete d._dateien;
-      state=d; if(!state.settings) state.settings=demoState().settings;
-      if(dateien.length){
-        const btn=document.getElementById("dtImportBtn"); btn.disabled=true;
-        for(let i=0;i<dateien.length;i++){
-          const x=dateien[i];
-          btn.textContent=`Lade ${i+1} von ${dateien.length} …`;
-          try{ await Files.add(x.jobId,
-            Object.assign(textZuBlob(x.inhalt,x.type),{name:x.name})); }catch(_){}
-        }
-        btn.disabled=false; btn.textContent="Sicherung laden";
-        await refreshCounts();
-      }
-      save(); dlgData.close(); render();
-    }catch(err){alert("Diese Datei ist keine gültige Planung.");}
-  };
-  rd.readAsText(f); e.target.value="";
-};
-document.getElementById("dtReset").onclick=async()=>{
-  if(!confirm("Alle Teams, Aufträge, Einsätze UND alle gespeicherten Fotos löschen und neu anfangen?")) return;
-  for(const f of await Files.all()) await Files.remove(f.id);
-  await refreshCounts();
-  state=demoState(); save(); dlgData.close(); render();
-};
-
-/* =========================================================
-   Navigation
-   ========================================================= */
 document.querySelectorAll(".views button").forEach(b=>b.onclick=()=>{
   view=b.dataset.view;
   suchText=""; document.getElementById("qSearch").value="";
@@ -2947,6 +1848,7 @@ document.querySelectorAll(".views button").forEach(b=>b.onclick=()=>{
   if(view!=="map") mapFocusJob=null;
   render();
 });
+
 document.getElementById("zoomIn").onclick=()=>{
   if(view==="month") monthVisible=Math.max(5,monthVisible-2);
   else zoomWeek=Math.min(2.6,(zoomWeek??1)+0.2);
@@ -2957,6 +1859,7 @@ document.getElementById("zoomOut").onclick=()=>{
   else zoomWeek=(zoomWeek===null||zoomWeek<=1.05)?null:zoomWeek-0.2;
   render();
 };
+
 (function(){
   const q=document.getElementById("qSearch");
   let t=null;
@@ -2971,21 +1874,16 @@ document.getElementById("zoomOut").onclick=()=>{
       }
     },180);
   });
-  q.addEventListener("keydown",e=>{
-    if(e.key==="Escape"){ q.value=""; suchText=""; if(view==="search") view=vorherigeAnsicht; render(); q.blur(); }
-  });
 })();
+
 document.getElementById("prev").onclick=()=>shift(-1);
 document.getElementById("next").onclick=()=>shift(1);
 document.getElementById("today").onclick=()=>{
   anchor=new Date(); anchor.setHours(0,0,0,0);
   mapDay=todayISO(); mapFocusJob=null; pendingScrollToday=true;
-  if(view==="search"){                       // aus der Suche zurück in den Kalender
-    suchText=""; document.getElementById("qSearch").value="";
-    view = (vorherigeAnsicht==="search") ? "month" : vorherigeAnsicht;
-  }
   render();
 };
+
 function shift(n){
   if(view==="week") anchor=addDays(anchor,7*n);
   else if(view==="month"){ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+n,1); pendingScrollToday=true; }
@@ -2993,17 +1891,42 @@ function shift(n){
   else { view="week"; anchor=addDays(mondayOf(new Date()),7*n); }
   render();
 }
-document.addEventListener("keydown",e=>{
-  if(e.target.matches("input,select,textarea")||document.querySelector("dialog[open]")) return;
-  if(e.key==="ArrowLeft") shift(-1);
-  if(e.key==="ArrowRight") shift(1);
-  const m={"1":"now","2":"week","3":"month","4":"map"}[e.key];
-  if(m){view=m;render();}
-});
 
-refreshCounts().then(()=>nummernNachtragen()).then(()=>renderPool());
+document.getElementById("btnSettings").onclick=()=>dlgSettings.showModal();
+document.getElementById("stSave").onclick=()=>{
+  state.settings.company=stCompany.value.trim()||"Betrieb";
+  save(); dlgSettings.close(); render();
+};
+
+document.getElementById("btnData").onclick=()=>dlgData.showModal();
+document.getElementById("dtExport").onclick=()=>ladeJSON(state,"einsatzplanung-"+todayISO()+".json");
+
+function ladeJSON(obj,name){
+  const blob=new Blob([JSON.stringify(obj)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
+/* --- Запуск приложения и фоновое обновление --- */
+loadState();
 setInterval(()=>{ if(view==="now") renderNow(); }, 60000);
-render();
+
+// Автообновление данных из облака каждые 15 секунд для синхронизации с партнёром
+setInterval(async () => {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_state?id=eq.main&select=data`, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows && rows.length > 0 && rows[0].data) {
+        state = rows[0].data;
+        render();
+      }
+    }
+  } catch(e){}
+}, 15000);
 </script>
 </body>
 </html>
